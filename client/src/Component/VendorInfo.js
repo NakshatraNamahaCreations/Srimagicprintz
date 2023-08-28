@@ -31,7 +31,7 @@ export default function VendorInfo() {
       const config = {
         url: "/Vendor/vendorInfo/addvendorinfo",
         method: "post",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         Header: { "Content-Type": "application/json" },
         data: formData,
       };

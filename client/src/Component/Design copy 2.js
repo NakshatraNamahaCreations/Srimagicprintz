@@ -67,7 +67,7 @@ export default function Design() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         const filteredRecceData = res.data.RecceData.filter(
@@ -226,7 +226,7 @@ export default function Design() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -318,7 +318,7 @@ export default function Design() {
     try {
       const config = {
         url: "/design/design/adddesign",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         method: "post",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
@@ -458,7 +458,7 @@ export default function Design() {
   //     const config = {
   //       url: `/recce/recce/updatedesign/${recceId}`,
   //       method: "put",
-  //       baseURL: "http://localhost:8000/api",
+  //       baseURL: "http://api.srimagicprintz.com/api",
   //       headers: { "Content-Type": "application/json" },
   //       data: {
   //         Designstatus: designStatus,
@@ -509,7 +509,7 @@ export default function Design() {
         const config = {
           url: `/recce/recce/updatevendorname/${recceId}`,
           method: "post",
-          baseURL: "http://localhost:8000/api",
+          baseURL: "http://api.srimagicprintz.com/api",
           data: formData,
         };
 
@@ -549,7 +549,7 @@ export default function Design() {
       const config = {
         url: `/recce/recce/updatereccedata/${recceId}`,
         method: "put",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: { "Content-Type": "application/json" },
         data: {
           Designstatus: editDesignstatus || getreccedata.Designstatus,
@@ -1008,7 +1008,7 @@ export default function Design() {
         //         className="me-4"
         //         style={{ borderRadius: "10px", border: "1px solid grey" }}
         //         alt=""
-        //         src={`http://localhost:8000/reccedesign/${getreccedata.reccedesign}`}
+        //         src={`http://api.srimagicprintz.com/reccedesign/${getreccedata.reccedesign}`}
         //       />
         //     </div>
         //     <p>

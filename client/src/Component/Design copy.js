@@ -97,7 +97,7 @@ export default function Design() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setDesignToPrint(res.data.RecceData);
@@ -302,7 +302,7 @@ export default function Design() {
       setUploading(true);
       try {
         const res = await axios.post(
-          "http://localhost:8000/api/recce/recce/addreccesviaexcelesheet",
+          "http://api.srimagicprintz.com/api/recce/recce/addreccesviaexcelesheet",
           importXLSheet
         );
         if (res.status === 200) {
@@ -338,7 +338,7 @@ export default function Design() {
   //     const config = {
   //       url: `/recce/recce/updatereccedata/${recceId}`,
   //       method: "put",
-  //       baseURL: "http://localhost:8000/api",
+  //       baseURL: "http://api.srimagicprintz.com/api",
   //       headers: { "Content-Type": "application/json" },
   //       data: {
   //         Area: Editarea || editRecceData.Area,
@@ -433,7 +433,7 @@ export default function Design() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://localhost:8000/api/Product/category/getcategory"
+        "http://api.srimagicprintz.com/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -567,7 +567,7 @@ export default function Design() {
     try {
       const config = {
         url: "/design/design/adddesign",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         method: "post",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
@@ -1074,7 +1074,7 @@ export default function Design() {
                 className="me-4"
                 style={{ borderRadius: "10px", border: "1px solid grey" }}
                 alt=""
-                src={`http://localhost:8000/reccedesign/${getreccedata.reccedesign}`}
+                src={`http://api.srimagicprintz.com/reccedesign/${getreccedata.reccedesign}`}
               />
 
               <Form.Control

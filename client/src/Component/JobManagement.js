@@ -53,7 +53,7 @@ export default function JobManagement() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/Client/clients/getallclient"
+        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setAssignJobToClient(res.data.client);
@@ -70,7 +70,7 @@ export default function JobManagement() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -87,7 +87,7 @@ export default function JobManagement() {
     try {
       const config = {
         url: "/Jobmangement/assignjob/assignjobs",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         method: "post",
         data: {
           typesofjob: jobType,
@@ -245,7 +245,7 @@ export default function JobManagement() {
                                 borderRadius: "100%",
                               }}
                               className="m-auto"
-                              src={`http://localhost:8000/VendorImage/${ele.VendorImage}`}
+                              src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
                               alt=""
                             />
                           ) : (

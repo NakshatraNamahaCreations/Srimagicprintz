@@ -22,7 +22,7 @@ export default function AddDesign() {
     try {
       const config = {
         url: "/design/design/adddesign",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         method: "post",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,

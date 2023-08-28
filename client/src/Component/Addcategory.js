@@ -22,7 +22,7 @@ function Addcategory() {
       const config = {
         url: "/Product/category/addcategory",
         method: "POST",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         Header: { "Content-Type": "application/json" },
         data: { categoryName: catagoryName },
       };
@@ -44,7 +44,7 @@ function Addcategory() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://localhost:8000/api/Product/category/getcategory"
+        "http://api.srimagicprintz.com/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -62,7 +62,7 @@ function Addcategory() {
   const deleteCatagory = async (row) => {
     try {
       const response = await axios.delete(
-        `http://localhost:8000/api/Product/category/deletecategory/${row._id}`
+        `http://api.srimagicprintz.com/api/Product/category/deletecategory/${row._id}`
       );
 
       if (response.status === 200) {
@@ -82,7 +82,7 @@ function Addcategory() {
       const config = {
         url: `/Product/category/editcategory/${categoryId}`,
         method: "put",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: {
           "Content-Type": "application/json",
         },

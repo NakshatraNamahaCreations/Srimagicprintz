@@ -70,7 +70,7 @@ export default function Reports() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://localhost:8000/api/Product/category/getcategory"
+        "http://api.srimagicprintz.com/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -85,7 +85,7 @@ export default function Reports() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         const filteredRecceData = res.data.RecceData.filter(
@@ -465,7 +465,7 @@ export default function Reports() {
       const config = {
         url: `/recce/recce/updatereccedata/${recceId}`,
         method: "put",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -488,7 +488,7 @@ export default function Reports() {
       if (recceData.fabricationstatus === "Completed") {
         try {
           const response = await axios.post(
-            `http://localhost:8000/api/recce/recce/getcompletedfabrication/${recceData._id}`
+            `http://api.srimagicprintz.com/api/recce/recce/getcompletedfabrication/${recceData._id}`
           );
 
           if (response.status === 200) {

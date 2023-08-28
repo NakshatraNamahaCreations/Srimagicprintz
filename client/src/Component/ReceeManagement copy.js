@@ -63,7 +63,7 @@ export default function ReceeManagement() {
     try {
       const config = {
         url: "/recce/recce/addrecce",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         method: "post",
         headers: { "Content-Type": "application/json" },
         data: {
@@ -98,7 +98,7 @@ export default function ReceeManagement() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -111,7 +111,7 @@ export default function ReceeManagement() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -339,7 +339,7 @@ export default function ReceeManagement() {
   const handlesendRecceToDesign = async (complete) => {
     try {
       const response = await axios.post(
-        `http://localhost:8000/api/recce/recce/getcompletedid/${complete._id}`
+        `http://api.srimagicprintz.com/api/recce/recce/getcompletedid/${complete._id}`
       );
 
       if (response.status === 200) {
@@ -356,7 +356,7 @@ export default function ReceeManagement() {
       setTrackJob(false);
       try {
         const res = await axios.post(
-          "http://localhost:8000/api/recce/recce/addreccesviaexcelesheet",
+          "http://api.srimagicprintz.com/api/recce/recce/addreccesviaexcelesheet",
           importXLSheet
         );
         if (res.status === 200) {
@@ -388,7 +388,7 @@ export default function ReceeManagement() {
       };
       const config = {
         url: `/recce/recce/updatevendorname/${recceId}`,
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: { "content-type": "application/json" },
         method: "put",
         data: updateData,
@@ -450,7 +450,7 @@ export default function ReceeManagement() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://localhost:8000/api/Product/category/getcategory"
+        "http://api.srimagicprintz.com/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();

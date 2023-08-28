@@ -17,7 +17,7 @@
   "scripts": {
     "start": "nodemon app.js"
   },
-  "proxy": "http://localhost:8000",
+  "proxy": "http://api.srimagicprintz.com",
   "name": "backend",
   "version": "1.0.0",
   "main": "app.js",

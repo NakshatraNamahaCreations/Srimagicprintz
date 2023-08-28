@@ -64,7 +64,7 @@ export default function Trackassignedjob() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         const filteredRecceData = res.data.RecceData.filter(
@@ -425,7 +425,7 @@ export default function Trackassignedjob() {
       const config = {
         url: `/recce/recce/updatereccedata/${recceId}`,
         method: "put",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -448,7 +448,7 @@ export default function Trackassignedjob() {
   //     if (recceData.fabricationstatus === "Completed") {
   //       try {
   //         const response = await axios.post(
-  //           `http://localhost:8000/api/recce/recce/getcompletedfabrication/${recceData._id}`
+  //           `http://api.srimagicprintz.com/api/recce/recce/getcompletedfabrication/${recceData._id}`
   //         );
 
   //         if (response.status === 200) {

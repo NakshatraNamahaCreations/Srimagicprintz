@@ -47,7 +47,7 @@ export default function Vendor() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -65,7 +65,7 @@ export default function Vendor() {
   const handleShow = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -103,7 +103,7 @@ export default function Vendor() {
       const config = {
         url: "/Vendor/vendorInfo/linkbankinfo",
         method: "post",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
@@ -236,7 +236,7 @@ export default function Vendor() {
       const vendorid = editVendorData._id;
       const config = {
         url: `/Vendor/vendorInfo/updatevendordata/${vendorid}`,
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         method: "put",
         Header: { "Content-type": "application/json" },
         data: formData,
@@ -255,7 +255,7 @@ export default function Vendor() {
   const deleteVendorData = async (row) => {
     try {
       const response = await axios.delete(
-        `http://localhost:8000/api/Vendor/vendorInfo/deletevendordata/${row._id}`
+        `http://api.srimagicprintz.com/api/Vendor/vendorInfo/deletevendordata/${row._id}`
       );
 
       if (response.status === 200) {
@@ -356,7 +356,7 @@ export default function Vendor() {
                               borderRadius: "100%",
                             }}
                             className="m-auto"
-                            src={`http://localhost:8000/VendorImage/${ele.VendorImage}`}
+                            src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
                             alt=""
                           />
                         ) : (
@@ -569,7 +569,7 @@ export default function Vendor() {
                                     height: "30%",
                                     borderRadius: "100%",
                                   }}
-                                  src={`http://localhost:8000/VendorImage/${vendorData[selected].VendorImage}`}
+                                  src={`http://api.srimagicprintz.com/VendorImage/${vendorData[selected].VendorImage}`}
                                   alt=""
                                 />
                               ) : null}
@@ -638,7 +638,7 @@ export default function Vendor() {
                               <img
                                 width={"200px"}
                                 height={"100px"}
-                                src={`http://localhost:8000/BankInfoImage/${vendorData[selected].BankInfoImage}`}
+                                src={`http://api.srimagicprintz.com/BankInfoImage/${vendorData[selected].BankInfoImage}`}
                                 alt=""
                               />
                             ) : null}

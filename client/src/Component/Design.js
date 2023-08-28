@@ -64,7 +64,7 @@ export default function Design() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         const filteredRecceData = res.data.RecceData.filter(
@@ -259,7 +259,7 @@ export default function Design() {
         const config = {
           url: `/recce/recce/updatevendorname/${recceId}`,
           method: "post",
-          baseURL: "http://localhost:8000/api",
+          baseURL: "http://api.srimagicprintz.com/api",
           data: formData,
         };
 
@@ -471,7 +471,7 @@ export default function Design() {
       const config = {
         url: `/recce/recce/updatereccedata/${recceId}`,
         method: "put",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -497,7 +497,7 @@ export default function Design() {
       ) {
         try {
           const response = await axios.post(
-            `http://localhost:8000/api/recce/recce/getdesigncompletedid/${recceData._id}`
+            `http://api.srimagicprintz.com/api/recce/recce/getdesigncompletedid/${recceData._id}`
           );
 
           if (response.status === 200) {
@@ -918,7 +918,7 @@ export default function Design() {
                 className="me-4"
                 style={{ borderRadius: "10px", border: "1px solid grey" }}
                 alt=""
-                src={`http://localhost:8000/designimage/${getreccedata?.reccedesign}`}
+                src={`http://api.srimagicprintz.com/designimage/${getreccedata?.reccedesign}`}
               />
             </div>
             <p>
