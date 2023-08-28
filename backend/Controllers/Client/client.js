@@ -3,27 +3,27 @@ const clientModel = require("../../Model/client/client");
 class ClientManagement {
   async Addclient(req, res) {
     let {
-      mclientsName,
-      mClientBusinessName,
-      mClientsContactNumber1,
-      mClientsContactNumber2,
-      mClientsEmail,
-      mClientAddress,
-      mPincode,
-      mZone,
+     clientsName,
+     ClientBusinessName,
+     ClientsContactNumber1,
+     ClientsContactNumber2,
+     ClientsEmail,
+     ClientAddress,
+     Pincode,
+     Zone,
     } = req.body;
     let file = req.file?.filename;
     try {
       let newClientInfo = new clientModel({
-        mclientsName,
-        mClientBusinessName,
-        mClientsContactNumber1,
-        mClientsContactNumber2,
-        mClientsEmail,
-        mClientAddress,
-        mPincode,
-        mZone,
-        cClientImage: file,
+       clientsName,
+       ClientBusinessName,
+       ClientsContactNumber1,
+       ClientsContactNumber2,
+       ClientsEmail,
+       ClientAddress,
+       Pincode,
+       Zone,
+        ClientImage: file,
       });
       if (!file) {
         return res.status(400).json({
