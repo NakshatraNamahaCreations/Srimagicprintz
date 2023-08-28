@@ -308,7 +308,7 @@ export default function Marketing() {
                   style={{
                     borderRadius: "100%",
                   }}
-                  src={`http://localhost:8000/marketing/${getMclient.mClientImage}`}
+                 src={`http://api.srimagicprintz.com/marketing/${getMclient.mClientImage}`}
                   alt=""
                 />
               </div>

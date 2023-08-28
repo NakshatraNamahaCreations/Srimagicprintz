@@ -373,7 +373,7 @@ export default function ClientsManagement() {
               <div className="row ">
                 <img
                   variant="top"
-                  src={`http://localhost:8000/ClientImage/${selectedItem?.ClientImage}`}
+                  src={`http://api.srimagicprintz.com/ClientImage/${selectedItem?.ClientImage}`}
                   alt=""
                   style={{
                     width: "150px",

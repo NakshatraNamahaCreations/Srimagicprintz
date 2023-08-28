@@ -24,7 +24,7 @@ export default function Setting() {
                     width={"100px"}
                     height={"100px"}
                     style={{ borderRadius: "100px" }}
-                    src={`http://api.srimagicprintz.com/profileImage/${user?.profileImage}`}
+                   src={`http://api.srimagicprintz.com/profileImage/${user?.profileImage}`}
                     alt=""
                   />
                 )}

@@ -245,7 +245,7 @@ export default function JobManagement() {
                                 borderRadius: "100%",
                               }}
                               className="m-auto"
-                              src={`http://localhost:8000/VendorImage/${ele.VendorImage}`}
+                             src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
                               alt=""
                             />
                           ) : (

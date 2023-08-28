@@ -918,7 +918,7 @@ export default function Design() {
                 className="me-4"
                 style={{ borderRadius: "10px", border: "1px solid grey" }}
                 alt=""
-                src={`http://localhost:8000/designimage/${getreccedata?.reccedesign}`}
+                src={`http://api.srimagicprintz.com/designimage/${getreccedata?.reccedesign}`}
               />
             </div>
             <p>
