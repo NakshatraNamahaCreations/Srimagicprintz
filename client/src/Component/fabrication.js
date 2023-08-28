@@ -855,7 +855,7 @@ export default function Fabrication() {
                 className="me-4"
                 style={{ borderRadius: "10px", border: "1px solid grey" }}
                 alt=""
-                src={`http://api.srimagicprintz.com/designimage/${getreccedata.printupload}`}
+                src={`http://localhost:8000/designimage/${getreccedata.printupload}`}
               />
             </div>
             <p>

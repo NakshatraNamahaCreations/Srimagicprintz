@@ -562,7 +562,7 @@ export default function Fabrication() {
                       {design.reeceDetails.includes(printingdata._id) && (
                         <img
                           alt=""
-                          src={`http://api.srimagicprintz.com/designimage/${design?.designimage}`}
+                          src={`http://localhost:8000/designimage/${design?.designimage}`}
                           style={{ maxWidth: "100px", maxHeight: "100px" }}
                         />
                       )}

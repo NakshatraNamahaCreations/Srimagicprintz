@@ -1074,7 +1074,7 @@ export default function Design() {
                 className="me-4"
                 style={{ borderRadius: "10px", border: "1px solid grey" }}
                 alt=""
-                src={`http://api.srimagicprintz.com/reccedesign/${getreccedata.reccedesign}`}
+                src={`http://localhost:8000/reccedesign/${getreccedata.reccedesign}`}
               />
 
               <Form.Control
