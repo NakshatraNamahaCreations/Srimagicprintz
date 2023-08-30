@@ -25,7 +25,7 @@ function Marketingshedule() {
 
   const handleEditSheduleMeeting = (item) => {
     const selectedDate = new Date(item.msaveMeetingTime);
-    const selectedMonth = selectedDate.getMonth(); // Month number (0-11)
+    const selectedMonth = selectedDate.getMonth();
     const selectedYear = selectedDate.getFullYear();
     const selectedDay = selectedDate.getDate();
     const selectedTime = selectedDate.toLocaleTimeString("en-US", {

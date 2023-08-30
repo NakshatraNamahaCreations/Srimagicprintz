@@ -10,6 +10,8 @@ import Button from "react-bootstrap/esm/Button";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import axios from "axios";
+// import { ColorRing } from "react-loader-spinner";
+
 export default function Vendor() {
   const [filter, setFilter] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -23,7 +25,7 @@ export default function Vendor() {
   const [uploadDoc, setuploadDoc] = useState("");
   const [addBank, setaddBank] = useState(false);
   const [selectedCardIndex, setSelectedCardIndex] = useState(null);
-
+  const [loading, setLoading] = useState(true);
   const [editVendor, setEditVendor] = useState(false);
   const [editvendorImage, seteEditVendorImage] = useState("");
   const [editselectedbank, setEditselectedbank] = useState("");
@@ -58,6 +60,8 @@ export default function Vendor() {
       }
     } catch (err) {
       alert("can't able to fetch data");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -334,6 +338,7 @@ export default function Vendor() {
                   </div>
                 </div>
               </div>
+
               <div className="row ">
                 {vendorData ? (
                   vendorData.map((ele, index) => (
@@ -356,7 +361,7 @@ export default function Vendor() {
                               borderRadius: "100%",
                             }}
                             className="m-auto"
-                           src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
+                            src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
                             alt=""
                           />
                         ) : (
@@ -569,7 +574,7 @@ export default function Vendor() {
                                     height: "30%",
                                     borderRadius: "100%",
                                   }}
-                                 src={`http://api.srimagicprintz.com/VendorImage/${vendorData[selected].VendorImage}`}
+                                  src={`http://api.srimagicprintz.com/VendorImage/${vendorData[selected].VendorImage}`}
                                   alt=""
                                 />
                               ) : null}
@@ -638,7 +643,7 @@ export default function Vendor() {
                               <img
                                 width={"200px"}
                                 height={"100px"}
-                               src={`http://api.srimagicprintz.com/BankInfoImage/${vendorData[selected].BankInfoImage}`}
+                                src={`http://api.srimagicprintz.com/BankInfoImage/${vendorData[selected].BankInfoImage}`}
                                 alt=""
                               />
                             ) : null}

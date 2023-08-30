@@ -146,12 +146,18 @@ export default function ReceeManagementApi() {
                 controlId="exampleForm.ControlInput1"
               >
                 <Form.Label>Zone</Form.Label>
-                <Form.Control
+                <Form.Select
                   value={zone}
                   onChange={(e) => setzone(e.target.value)}
                   type="text"
                   placeholder="Enter zone"
-                />
+                >
+                  <option>Choose...</option>
+                  <option>North</option>
+                  <option>East</option>
+                  <option>West</option>
+                  <option>South</option>
+                </Form.Select>
               </Form.Group>
             </Col>
           </Row>

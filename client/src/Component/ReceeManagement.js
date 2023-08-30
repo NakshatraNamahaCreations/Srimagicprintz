@@ -17,14 +17,12 @@ import axios from "axios";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import moment from "moment";
 
+// import { RotatingLines } from "react-loader-spinner";
 export default function ReceeManagement() {
   const ApiURL = process.env.REACT_APP_API_URL;
   const [trackJob, setTrackJob] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(false);
-  // const [sendLink, setSendLink] = useState("");
-  // const [togglelink, setToggleLink] = useState(false);
-  // const [link, setLink] = useState("http://localhost:3000/RecceFile");
-  // const [shopName, setShopName] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const [area, setArea] = useState("");
   const [city, setCity] = useState("");
@@ -54,8 +52,7 @@ export default function ReceeManagement() {
   const [getVendorName, setgetVendorName] = useState(null);
   const [CategoryData, setCategoryData] = useState();
   const [selectedcategory, setselectedcategory] = useState("");
-  const [searchHight, setsearchHight] = useState("");
-  const [searchwidth, setsearchwidth] = useState("");
+
   const [SearchCategory, setSearchCategory] = useState("");
   const [assignvendor, setAssignVendor] = useState(false);
   const [reccedatastatus, setReccedatastatus] = useState("");
@@ -66,7 +63,6 @@ export default function ReceeManagement() {
   const [selectedRecceItems, setSelectedRecceItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [assign, setAssign] = useState([]);
-  // const [editRecceData, setEditRecceData] = useState(null);
   const [editrecce, setEditRecce] = useState(false);
   const [Editarea, setEditArea] = useState("");
   const [Editclient, setEditclient] = useState("");
@@ -98,6 +94,14 @@ export default function ReceeManagement() {
     getAllCategory();
   }, []);
 
+  // <RotatingLines
+  //   strokeColor="grey"
+  //   strokeWidth="5"
+  //   animationDuration="0.75"
+  //   width="96"
+  //   visible={true}
+  // />;
+
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
@@ -108,9 +112,10 @@ export default function ReceeManagement() {
       }
     } catch (err) {
       alert(err);
+    } finally {
+      setLoading(false); // Set loading to false after data is fetched or an error occurs
     }
   };
-
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
@@ -364,18 +369,18 @@ export default function ReceeManagement() {
 
     formdata.append("Area", Editarea || editRecceData.Area);
     formdata.append("ClientName", Editclient || editRecceData.ClientName);
-    formdata.append(" City", EditCity || editRecceData.City);
+    formdata.append("City", EditCity || editRecceData.City);
     formdata.append(
-      " ContactNumber",
+      "ContactNumber",
       EditContactNumber || editRecceData.ContactNumber
     );
     formdata.append("Pincode", EditPincode || editRecceData.Pincode);
-    formdata.append(" Zone", EditZone || editRecceData.Zone);
+    formdata.append("Zone", EditZone || editRecceData.Zone);
     formdata.append("recceUnit", EditrecceUnit || editRecceData.recceUnit);
-    formdata.append("category", Editcategory || editRecceData.category);
-    formdata.append(" datastatus", Editdatastatus || editRecceData.datastatus);
+    formdata.append("category", selectedcategory || editRecceData.category);
+    formdata.append("datastatus", Editdatastatus || editRecceData.datastatus);
 
-    formdata.append(" reccehight", Editreccehight || editRecceData.reccehight);
+    formdata.append("reccehight", Editreccehight || editRecceData.reccehight);
 
     formdata.append("reccewidth", Editreccewidth || editRecceData.reccewidth);
 
@@ -442,20 +447,19 @@ export default function ReceeManagement() {
       }
 
       for (const recceId of selectedRecceItems) {
-        const formData = new FormData();
-        formData.append("vendor", selectedVendor._id);
-
         const config = {
           url: `/recce/recce/updatevendorname/${recceId}`,
-          method: "post",
           baseURL: "http://api.srimagicprintz.com/api",
-          data: formData,
+          method: "post",
+          headers: { "Content-Type": "application/json" },
+          data: { vendor: selectedVendor._id },
         };
 
         const res = await axios(config);
 
         if (res.status === 200) {
           alert(`Recce assigned to: ${selectedVendor.VendorFirstName}`);
+          // setReccedata([...reccedata]);
         } else {
           alert(`Failed to assign recce to: ${selectedVendor.VendorFirstName}`);
         }
@@ -634,7 +638,8 @@ export default function ReceeManagement() {
       if (
         recceData.datastatus === "Completed" &&
         recceData.reccehight > 0 &&
-        recceData.reccewidth > 0
+        recceData.reccewidth > 0 &&
+        recceData.reccedesign !== null
       ) {
         try {
           const response = await axios.post(
@@ -680,12 +685,12 @@ export default function ReceeManagement() {
                   </Button>
 
                   <CSVLink
-                    className="col-md-1 m-1 p-0"
+                    className="col-md-1 m-1 p-0 me-4"
                     data={reccedata}
                     filename={"recce.csv"}
                   >
                     <Button
-                      className=" btn btn-danger"
+                      className=" btn btn-danger "
                       style={{ backgroundColor: "#a9042e", border: 0 }}
                     >
                       Export
@@ -715,7 +720,7 @@ export default function ReceeManagement() {
                             style={{
                               position: "absolute",
                               zIndex: "10px",
-                              top: "18%",
+                              top: "21%",
                             }}
                           >
                             <Card
@@ -1043,6 +1048,16 @@ export default function ReceeManagement() {
                     <th className="th_s ">Action</th>
                   </tr>
                 </thead>
+                {/* {loading ? (
+                  <RotatingLines
+                    strokeColor="grey"
+                    strokeWidth="2"
+                    animationDuration="0.75"
+                    width="1px"
+                    height="1px"
+                    visible={true}
+                  />
+                ) : ( */}
                 <tbody>
                   {filteredData?.map((item, index) => {
                     const selectedVendorId = item?.vendor?.[0];
@@ -1132,7 +1147,7 @@ export default function ReceeManagement() {
                     );
                   })}
                 </tbody>
-              </table>{" "}
+              </table>
             </div>
             <Modal show={show} onHide={handleClose1}>
               <Modal.Header closeButton>
@@ -1279,13 +1294,20 @@ export default function ReceeManagement() {
                   <Form.Group className="row">
                     <Col className="col-md-4 mb-3">
                       <Form.Label>category</Form.Label>
-                      <Form.Control
-                        type="text"
+                      <Form.Select
                         defaultValue={editRecceData?.category}
-                        onChange={(e) => {
-                          setEditcategory(e.target.value);
-                        }}
-                      />
+                        onChange={(e) => setselectedcategory(e.target.value)}
+                      >
+                        <option value="">Select..</option>
+                        {CategoryData?.map((category) => (
+                          <option
+                            key={category._id}
+                            value={category.categoryName}
+                          >
+                            {category.categoryName}
+                          </option>
+                        ))}
+                      </Form.Select>
                     </Col>
                     <Col className="col-md-4 mb-3">
                       <Form.Label>reccewidth</Form.Label>

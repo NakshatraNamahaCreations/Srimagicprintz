@@ -59,7 +59,7 @@ class Authentication {
         }
       }
     } catch (error) {
-      console.log("error", error);
+  
       return res
         .status(500)
         .json({ error: "An error occurred while logging in" });

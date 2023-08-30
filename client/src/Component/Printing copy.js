@@ -15,8 +15,7 @@ export default function Printing() {
   const [displayedData, setDisplayedData] = useState();
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchHight, setsearchHight] = useState("");
-  const [searchwidth, setsearchwidth] = useState("");
+ 
   const [SearchCategory, setSearchCategory] = useState("");
 
   const [searchshopName, setSearchshopName] = useState("");
@@ -36,7 +35,7 @@ export default function Printing() {
   const [selectedPrint, setSelectedPrint] = useState(false);
   const [indexdata, setIndexData] = useState([]);
   useEffect(() => {
-    getAllDesign();
+  
     getAllRecce();
     getAllVendorInfo();
     getAllCategory();
@@ -49,16 +48,7 @@ export default function Printing() {
   //   setSendLink(link);
   // };
 
-  const getAllDesign = async () => {
-    try {
-      const response = await axios.get(`${ApiURL}/design/design/getalldesigns`);
-      if (response.status === 200) {
-        setDesignData(response.data.alldesigns);
-      }
-    } catch (err) {
-      alert("can't able to fetch data");
-    }
-  };
+ 
 
   const [printing, setPrinting] = useState([]);
 

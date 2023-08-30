@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { React, useEffect, useState } from "react";
 import CategoryIcon from "@mui/icons-material/Category";
 import DesignServicesIcon from "@mui/icons-material/DesignServices";
 import PrintIcon from "@mui/icons-material/Print";
@@ -11,115 +11,130 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import BusinessIcon from "@mui/icons-material/Business";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import moment from "moment";
+import axios from "axios";
+import RunningWithErrorsIcon from "@mui/icons-material/RunningWithErrors";
 
 export default function Overview() {
-  const AssignedJob = [
-    {
-      date: "07/07/2023",
-      numberOfJob: 10,
-      jobAssigned: 9,
-    },
-    {
-      date: "07/12/2023",
-      numberOfJob: 100,
-      jobAssigned: 409,
-    },
-    {
-      date: "06/23/2023",
-      numberOfJob: 200,
-      jobAssigned: 549,
-    },
-    {
-      date: "04/24/2020",
-      numberOfJob: 400,
-      jobAssigned: 1009,
-    },
-    {
-      date: "07/08/2021",
-      numberOfJob: 600,
-      jobAssigned: 2005,
-    },
-    {
-      date: "07/14/2013",
-      numberOfJob: 1000,
-      jobAssigned: 3000,
-    },
-    {
-      date: "05/23/2023",
-      numberOfJob: 10,
-      jobAssigned: 1009,
-    },
-    {
-      date: "01/04/2022",
-      numberOfJob: 2000,
-      jobAssigned: 1009,
-    },
-    {
-      date: "11/04/2021",
-      numberOfJob: 200,
-      jobAssigned: 1000,
-    },
+  const [totalRecce, setTotalRecce] = useState([]);
+  const [totalDesign, setTotalDesign] = useState([]);
+  const [totalPrinting, setTotalPrinting] = useState([]);
+  const [totalfabrication, setTotalFabrication] = useState([]);
+  const [totalInstalation, setTotalInstalation] = useState([]);
+  const [totalAddClients, setTotalAddClients] = useState([]);
+  const [totalVendorData, setTotalVendorData] = useState([]);
 
-    {
-      date: "12/08/2020",
-      numberOfJob: 2500,
-      jobAssigned: 1900,
-    },
-    {
-      date: "05/04/2021",
-      numberOfJob: 3000,
-      jobAssigned: 1700,
-    },
-    {
-      date: "05/04/2012",
-      numberOfJob: 3500,
-      jobAssigned: 3500,
-    },
-  ];
+  const [totalRunningJob, setTotalRunningJob] = useState([]);
 
-  const [filter, setFilter] = useState("All");
+  // const [filter, setFilter] = useState("All");
 
-  const handleFilterClick = (selectedFilter) => {
-    setFilter(selectedFilter);
+  // const handleFilterClick = (selectedFilter) => {
+  //   setFilter(selectedFilter);
+  // };
+
+  // const filterData = () => {
+  //   const filteredData = totalRecce.filter((item) => {
+  //     // const itemDate = moment(item.createdAt, "MM/DD/YYYY");
+  //     // const now = moment();
+
+  //     switch (filter) {
+  //       case totalRecce:
+  //         return totalRecce;
+  //       case totalDesign:
+  //         return totalDesign;
+  //       case totalPrinting:
+  //         return totalPrinting;
+  //       case totalfabrication:
+  //         return totalfabrication;
+  //       case totalInstalation:
+  //         return totalInstalation;
+
+  //       default:
+  //         return true;
+  //     }
+  //   });
+
+  //   return filteredData;
+  // };
+
+  let data =
+    totalRecce?.length +
+    totalDesign?.length +
+    totalPrinting?.length +
+    totalfabrication?.length +
+    totalInstalation?.length;
+
+  useEffect(() => {
+    getAllRecce();
+    getAllClientsInfo();
+    getAllVendorInfo();
+    setTotalRunningJob(data);
+  }, []);
+  const getAllRecce = async () => {
+    try {
+      const res = await axios.get(
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+      );
+      if (res.status === 200) {
+        setTotalRecce(res.data.RecceData);
+      }
+      if (res.status === 200) {
+        const filteredDesignData = res.data.RecceData.filter(
+          (item) => item._id === item.completedRecceId
+        );
+        setTotalDesign(filteredDesignData);
+      }
+      if (res.status === 200) {
+        const filteredPrintingData = res.data.RecceData.filter(
+          (item) => item._id === item.completedDesign
+        );
+        setTotalPrinting(filteredPrintingData);
+      }
+      if (res.status === 200) {
+        const filteredfabricationData = res.data.RecceData.filter(
+          (item) => item._id === item.completedPrinting
+        );
+
+        setTotalFabrication(filteredfabricationData);
+      }
+      if (res.status === 200) {
+        const filteredInstalationData = res.data.RecceData.filter(
+          (item) => item._id === item.completedFabrication
+        );
+
+        setTotalInstalation(filteredInstalationData);
+      }
+    } catch (err) {
+      alert(err);
+    }
   };
 
-  const filterData = () => {
-    if (filter === "All") {
-      return AssignedJob;
-    }
+  const getAllVendorInfo = async () => {
+    try {
+      const response = await axios.get(
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+      );
 
-    const filteredData = AssignedJob.filter((item) => {
-      const itemDate = moment(item.date, "MM/DD/YYYY");
-      const now = moment();
-
-      switch (filter) {
-        case "Weekly":
-          return itemDate.isBetween(
-            now.clone().startOf("week"),
-            now.clone().endOf("week"),
-            undefined,
-            "[]"
-          );
-        case "Monthly":
-          return itemDate.isBetween(
-            now.clone().startOf("month"),
-            now.clone().endOf("month"),
-            undefined,
-            "[]"
-          );
-        case "Yearly":
-          return itemDate.isBetween(
-            now.clone().startOf("year"),
-            now.clone().endOf("year"),
-            undefined,
-            "[]"
-          );
-        default:
-          return true;
+      if (response.status === 200) {
+        let vendor = response.data.vendors;
+        setTotalVendorData(vendor);
+      } else {
+        alert("Unable to fetch data");
       }
-    });
-
-    return filteredData;
+    } catch (err) {
+      alert("can't able to fetch data");
+    }
+  };
+  const getAllClientsInfo = async () => {
+    try {
+      const res = await axios.get(
+        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+      );
+      if (res.status === 200) {
+        setTotalAddClients(res.data.client);
+      }
+    } catch (err) {
+      alert(err, "err");
+    }
   };
 
   return (
@@ -127,106 +142,193 @@ export default function Overview() {
       <Header />
       <div className="row mt-3 m-auto containerPadding">
         <div className="row m-auto">
-          <Card className="col-md-3 m-2 c_zoom">
+          <Card
+            className="col-md-3 m-2 c_zoom"
+            style={{ height: "225px", backgroundColor: "#C63D2F" }}
+          >
             <div
-              onClick={() => handleFilterClick("Weekly")}
-              className={`row m-auto ${filter === "Weekly" && "active"}`}
+              // onClick={() => handleFilterClick(totalRecce)}
+              className={`row m-auto ${"active"}`}
             >
               <div className="col-md-6 m-auto">
-                <CategoryIcon style={{ fontSize: "50px", color: "#068fff" }} />
+                <CategoryIcon style={{ fontSize: "50px", color: "white" }} />
               </div>
               <div className="col-md-6 m-auto">
-                <h4 className="row">124</h4>
-                <p className="row">Total Recce Jobs</p>
+                <h4
+                  style={{ fontSize: "35px", color: "black" }}
+                  className="row"
+                >
+                  {totalRecce?.length}
+                </h4>
+                <p style={{ color: "white" }} className="row">
+                  Total Recce Jobs
+                </p>
               </div>
             </div>
           </Card>
-          <Card className="col-md-3 m-2 c_zoom">
+          <Card
+            className="col-md-3 m-2 c_zoom"
+            style={{ height: "225px", backgroundColor: "#9A3B3B" }}
+          >
             <div
-              onClick={() => handleFilterClick("Monthly")}
-              className={`row m-auto ${filter === "Monthly" && "active"}`}
+              // onClick={() => handleFilterClick("Monthly")}
+              className={`row m-auto ${"active"}`}
             >
               <div className="col-md-6 m-auto">
                 <DesignServicesIcon
-                  style={{ fontSize: "50px", color: "#068fff" }}
+                  style={{ fontSize: "50px", color: "white" }}
                 />
               </div>
               <div className="col-md-6 m-auto">
-                <h4 className="row">124</h4>
-                <p className="row"> Total Design Jobs</p>
+                <h4
+                  style={{ fontSize: "35px", color: "black" }}
+                  className="row"
+                >
+                  {totalDesign?.length}
+                </h4>
+                <p style={{ color: "white" }} className="row">
+                  {" "}
+                  Total Design Jobs
+                </p>
               </div>
             </div>
           </Card>
-          <Card className="col-md-3 m-2 c_zoom">
+          <Card
+            className="col-md-3 m-2 c_zoom"
+            style={{ height: "225px", backgroundColor: "#FFBB5C" }}
+          >
             <div
-              onClick={() => handleFilterClick("Yearly")}
-              className={`row m-auto ${filter === "Yearly" && "active"}`}
+              // onClick={() => handleFilterClick(totalPrinting)}
+              className={`row m-auto ${"active"}`}
             >
               <div className="col-md-6 m-auto">
-                <PrintIcon style={{ fontSize: "50px", color: "#068fff" }} />
+                <PrintIcon style={{ fontSize: "50px", color: "white" }} />
               </div>
               <div className="col-md-6 m-auto">
-                <h4 className="row">124</h4>
-                <p className="row"> Total Printing Jobs</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="col-md-3 m-2 c_zoom">
-            <div className="row m-auto">
-              <div className="col-md-6 m-auto">
-                <BuildIcon style={{ fontSize: "50px", color: "#068fff" }} />
-              </div>
-              <div className="col-md-6 m-auto">
-                <h4 className="row">124</h4>
-                <p className="row"> Total Fabrication Jobs</p>
+                <h4
+                  style={{ fontSize: "35px", color: "black" }}
+                  className="row"
+                >
+                  {totalPrinting?.length}
+                </h4>
+                <p style={{ color: "white" }} className="row">
+                  {" "}
+                  Total Printing Jobs
+                </p>
               </div>
             </div>
           </Card>
-          <Card className="col-md-3 m-2 c_zoom" style={{ height: "125px" }}>
-            <div className="row m-auto">
+          <Card
+            className="col-md-3 m-2 c_zoom"
+            style={{ height: "225px", backgroundColor: "#FFBB5C" }}
+          >
+            <div
+              // onClick={() => handleFilterClick(totalfabrication)}
+              className={`row m-auto ${"active"}`}
+            >
               <div className="col-md-6 m-auto">
-                <BusinessIcon style={{ fontSize: "50px", color: "#068fff" }} />
+                <BuildIcon style={{ fontSize: "50px", color: "white" }} />
               </div>
               <div className="col-md-6 m-auto">
-                <h4 className="row">124</h4>
-                <p className="row"> Total Number of Clients</p>
+                <h4
+                  style={{ fontSize: "35px", color: "black" }}
+                  className="row"
+                >
+                  {totalfabrication?.length}
+                </h4>
+                <p style={{ color: "white" }} className="row">
+                  {" "}
+                  Total Fabrication Jobs
+                </p>
               </div>
             </div>
           </Card>
-          <Card className="col-md-3 m-2 c_zoom" style={{ height: "125px" }}>
+          <Card
+            className="col-md-3 m-2 c_zoom"
+            style={{ height: "225px", backgroundColor: "#FFBB5C" }}
+          >
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
-                <BarChartIcon style={{ fontSize: "50px", color: "#068fff" }} />
+                <BusinessIcon style={{ fontSize: "50px", color: "white" }} />
               </div>
               <div className="col-md-6 m-auto">
-                <h4 className="row">124</h4>
-                <p className="row"> Total Number Of Venders</p>
+                <h4
+                  style={{ fontSize: "35px", color: "black" }}
+                  className="row"
+                >
+                  {totalAddClients?.length}
+                </h4>
+                <p style={{ color: "white" }} className="row">
+                  {" "}
+                  Total Number of Clients
+                </p>
               </div>
             </div>
           </Card>
-          <Card className="col-md-3 m-2 c_zoom" style={{ height: "125px" }}>
+          <Card
+            className="col-md-3 m-2 c_zoom"
+            style={{ height: "225px", backgroundColor: "#7091F5" }}
+          >
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
-                <DirectionsRunIcon
-                  style={{ fontSize: "50px", color: "#068fff" }}
+                <BarChartIcon style={{ fontSize: "50px", color: "white" }} />
+              </div>
+              <div className="col-md-6 m-auto">
+                <h4
+                  style={{ fontSize: "35px", color: "black" }}
+                  className="row"
+                >
+                  {totalVendorData?.length}
+                </h4>
+                <p style={{ color: "white" }} className="row">
+                  {" "}
+                  Total Number Of Venders
+                </p>
+              </div>
+            </div>
+          </Card>
+          <Card
+            className="col-md-3 m-2 c_zoom"
+            style={{ height: "225px", backgroundColor: "#7091F5" }}
+          >
+            <div className="row m-auto">
+              <div className="col-md-6 m-auto">
+                <AssignmentIcon style={{ fontSize: "50px", color: "white" }} />
+              </div>
+              <div className="col-md-6 m-auto">
+                <h4
+                  style={{ fontSize: "35px", color: "black" }}
+                  className="row"
+                >
+                  {totalInstalation?.length}
+                </h4>
+                <p style={{ color: "white" }} className="row">
+                  Total Installation{" "}
+                </p>
+              </div>
+            </div>
+          </Card>
+          <Card
+            className="col-md-3 m-2 c_zoom"
+            style={{ height: "225px", backgroundColor: "#6F61C0" }}
+          >
+            <div className="row m-auto">
+              <div className="col-md-6 m-auto">
+                <RunningWithErrorsIcon
+                  style={{ fontSize: "50px", color: "white" }}
                 />
               </div>
               <div className="col-md-6 m-auto">
-                <h4 className="row">124</h4>
-                <p className="row"> Total Running Jobs</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="col-md-3 m-2 c_zoom" style={{ height: "125px" }}>
-            <div className="row m-auto">
-              <div className="col-md-6 m-auto">
-                <AssignmentIcon
-                  style={{ fontSize: "50px", color: "#068fff" }}
-                />
-              </div>
-              <div className="col-md-6 m-auto">
-                <h4 className="row">124</h4>
-                <p className="row">Total Installation </p>
+                <h4
+                  style={{ fontSize: "35px", color: "black" }}
+                  className="row"
+                >
+                  {totalRunningJob}
+                </h4>
+                <p style={{ color: "white" }} className="row">
+                  {" "}
+                  Total Running Jobs
+                </p>
               </div>
             </div>
           </Card>
@@ -240,16 +342,30 @@ export default function Overview() {
                 <th>Completed Jobs</th>
                 <th>Date</th>
               </tr>
-            </thead>
-            <tbody className="">
-              {filterData().map((item, index) => (
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>{item.numberOfJob}</td>
-                  <td>{item.jobAssigned}</td>
-                  <td>{item.date}</td>
-                </tr>
-              ))}
+            </thead>{" "}
+            <tbody>
+              {/* {filterData().map((item, index) => {
+                const selectedVendorId = item?.vendor?.[0];
+                const vendor = selectedVendorId
+                  ? totalVendorData?.find((ele) => ele._id === selectedVendorId)
+                  : null;
+
+                if (vendor !== null) {
+                  return (
+                    <tr key={item._id}>
+                      <td className="td_S ">{index + 1}</td>
+                      <td className="td_S ">{vendor?.VendorFirstName}</td>
+                      <td className="td_S ">
+                        {item.createdAt
+                          ? new Date(item.createdAt).toISOString().slice(0, 10)
+                          : ""}
+                      </td>
+                    </tr>
+                  );
+                }
+
+                return null;
+              })} */}
             </tbody>
           </Table>
         </div>

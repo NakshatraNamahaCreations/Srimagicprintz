@@ -37,7 +37,6 @@ export default function Marketing() {
   const [saveDate, setSaveDate] = useState(false);
   const [shedule, setShedule] = useState(false);
   const [sheduledDate, setSheduledDate] = useState(false);
-  const [update, setupdate] = useState(false);
 
   const creatMeeting = () => {
     setShedule(!shedule);
@@ -308,7 +307,7 @@ export default function Marketing() {
                   style={{
                     borderRadius: "100%",
                   }}
-                 src={`http://api.srimagicprintz.com/marketing/${getMclient.mClientImage}`}
+                  src={`http://api.srimagicprintz.com/marketing/${getMclient.mClientImage}`}
                   alt=""
                 />
               </div>

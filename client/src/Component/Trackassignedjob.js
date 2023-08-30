@@ -54,11 +54,10 @@ export default function Trackassignedjob() {
   const [moreoption, setmoreoption] = useState(false);
   const [selectedRecceItems, setSelectedRecceItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-  
 
   useEffect(() => {
     getAllRecce();
-    getAllDesign();
+    getAllVendorInfo();
   }, []);
 
   const getAllRecce = async () => {
@@ -67,16 +66,13 @@ export default function Trackassignedjob() {
         "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
-        const filteredRecceData = res.data.RecceData.filter(
-          (item) => item._id === item.completedInstallation
-        );
-        console.log("filteredRecceData", filteredRecceData);
-        setRecceData(filteredRecceData);
+        setRecceData(res.data.RecceData);
       }
     } catch (err) {
       console.error(err);
     }
   };
+
   useEffect(() => {
     const filteredClients = () => {
       let results = [...recceData];
@@ -206,7 +202,6 @@ export default function Trackassignedjob() {
     rowsPerPage,
   ]);
 
-
   const handleExportPDF = () => {
     const pdf = new jsPDF();
     const tableColumn = [
@@ -269,12 +264,6 @@ export default function Trackassignedjob() {
 
     pdf.save("exported_data.pdf");
   };
-  const handleImageUpload = (event) => {
-    const files = event.target.files;
-    setDesignImages(files);
-  };
-
-  const [fabristatus, setfabriStatus] = useState("");
 
   const handleClearDateFilters = () => {
     setFilterStartDate("");
@@ -329,37 +318,7 @@ export default function Trackassignedjob() {
 
     setmoreoption(!selectAll);
   };
-  async function deleteRecce(recceId) {
-    try {
-      const response = await axios.delete(
-        `${ApiURL}/recce/recce/deletereccedata/${recceId}`
-      );
-      if (response.status === 200) {
-        alert("Recce deleted successfully");
-        window.location.reload();
-      }
-    } catch (error) {
-      alert("Error while deleting recce:", error);
-    }
-  }
 
-  const handleDeleteSelectedRecceItems = async () => {
-    if (selectedRecceItems.length === 0) {
-      return;
-    }
-
-    if (window.confirm(`Are you sure you want to delete  clients data ?`)) {
-      try {
-        for (const recceId of selectedRecceItems) {
-          await deleteRecce(recceId);
-        }
-
-        setSelectedRecceItems([]);
-      } catch (error) {
-        console.error("Error while deleting recce items:", error);
-      }
-    }
-  };
   const monthNames = [
     "January",
     "February",
@@ -376,15 +335,17 @@ export default function Trackassignedjob() {
   ];
 
   const createdAt = getreccedata.createdAt;
+  let day = "";
   let monthName = "";
+  let year = "";
 
   if (createdAt) {
     const date = new Date(createdAt);
+    day = date.getDate();
     const monthNumber = date.getMonth();
     monthName = monthNames[monthNumber];
+    year = date.getFullYear();
   }
-
-  console.log(monthName); // This will output the month name for the given createdAt date
 
   const handleFilterStartDateChange = (event) => {
     setFilterStartDate(event.target.value);
@@ -394,78 +355,32 @@ export default function Trackassignedjob() {
     setFilterEndDate(event.target.value);
   };
 
-  const [designData, setDesignData] = useState([]);
-  const getAllDesign = async () => {
+  const handleEdit = (item) => {
+    setgetreccedata(item);
+    setSelectedDesignIndex(true);
+  };
+  const getAllVendorInfo = async () => {
     try {
-      const response = await axios.get(`${ApiURL}/design/design/getalldesigns`);
+      const response = await axios.get(
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+      );
+
       if (response.status === 200) {
-        setDesignData(response.data.alldesigns);
+        let vendor = response.data.vendors;
+        setVendorData(vendor);
+      } else {
+        alert("Unable to fetch data");
       }
     } catch (err) {
       alert("can't able to fetch data");
     }
   };
-  const handleEdit = (item) => {
-    setgetreccedata(item, designData);
-    setDesignData(designData);
-    setSelectedDesignIndex(true);
-  };
-  const updateRecceData = async () => {
-    const formdata = new FormData();
-    if ("printupload") {
-      for (const image of designImages) {
-        formdata.append("printingimage", image);
-      }
-    }
 
-    formdata.append("fabricationstatus", fabristatus);
+  const selectedVendorId = getreccedata?.vendor?.[0];
+  const vendor = selectedVendorId
+    ? vendordata?.find((ele) => ele._id === selectedVendorId)
+    : null;
 
-    try {
-      const recceId = getreccedata._id;
-      const config = {
-        url: `/recce/recce/updatereccedata/${recceId}`,
-        method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
-        headers: { "Content-Type": "multipart/form-data" },
-        data: formdata,
-      };
-
-      const res = await axios(config);
-
-      if (res.status === 200) {
-        alert("Successfully linked vendor to recce");
-        // set(null);
-        window.location.reload();
-      }
-    } catch (err) {
-      alert("Not able to add", err);
-    }
-  };
-  // const handlesendPrinting = async () => {
-  //   for (const recceId of selectedRecceItems) {
-  //     const recceData = filteredData.find((item) => item._id === recceId);
-
-  //     if (recceData.fabricationstatus === "Completed") {
-  //       try {
-  //         const response = await axios.post(
-  //           `http://api.srimagicprintz.com/api/recce/recce/getcompletedfabrication/${recceData._id}`
-  //         );
-
-  //         if (response.status === 200) {
-  //           alert(`Successfully sent recce to design`);
-  //           window.location.href = "/Trackassignedjob";
-  //         } else {
-  //           alert(`Failed to send recce to design`);
-  //         }
-  //       } catch (err) {
-  //         alert(`Please Complete Recce or fill all data`);
-  //       }
-  //     } else {
-  //       alert(`Recce  not completed yet`);
-  //     }
-  //   }
-  // };
-  // completedPrinting
   return (
     <>
       <Header />
@@ -520,45 +435,6 @@ export default function Trackassignedjob() {
             </Col>
             <Col className="col-md-1">
               <Button onClick={handleExportPDF}> Download</Button>
-            </Col>
-            <Col className="col-md-1">
-              {moreoption ? (
-                <>
-                  <p
-                    className="mroe "
-                    onClick={() => setselectAction(!selectAction)}
-                    style={{
-                      border: "1px solid white",
-                      width: "38px",
-                      height: "38px",
-                      textAlign: "center",
-                      borderRadius: "100px",
-                      backgroundColor: "#F5F5F5",
-                    }}
-                  >
-                    <span className="text-center">
-                      <MoreVertIcon />
-                    </span>
-                  </p>
-                  {selectAction ? (
-                    <div
-                      style={{
-                        position: "absolute",
-                        zIndex: "10px",
-                        top: "18%",
-                      }}
-                    >
-                      <Card className="m-auto p-3" style={{ width: "12rem" }}>
-                        {/* <li onClick={handlesendPrinting}>Delete</li> */}
-                        {/* 
-                        <li className="cureor" onClick={handlesendPrinting}>
-                          Mark as Completed
-                        </li> */}
-                      </Card>
-                    </div>
-                  ) : null}
-                </>
-              ) : null}
             </Col>
           </div>
           <div className="row ">
@@ -763,7 +639,7 @@ export default function Trackassignedjob() {
                           ? new Date(item.createdAt).toISOString().slice(0, 10)
                           : ""}
                       </td>
-                      <td className="td_S">{item.fabricationstatus}</td>
+                      <td className="td_S">{item.datastatus}</td>
                       <td className="td_S">
                         {" "}
                         {item.reccehight}
@@ -828,186 +704,896 @@ export default function Trackassignedjob() {
               <span> {getreccedata.Pincode}</span>
             </p>
           </div>
-          <div className="row">
-            <div className="row d-flex">
-              <div className="col-md-1 ">
-                <CheckCircleIcon
-                  className="clr2"
-                  style={{ fontSize: "35px" }}
-                />{" "}
-                <p
-                  className="track-line"
-                  style={{ position: "relative", bottom: "2.5%" }}
-                ></p>
-              </div>{" "}
-              <div className="col-md-3">
-                {" "}
-                <p className="clr">Recee</p>
-                <p>
-                  <span className="me-2"> Recee job completed on </span>
-                  <span className="me-2">
-                    {getreccedata.createdAt
-                      ? new Date(getreccedata.createdAt)
-                          .toISOString()
-                          .slice(0, 10)
-                      : ""}
-                  </span>
-                  <span>{monthName}</span>
-                </p>
-              </div>
-            </div>
-            <div className="row d-flex">
-              <div className="col-md-1 ">
-                <CheckCircleIcon
-                  className="clr2"
-                  style={{
-                    fontSize: "35px",
-                    position: "relative",
-                    bottom: "5%",
-                  }}
-                />{" "}
-                <p
-                  className="track-line"
-                  style={{ position: "relative", bottom: "8%" }}
-                ></p>
-              </div>{" "}
-              <div className="col-md-3">
-                {" "}
-                <p className="clr">Design</p>
-                <p>
-                  Design approved on
-                  <span className="me-2">
-                    {getreccedata.createdAt
-                      ? new Date(getreccedata.createdAt)
-                          .toISOString()
-                          .slice(0, 10)
-                      : ""}
-                  </span>
-                  <span>{monthName}</span>
-                </p>
-              </div>
-            </div>
-            <div className="row d-flex">
-              <div className="col-md-1 ">
-                <CheckCircleIcon
-                  className="clr2"
-                  style={{
-                    fontSize: "35px",
-                    position: "relative",
-                    bottom: "10%",
-                  }}
-                />{" "}
-                <p
-                  className="track-line"
-                  style={{ position: "relative", bottom: "13%" }}
-                ></p>
-              </div>{" "}
-              <div className="col-md-3">
-                {" "}
-                <p className="clr">Printing</p>
-                <p>
-                  Printing completed on{" "}
-                  <span className="me-2">
-                    {getreccedata.createdAt
-                      ? new Date(getreccedata.createdAt)
-                          .toISOString()
-                          .slice(0, 10)
-                      : ""}
-                  </span>
-                  <span>{monthName}</span>
-                </p>
-              </div>
-            </div>
-            <div
-              className="row d-flex"
-              style={{ position: "relative", top: "0%" }}
-            >
-              <div className="col-md-1 ">
-                <DonutLargeIcon
-                  className="clr2"
-                  style={{
-                    fontSize: "35px",
-                    position: "relative",
-                    bottom: "10%",
-                  }}
-                >
-                  <img
+          {getreccedata.datastatus === "Pending" ? (
+            <div className="row">
+              <div className="row d-flex">
+                <div className="col-md-1 ">
+                  <PanoramaFishEyeIcon
                     className="clr2"
-                    width={"10px"}
-                    height={"12px"}
-                    alt=""
-                    src="../Assests/blue-loading-fotor-20230711105926.png"
                     style={{
                       fontSize: "35px",
                       position: "relative",
                       bottom: "10%",
                     }}
-                  />
-                </DonutLargeIcon>
-                <p
-                  className="track-line track-line1"
-                  style={{ position: "relative", bottom: "11%" }}
-                ></p>
-              </div>{" "}
-              <div className="col-md-3">
-                {" "}
-                <p className="clr">Fabrication</p>
-                <p>
-                  Fabrication in progress information of jon sent to factory
-                  fabrication process has started on{" "}
-                  <span className="me-2">
-                    {getreccedata.createdAt
-                      ? new Date(getreccedata.createdAt)
-                          .toISOString()
-                          .slice(0, 10)
-                      : ""}
-                  </span>
-                  <span>{monthName}</span>
-                </p>
+                  >
+                    <img
+                      className="clr2"
+                      width={"10px"}
+                      height={"12px"}
+                      alt=""
+                      src="../Assests/blue-loading-fotor-20230711105926.png"
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        bottom: "10%",
+                      }}
+                    />
+                  </PanoramaFishEyeIcon>
+                  <p
+                    className="track-line track-line1"
+                    style={{ position: "relative", bottom: "11%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Recee</p>
+                  <p>
+                    <span className="me-2">
+                      {" "}
+                      Recee job is {getreccedata.datastatus}{" "}
+                    </span>
+                    <span className="me-2">
+                      {getreccedata.createdAt
+                        ? new Date(getreccedata.createdAt)
+                            .toISOString()
+                            .slice(0, 10)
+                        : ""}
+                    </span>
+                    <span>{monthName}</span>
+                  </p>
+                </div>
               </div>
             </div>
-            <div
-              className="row d-flex"
-              style={{ position: "relative", bottom: "2%" }}
-            >
-              <div className="col-md-1 ">
-                <PanoramaFishEyeIcon
-                  style={{
-                    fontSize: "35px",
-                    position: "relative",
-                    bottom: "10%",
-                  }}
-                />{" "}
-                <p
-                  className="track-line"
-                  style={{ position: "relative", bottom: "13%" }}
-                ></p>
-              </div>{" "}
-              <div className="col-md-3">
-                {" "}
-                <p>Installation</p>
-                <p>fabrication process is not yet completed</p>
+          ) : null}
+          {getreccedata.datastatus === "Processing" ? (
+            <div className="row">
+              {/* <div className="row d-flex">
+                <div className="col-md-1 ">
+                  <CheckCircleIcon
+                    className="clr2"
+                    style={{ fontSize: "35px" }}
+                  />{" "}
+                  <p
+                    className="track-line"
+                    style={{ position: "relative", bottom: "2.5%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Recee</p>
+                  <p>
+                    <span className="me-2"> Recee job completed on </span>
+                    <span className="me-2">
+                      {getreccedata.createdAt
+                        ? new Date(getreccedata.createdAt)
+                            .toISOString()
+                            .slice(0, 10)
+                        : ""}
+                    </span>
+                    <span>{monthName}</span>
+                  </p>
+                </div>
+              </div>
+              <div className="row d-flex">
+                <div className="col-md-1 ">
+                  <CheckCircleIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "5%",
+                    }}
+                  />{" "}
+                  <p
+                    className="track-line"
+                    style={{ position: "relative", bottom: "8%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Design</p>
+                  <p>
+                    Design approved on
+                    <span className="me-2">
+                      {getreccedata.createdAt
+                        ? new Date(getreccedata.createdAt)
+                            .toISOString()
+                            .slice(0, 10)
+                        : ""}
+                    </span>
+                    <span>{monthName}</span>
+                  </p>
+                </div>
+              </div>
+              <div className="row d-flex">
+                <div className="col-md-1 ">
+                  <CheckCircleIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  />{" "}
+                  <p
+                    className="track-line"
+                    style={{ position: "relative", bottom: "13%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Printing</p>
+                  <p>
+                    Printing completed on{" "}
+                    <span className="me-2">
+                      {getreccedata.createdAt
+                        ? new Date(getreccedata.createdAt)
+                            .toISOString()
+                            .slice(0, 10)
+                        : ""}
+                    </span>
+                    <span>{monthName}</span>
+                  </p>
+                </div>
+              </div>
+              <div
+                className="row d-flex"
+                style={{ position: "relative", top: "0%" }}
+              >
+                <div className="col-md-1 ">
+                  <DonutLargeIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  >
+                    <img
+                      className="clr2"
+                      width={"10px"}
+                      height={"12px"}
+                      alt=""
+                      src="../Assests/blue-loading-fotor-20230711105926.png"
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        bottom: "10%",
+                      }}
+                    />
+                  </DonutLargeIcon>
+                  <p
+                    className="track-line track-line1"
+                    style={{ position: "relative", bottom: "11%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Fabrication</p>
+                  <p>
+                    Fabrication in progress information of jon sent to factory
+                    fabrication process has started on{" "}
+                    <span className="me-2">
+                      {getreccedata.createdAt
+                        ? new Date(getreccedata.createdAt)
+                            .toISOString()
+                            .slice(0, 10)
+                        : ""}
+                    </span>
+                    <span>{monthName}</span>
+                  </p>
+                </div>
+              </div>
+              <div
+                className="row d-flex"
+                style={{ position: "relative", bottom: "2%" }}
+              >
+                <div className="col-md-1 ">
+                  <PanoramaFishEyeIcon
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  />{" "}
+                  <p
+                    className="track-line"
+                    style={{ position: "relative", bottom: "13%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p>Installation</p>
+                  <p>fabrication process is not yet completed</p>
+                </div>
+              </div>
+              <div
+                className="row d-flex"
+                style={{ position: "relative", bottom: "4%" }}
+              >
+                <div className="col-md-1 ">
+                  <PanoramaFishEyeIcon
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  />{" "}
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p>process completed</p>
+                </div>
+              </div> */}
+              <div
+                className="row d-flex"
+                style={{ position: "relative", top: "0%" }}
+              >
+                <div className="col-md-1 ">
+                  <DonutLargeIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  >
+                    <img
+                      className="clr2"
+                      width={"10px"}
+                      height={"12px"}
+                      alt=""
+                      src="../Assests/blue-loading-fotor-20230711105926.png"
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        bottom: "10%",
+                      }}
+                    />
+                  </DonutLargeIcon>
+                  <p
+                    className="track-line track-line1"
+                    style={{ position: "relative", bottom: "11%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Recce</p>
+                  <p>
+                    Recce in {getreccedata.datastatus} Recce process has started
+                    on date
+                    <span className="me-2"> {day}</span>
+                    <span>{monthName}</span> <span>{year}</span>
+                  </p>
+                </div>
               </div>
             </div>
-            <div
-              className="row d-flex"
-              style={{ position: "relative", bottom: "4%" }}
-            >
-              <div className="col-md-1 ">
-                <PanoramaFishEyeIcon
-                  style={{
-                    fontSize: "35px",
-                    position: "relative",
-                    bottom: "10%",
-                  }}
-                />{" "}
-              </div>{" "}
-              <div className="col-md-3">
-                {" "}
-                <p>process completed</p>
+          ) : null}
+          {getreccedata.datastatus === "Completed" ? (
+            <div className="row">
+              <div
+                className="row d-flex"
+                style={{ position: "relative", top: "0%" }}
+              >
+                <div className="col-md-1 ">
+                  <CheckCircleIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  >
+                    <img
+                      className="clr2"
+                      width={"10px"}
+                      height={"12px"}
+                      alt=""
+                      src="../Assests/blue-loading-fotor-20230711105926.png"
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        bottom: "10%",
+                      }}
+                    />
+                  </CheckCircleIcon>
+                  <p
+                    className="track-line track-line1"
+                    style={{ position: "relative", bottom: "11%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Recce</p>
+                  <p>
+                    Recce {getreccedata.datastatus}
+                    <span className="me-2"> {day}</span>
+                    <span>{monthName}</span> <span>{year}</span>
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          ) : null}
+          {getreccedata.datastatus === "Completed" &&
+          getreccedata.Designstatus === "Pending" ? (
+            <div className="row">
+              <div
+                className="row d-flex"
+                style={{ position: "relative", top: "0%" }}
+              >
+                <div className="col-md-1 ">
+                  <PanoramaFishEyeIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  >
+                    <img
+                      className="clr2"
+                      width={"10px"}
+                      height={"12px"}
+                      alt=""
+                      src="../Assests/blue-loading-fotor-20230711105926.png"
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        bottom: "10%",
+                      }}
+                    />
+                  </PanoramaFishEyeIcon>
+                  <p
+                    className="track-line track-line1"
+                    style={{ position: "relative", bottom: "11%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Design</p>
+                  <p>
+                    Design is {getreccedata.Designstatus}
+                    <span className="me-2"> {day}</span>
+                    <span>{monthName}</span> <span>{year}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {getreccedata.datastatus === "Completed" &&
+          getreccedata.Designstatus === "Processing" ? (
+            <div className="row">
+              <div
+                className="row d-flex"
+                style={{ position: "relative", top: "0%" }}
+              >
+                <div className="col-md-1 ">
+                  <DonutLargeIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  >
+                    <img
+                      className="clr2"
+                      width={"10px"}
+                      height={"12px"}
+                      alt=""
+                      src="../Assests/blue-loading-fotor-20230711105926.png"
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        bottom: "10%",
+                      }}
+                    />
+                  </DonutLargeIcon>
+                  <p
+                    className="track-line track-line1"
+                    style={{ position: "relative", bottom: "11%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Design</p>
+                  <p>
+                    Design in {getreccedata.Designstatus}
+                    <span className="me-2"> {day}</span>
+                    <span>{monthName}</span> <span>{year}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {getreccedata.datastatus === "Completed" &&
+          getreccedata.Designstatus === "Completed" ? (
+            <div className="row">
+              <div
+                className="row d-flex"
+                style={{ position: "relative", top: "0%" }}
+              >
+                <div className="col-md-1 ">
+                  <CheckCircleIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  >
+                    <img
+                      className="clr2"
+                      width={"10px"}
+                      height={"12px"}
+                      alt=""
+                      src="../Assests/blue-loading-fotor-20230711105926.png"
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        bottom: "10%",
+                      }}
+                    />
+                  </CheckCircleIcon>
+                  <p
+                    className="track-line track-line1"
+                    style={{ position: "relative", bottom: "11%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Design</p>
+                  <p>
+                    Design {getreccedata.Designstatus} on
+                    <span className="me-2"> {day}</span>
+                    <span>{monthName}</span> <span>{year}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {getreccedata.datastatus === "Completed" &&
+          getreccedata.Designstatus === "Completed" &&
+          getreccedata.printingStatus === "Pending" ? (
+            <div className="row">
+              <div
+                className="row d-flex"
+                style={{ position: "relative", top: "0%" }}
+              >
+                <div className="col-md-1 ">
+                  <PanoramaFishEyeIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  >
+                    <img
+                      className="clr2"
+                      width={"10px"}
+                      height={"12px"}
+                      alt=""
+                      src="../Assests/blue-loading-fotor-20230711105926.png"
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        bottom: "10%",
+                      }}
+                    />
+                  </PanoramaFishEyeIcon>
+                  <p
+                    className="track-line track-line1"
+                    style={{ position: "relative", bottom: "11%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Printing</p>
+                  <p>
+                    Printing is {getreccedata.printingStatus}
+                    <span className="me-2"> {day}</span>
+                    <span>{monthName}</span> <span>{year}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {getreccedata.datastatus === "Completed" &&
+          getreccedata.Designstatus === "Completed" &&
+          getreccedata.printingStatus === "Processing" ? (
+            <div className="row">
+              <div
+                className="row d-flex"
+                style={{ position: "relative", top: "0%" }}
+              >
+                <div className="col-md-1 ">
+                  <DonutLargeIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  >
+                    <img
+                      className="clr2"
+                      width={"10px"}
+                      height={"12px"}
+                      alt=""
+                      src="../Assests/blue-loading-fotor-20230711105926.png"
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        bottom: "10%",
+                      }}
+                    />
+                  </DonutLargeIcon>
+                  <p
+                    className="track-line track-line1"
+                    style={{ position: "relative", bottom: "11%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Printing</p>
+                  <p>
+                    Printing in {getreccedata.printingStatus}
+                    <span className="me-2"> {day}</span>
+                    <span>{monthName}</span> <span>{year}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {getreccedata.datastatus === "Completed" &&
+          getreccedata.Designstatus === "Completed" &&
+          getreccedata.printingStatus === "Completed" ? (
+            <div className="row">
+              <div
+                className="row d-flex"
+                style={{ position: "relative", top: "0%" }}
+              >
+                <div className="col-md-1 ">
+                  <CheckCircleIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  >
+                    <img
+                      className="clr2"
+                      width={"10px"}
+                      height={"12px"}
+                      alt=""
+                      src="../Assests/blue-loading-fotor-20230711105926.png"
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        bottom: "10%",
+                      }}
+                    />
+                  </CheckCircleIcon>
+                  <p
+                    className="track-line track-line1"
+                    style={{ position: "relative", bottom: "11%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Printing</p>
+                  <p>
+                    Printing {getreccedata.printingStatus} on
+                    <span className="me-2"> {day}</span>
+                    <span>{monthName}</span> <span>{year}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {getreccedata.datastatus === "Completed" &&
+          getreccedata.Designstatus === "Completed" &&
+          getreccedata.printingStatus === "Completed" &&
+          getreccedata.fabricationstatus === "Pending" ? (
+            <div className="row">
+              <div className="row d-flex">
+                <div className="col-md-1 ">
+                  <PanoramaFishEyeIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  >
+                    <img
+                      className="clr2"
+                      width={"10px"}
+                      height={"12px"}
+                      alt=""
+                      src="../Assests/blue-loading-fotor-20230711105926.png"
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        bottom: "10%",
+                      }}
+                    />
+                  </PanoramaFishEyeIcon>
+                  <p
+                    className="track-line track-line1"
+                    style={{ position: "relative", bottom: "11%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Fabrication</p>
+                  <p>
+                    <span className="me-2">
+                      {" "}
+                      Fabrication job is {getreccedata.fabricationstatus}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {getreccedata.datastatus === "Completed" &&
+          getreccedata.Designstatus === "Completed" &&
+          getreccedata.printingStatus === "Completed" &&
+          getreccedata.fabricationstatus === "Processing" ? (
+            <div className="row">
+              <div
+                className="row d-flex"
+                style={{ position: "relative", top: "0%" }}
+              >
+                <div className="col-md-1 ">
+                  <DonutLargeIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  >
+                    <img
+                      className="clr2"
+                      width={"10px"}
+                      height={"12px"}
+                      alt=""
+                      src="../Assests/blue-loading-fotor-20230711105926.png"
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        bottom: "10%",
+                      }}
+                    />
+                  </DonutLargeIcon>
+                  <p
+                    className="track-line track-line1"
+                    style={{ position: "relative", bottom: "11%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Fabrication</p>
+                  <p>
+                    Fabrication in {getreccedata.fabricationstatus} fabrication
+                    process has started on date
+                    <span className="me-2"> {day}</span>
+                    <span>{monthName}</span> <span>{year}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {getreccedata.datastatus === "Completed" &&
+          getreccedata.Designstatus === "Completed" &&
+          getreccedata.printingStatus === "Completed" &&
+          getreccedata.fabricationstatus === "Completed" ? (
+            <div className="row">
+              <div
+                className="row d-flex"
+                style={{ position: "relative", top: "0%" }}
+              >
+                <div className="col-md-1 ">
+                  <DonutLargeIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  >
+                    <img
+                      className="clr2"
+                      width={"10px"}
+                      height={"12px"}
+                      alt=""
+                      src="../Assests/blue-loading-fotor-20230711105926.png"
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        bottom: "10%",
+                      }}
+                    />
+                  </DonutLargeIcon>
+                  <p
+                    className="track-line track-line1"
+                    style={{ position: "relative", bottom: "11%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Fabrication</p>
+                  <p>
+                    Fabrication job {getreccedata.fabricationstatus}
+                    <span className="me-2"> {day}</span>
+                    <span>{monthName}</span> <span>{year}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {getreccedata.datastatus === "Completed" &&
+          getreccedata.Designstatus === "Completed" &&
+          getreccedata.printingStatus === "Completed" &&
+          getreccedata.fabricationstatus === "Completed" &&
+          getreccedata.installationSTatus === "Pending" ? (
+            <div className="row">
+              <div
+                className="row d-flex"
+                style={{ position: "relative", top: "0%" }}
+              >
+                <div className="col-md-1 ">
+                  <PanoramaFishEyeIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  >
+                    <img
+                      className="clr2"
+                      width={"10px"}
+                      height={"12px"}
+                      alt=""
+                      src="../Assests/blue-loading-fotor-20230711105926.png"
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        bottom: "10%",
+                      }}
+                    />
+                  </PanoramaFishEyeIcon>
+                  <p
+                    className="track-line track-line1"
+                    style={{ position: "relative", bottom: "11%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Installation</p>
+                  <p>
+                    Installation job {getreccedata.installationSTatus}
+                    <span className="me-2"> {day}</span>
+                    <span>{monthName}</span> <span>{year}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {getreccedata.datastatus === "Completed" &&
+          getreccedata.Designstatus === "Completed" &&
+          getreccedata.printingStatus === "Completed" &&
+          getreccedata.fabricationstatus === "Completed" &&
+          getreccedata.installationSTatus === "Processing" ? (
+            <div className="row">
+              <div
+                className="row d-flex"
+                style={{ position: "relative", top: "0%" }}
+              >
+                <div className="col-md-1 ">
+                  <DonutLargeIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  >
+                    <img
+                      className="clr2"
+                      width={"10px"}
+                      height={"12px"}
+                      alt=""
+                      src="../Assests/blue-loading-fotor-20230711105926.png"
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        bottom: "10%",
+                      }}
+                    />
+                  </DonutLargeIcon>
+                  <p
+                    className="track-line track-line1"
+                    style={{ position: "relative", bottom: "11%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Installation</p>
+                  <p>
+                    Installation job {getreccedata.installationSTatus}
+                    <span className="me-2"> {day}</span>
+                    <span>{monthName}</span> <span>{year}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {getreccedata.datastatus === "Completed" &&
+          getreccedata.Designstatus === "Completed" &&
+          getreccedata.printingStatus === "Completed" &&
+          getreccedata.fabricationstatus === "Completed" &&
+          getreccedata.installationSTatus === "Processing" ? (
+            <div className="row">
+              <div
+                className="row d-flex"
+                style={{ position: "relative", top: "0%" }}
+              >
+                <div className="col-md-1 ">
+                  <CheckCircleIcon
+                    className="clr2"
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      bottom: "10%",
+                    }}
+                  >
+                    <img
+                      className="clr2"
+                      width={"10px"}
+                      height={"12px"}
+                      alt=""
+                      src="../Assests/blue-loading-fotor-20230711105926.png"
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        bottom: "10%",
+                      }}
+                    />
+                  </CheckCircleIcon>
+                  <p
+                    className="track-line track-line1"
+                    style={{ position: "relative", bottom: "11%" }}
+                  ></p>
+                </div>{" "}
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Installation</p>
+                  <p>
+                    Installation job {getreccedata.installationSTatus}
+                    <span className="me-2"> {day}</span>
+                    <span>{monthName}</span> <span>{year}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
       )}
     </>

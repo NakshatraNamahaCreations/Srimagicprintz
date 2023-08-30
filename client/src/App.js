@@ -34,7 +34,7 @@ import Subcategory from "./Component/Subcategory";
 import VendorInfo from "./Component/VendorInfo";
 import ClientInfo from "./Component/ClientsInfo";
 import ReceeManagementApi from "./Component/Recceapi";
-import AddDesign from "./Component/adddesign";
+
 
 export default function App() {
   const location = useLocation();
@@ -64,7 +64,7 @@ export default function App() {
             <Route path="/ReceeManagement" element={<ReceeManagement />} />
             <Route path="/Recceapi" element={<ReceeManagementApi />} />
             <Route path="/Design" element={<Design />} />
-            <Route path="/adddesign" element={<AddDesign/>}/>
+         
             <Route path="/Printing" element={<Printing />} />
             <Route path="/fabrication" element={<Fabrication />} />
             <Route path="/installation" element={<Installation />} />

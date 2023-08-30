@@ -1,15 +1,11 @@
 import React, { useEffect } from "react";
-
 import Header from "./Header";
-
 import { useState } from "react";
 import { Button } from "react-bootstrap";
-
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
-
 import axios from "axios";
-
 import DataTable from "react-data-table-component";
+// import { ColorRing } from "react-loader-spinner";
 
 export default function ClientsManagement() {
   const [addClients, setAddClients] = useState([]);
@@ -23,7 +19,7 @@ export default function ClientsManagement() {
   const [searchClientzone, setsearchClientZone] = useState("");
   const [searchresultData, setSearchResultData] = useState([]);
   const [selected, setSelected] = useState(null);
-
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     getAllClientsInfo();
   }, []);
@@ -38,6 +34,8 @@ export default function ClientsManagement() {
       }
     } catch (err) {
       alert(err, "err");
+    } finally {
+      setLoading(false);
     }
   };
   const customStyles = {
@@ -114,7 +112,7 @@ export default function ClientsManagement() {
       if (searchClientzone) {
         results = results.filter((item) => {
           const Zone1 = item.Zone && item.Zone.toString();
-         
+
           return Zone1?.includes(searchClientzone);
         });
       }
@@ -343,10 +341,10 @@ export default function ClientsManagement() {
               Manage Clients
             </Button>
           </div>
+
           <div className="containerPadding">
             <DataTable
               columns={columns}
-           
               data={dataForTable}
               fixedHeader
               pagination
@@ -357,7 +355,7 @@ export default function ClientsManagement() {
               customStyles={customStyles}
               onRowClicked={handleSelected}
             />
-          </div>{" "}
+          </div>
         </>
       ) : (
         <>

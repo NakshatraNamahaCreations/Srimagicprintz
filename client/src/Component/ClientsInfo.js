@@ -20,7 +20,6 @@ export default function ClientInfo() {
   const AddClientsData = async (e) => {
     e.preventDefault();
 
-    
     let formData = new FormData();
     formData.append("clientsName", clientName);
     formData.append("ClientBusinessName", businessName);
@@ -132,12 +131,19 @@ export default function ClientInfo() {
             </Form.Group>
             <Form.Group as={Col} md="6" controlId="validationCustom01">
               <Form.Label>Zone</Form.Label>
-              <Form.Control
+
+              <Form.Select
                 value={zone}
                 onChange={(e) => setZone(e.target.value)}
                 type="text"
-                placeholder="Enter  Zone"
-              />
+                placeholder="Enter zone"
+              >
+                <option>Choose...</option>
+                <option>North</option>
+                <option>East</option>
+                <option>West</option>
+                <option>South</option>
+              </Form.Select>
             </Form.Group>
           </Row>
           <Row className="mb-3">

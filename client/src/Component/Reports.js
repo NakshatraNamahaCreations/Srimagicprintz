@@ -2,22 +2,11 @@ import React, { useState, useEffect } from "react";
 import Header from "./Header";
 import Button from "react-bootstrap/esm/Button";
 import Form from "react-bootstrap/Form";
-import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import "react-data-table-component-extensions/dist/index.css";
 import Col from "react-bootstrap/Col";
-import Modal from "react-bootstrap/Modal";
-import { Card } from "react-bootstrap";
-import { ToastContainer, toast } from "react-toastify";
 import Row from "react-bootstrap/Row";
 import "react-toastify/dist/ReactToastify.css";
-import { CSVLink, CSVDownload } from "react-csv";
-import * as XLSX from "xlsx"; // Import the xlsx library
 import axios from "axios";
-import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import DonutLargeIcon from "@mui/icons-material/DonutLarge";
-// import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import moment from "moment";
 import jsPDF from "jspdf";
 import "jspdf-autotable"; // Import the autotable plugin
@@ -36,18 +25,15 @@ export default function Reports() {
   const [searchstatus, setSearchStatus] = useState("");
   const [searchVendorName, setSearchVendorName] = useState("");
   const [searchSINO, setSearchSINO] = useState("");
-  const [selectAction, setselectAction] = useState(false);
+
   const [displayedData, setDisplayedData] = useState();
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectCity, setSelectedCity] = useState("");
-  const [searchwidth, setsearchwidth] = useState("");
   const [SearchCategory, setSearchCategory] = useState("");
   const [CategoryData, setCategoryData] = useState(null);
   const [vendordata, setVendorData] = useState(null);
   const [getreccedata, setgetreccedata] = useState("");
   const [SelecteddesignIndex, setSelectedDesignIndex] = useState(false);
-  const [designImages, setDesignImages] = useState("");
   const [SearchclientName, setSearchclientName] = useState("");
   const [searchdatastatus, setSearchdatastatus] = useState("");
   const [filterStartDate, setFilterStartDate] = useState("");
@@ -57,13 +43,13 @@ export default function Reports() {
   const [selectAll, setSelectAll] = useState(false);
   const [selectedClientName, setSelectedClientName] = useState(null);
   const [report, setReport] = useState(false);
-  // const [CategoryData, setCategoryData] = useState();
-  const searchReport = () => {
-    setReport(!report);
-  };
+  const [selectedcategory, setselectedcategory] = useState("");
+
+  // const searchReport = () => {
+  //   setReport(!report);
+  // };
   useEffect(() => {
     getAllRecce();
-    getAllDesign();
     getAllCategory();
   }, []);
 
@@ -74,7 +60,6 @@ export default function Reports() {
       );
       if (res.ok) {
         const data = await res.json();
-
         const categoriesArray = Object.values(data.category);
         setCategoryData(categoriesArray);
       }
@@ -88,11 +73,7 @@ export default function Reports() {
         "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
-        const filteredRecceData = res.data.RecceData.filter(
-          (item) => item._id === item.completedInstallation
-        );
-        console.log("filteredRecceData", filteredRecceData);
-        setRecceData(filteredRecceData);
+        setRecceData(res.data.RecceData);
       }
     } catch (err) {
       console.error(err);
@@ -223,29 +204,11 @@ export default function Reports() {
     searchdate,
     searchdatastatus,
     searchSINO,
-    // currentPage,
     rowsPerPage,
   ]);
   const [clientName, setClientName] = useState(false);
-  const handleSelectClientName = (e) => {
-    setSelectedClientName(e.target.value);
-    // setClientName(!clientName);
-  };
-  // const handleEdit = (vendor) => {
-  //   setgetreccedata(vendor);
-  //   setSelectedDesignIndex(true);
-  // };
 
-  // const selectedVendorId = getreccedata?.vendor?.[0];
-  // const selectedVendor = vendordata?.find(
-  //   (vendor) => vendor._id === selectedVendorId
-  // );
-
-  // const selectedcategoryID = getreccedata?.category?.[0];
-  // const selectcategry = CategoryData?.find(
-  //   (ele) => ele?._id === selectedcategoryID
-  // );
-  const [selectedcategory, setselectedcategory] = useState("");
+  const [filter, setFilter] = useState("All");
   const handleExportPDF = () => {
     const pdf = new jsPDF();
     const tableColumn = [
@@ -309,12 +272,6 @@ export default function Reports() {
 
     pdf.save("exported_data.pdf");
   };
-  const handleImageUpload = (event) => {
-    const files = event.target.files;
-    setDesignImages(files);
-  };
-
-  const [fabristatus, setfabriStatus] = useState("");
 
   const handleClearDateFilters = () => {
     setFilterStartDate("");
@@ -369,37 +326,37 @@ export default function Reports() {
 
     setmoreoption(!selectAll);
   };
-  async function deleteRecce(recceId) {
-    try {
-      const response = await axios.delete(
-        `${ApiURL}/recce/recce/deletereccedata/${recceId}`
-      );
-      if (response.status === 200) {
-        alert("Recce deleted successfully");
-        window.location.reload();
-      }
-    } catch (error) {
-      alert("Error while deleting recce:", error);
-    }
-  }
+  // async function deleteRecce(recceId) {
+  //   try {
+  //     const response = await axios.delete(
+  //       `${ApiURL}/recce/recce/deletereccedata/${recceId}`
+  //     );
+  //     if (response.status === 200) {
+  //       alert("Recce deleted successfully");
+  //       window.location.reload();
+  //     }
+  //   } catch (error) {
+  //     alert("Error while deleting recce:", error);
+  //   }
+  // }
 
-  const handleDeleteSelectedRecceItems = async () => {
-    if (selectedRecceItems.length === 0) {
-      return;
-    }
+  // const handleDeleteSelectedRecceItems = async () => {
+  //   if (selectedRecceItems.length === 0) {
+  //     return;
+  //   }
 
-    if (window.confirm(`Are you sure you want to delete  clients data ?`)) {
-      try {
-        for (const recceId of selectedRecceItems) {
-          await deleteRecce(recceId);
-        }
+  //   if (window.confirm(`Are you sure you want to delete  clients data ?`)) {
+  //     try {
+  //       for (const recceId of selectedRecceItems) {
+  //         await deleteRecce(recceId);
+  //       }
 
-        setSelectedRecceItems([]);
-      } catch (error) {
-        console.error("Error while deleting recce items:", error);
-      }
-    }
-  };
+  //       setSelectedRecceItems([]);
+  //     } catch (error) {
+  //       console.error("Error while deleting recce items:", error);
+  //     }
+  //   }
+  // };
   const monthNames = [
     "January",
     "February",
@@ -424,8 +381,6 @@ export default function Reports() {
     monthName = monthNames[monthNumber];
   }
 
-  console.log(monthName); // This will output the month name for the given createdAt date
-
   const handleFilterStartDateChange = (event) => {
     setFilterStartDate(event.target.value);
   };
@@ -434,82 +389,117 @@ export default function Reports() {
     setFilterEndDate(event.target.value);
   };
 
-  const [designData, setDesignData] = useState([]);
-  const getAllDesign = async () => {
-    try {
-      const response = await axios.get(`${ApiURL}/design/design/getalldesigns`);
-      if (response.status === 200) {
-        setDesignData(response.data.alldesigns);
-      }
-    } catch (err) {
-      alert("can't able to fetch data");
-    }
-  };
   const handleEdit = (item) => {
-    setgetreccedata(item, designData);
-    setDesignData(designData);
+    setgetreccedata(item);
     setSelectedDesignIndex(true);
   };
-  const updateRecceData = async () => {
-    const formdata = new FormData();
-    if ("printupload") {
-      for (const image of designImages) {
-        formdata.append("printingimage", image);
-      }
-    }
+  const [selectedCheckboxes, setSelectedCheckboxes] = useState([]);
 
-    formdata.append("fabricationstatus", fabristatus);
-
-    try {
-      const recceId = getreccedata._id;
-      const config = {
-        url: `/recce/recce/updatereccedata/${recceId}`,
-        method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
-        headers: { "Content-Type": "multipart/form-data" },
-        data: formdata,
-      };
-
-      const res = await axios(config);
-
-      if (res.status === 200) {
-        alert("Successfully linked vendor to recce");
-        // set(null);
-        window.location.reload();
-      }
-    } catch (err) {
-      alert("Not able to add", err);
+  const handleCheckboxChange = (event) => {
+    const { value } = event.target;
+    if (selectedCheckboxes.includes(value)) {
+      setSelectedCheckboxes(
+        selectedCheckboxes.filter((item) => item !== value)
+      );
+    } else {
+      setSelectedCheckboxes([...selectedCheckboxes, value]);
     }
   };
-  const handlesendPrinting = async () => {
-    for (const recceId of selectedRecceItems) {
-      const recceData = filteredData.find((item) => item._id === recceId);
 
-      if (recceData.fabricationstatus === "Completed") {
-        try {
-          const response = await axios.post(
-            `http://api.srimagicprintz.com/api/recce/recce/getcompletedfabrication/${recceData._id}`
-          );
+  const handleSelectClientName = () => {
+    console.log("Selected Checkboxes:", selectedCheckboxes);
+    setClientName(!clientName);
+  };
+  const handleFilterChange = (event) => {
+    const selectedFilter = event.target.value;
+    setFilter(selectedFilter);
+  };
 
-          if (response.status === 200) {
-            alert(`Successfully sent recce to design`);
-            window.location.href = "/Trackassignedjob";
-          } else {
-            alert(`Failed to send recce to design`);
-          }
-        } catch (err) {
-          alert(`Please Complete Recce or fill all data`);
-        }
-      } else {
-        alert(`Recce  not completed yet`);
-      }
+  const filteredData1 = (selecteddate) => {
+    if (filter === "All") {
+      return recceData;
+    }
+
+    const now = moment();
+
+    switch (filter) {
+      case "Today":
+        return recceData.filter((item) =>
+          moment(item.createdAt, "YYYY-MM-DD").isSame(now, "day")
+        );
+      case "Yesterday":
+        return recceData.filter((item) =>
+          moment(item.createdAt, "YYYY-MM-DD").isSame(
+            now.clone().subtract(1, "days"),
+            "day"
+          )
+        );
+      case "ThisWeek":
+        return recceData.filter((item) =>
+          moment(item.createdAt, "YYYY-MM-DD").isBetween(
+            now.clone().startOf("week"),
+            now,
+            undefined,
+            "[]"
+          )
+        );
+      case "LastWeek":
+        return recceData.filter((item) =>
+          moment(item.createdAt, "YYYY-MM-DD").isBetween(
+            now.clone().subtract(1, "weeks").startOf("week"),
+            now.clone().subtract(1, "weeks").endOf("week"),
+            undefined,
+            "[]"
+          )
+        );
+      case "ThisMonth":
+        return recceData.filter((item) =>
+          moment(item.createdAt, "YYYY-MM-DD").isBetween(
+            now.clone().startOf("month"),
+            now,
+            undefined,
+            "[]"
+          )
+        );
+      case "LastMonth":
+        return recceData.filter((item) =>
+          moment(item.createdAt, "YYYY-MM-DD").isBetween(
+            now.clone().subtract(1, "months").startOf("month"),
+            now.clone().subtract(1, "months").endOf("month"),
+            undefined,
+            "[]"
+          )
+        );
+      default:
+        return recceData;
     }
   };
-  // completedPrinting
+
+  const searchReport = (selectedDate) => {
+    const selectedCheckboxes = [];
+    const selectedCategory = "";
+
+    const filteredDataFromFilter1 = filteredData1(selectedDate);
+    const filteredData2 = filteredDataFromFilter1.filter((item) => {
+      let isMatching = true;
+
+      if (selectedCheckboxes.map((ele) => ele.length > 0)) {
+        isMatching = isMatching && selectedCheckboxes.includes(item.ClientName);
+      }
+
+      if (selectedCategory) {
+        isMatching = isMatching && item.category === selectedCategory;
+      }
+
+      return isMatching;
+    });
+    setSelectedDesignIndex(!SelecteddesignIndex);
+    return setDisplayedData(filteredData2);
+  };
+
   return (
     <>
       <Header />
-
       {SelecteddesignIndex ? (
         <div className="row  m-auto containerPadding">
           <div className="row ">
@@ -561,7 +551,7 @@ export default function Reports() {
             <Col className="col-md-1">
               <Button onClick={handleExportPDF}> Download</Button>
             </Col>
-            <Col className="col-md-1">
+            {/* <Col className="col-md-1">
               {moreoption ? (
                 <>
                   <p
@@ -587,19 +577,11 @@ export default function Reports() {
                         zIndex: "10px",
                         top: "18%",
                       }}
-                    >
-                      <Card className="m-auto p-3" style={{ width: "12rem" }}>
-                        {/* <li onClick={handlesendPrinting}>Delete</li> */}
-
-                        <li className="cureor" onClick={handlesendPrinting}>
-                          Mark as Completed
-                        </li>
-                      </Card>
-                    </div>
+                    ></div>
                   ) : null}
                 </>
               ) : null}
-            </Col>
+            </Col> */}
           </div>
           <div className="row ">
             <table className="t-p">
@@ -772,7 +754,7 @@ export default function Reports() {
                 </tr>
               </thead>
               <tbody className="table">
-                {filteredData?.map((item, index) => {
+                {recceData.map((item, index) => {
                   return (
                     <tr className="design" key={item._id}>
                       <td className="td_S p-1">
@@ -790,9 +772,6 @@ export default function Reports() {
                       <td className="td_S p-1">{index + 1}</td>
                       <td className="td_S p-1">{item.ClientName}</td>
                       <td className="td_S p-1">{item.ShopName}</td>
-                      {/* <td className="td_S p-1">
-                        {selectedVendor ? selectedVendor?.VendorFirstName : ""}
-                      </td> */}
                       <td className="td_S p-1">{item.ContactNumber}</td>
                       <td className="td_S p-1">{item.Area}</td>
                       <td className="td_S p-1">{item.City}</td>
@@ -814,10 +793,7 @@ export default function Reports() {
                         {item.recceUnit}
                       </td>
 
-                      <td className="td_S p-1">
-                        {item.category}
-                        {/* {category ? category?.categoryName : ""} */}
-                      </td>
+                      <td className="td_S p-1">{item.category}</td>
                       <td className="td_S p-1">
                         <span
                           className="col-md-5 p-1"
@@ -839,59 +815,46 @@ export default function Reports() {
         </div>
       ) : (
         <div className="row m-auto containerPadding">
-          <Form className="col-md-6 m-auto">
+          <Form className="col-md-10 m-auto">
             <Row>
-              <Col className="col-md-6 mb-2 m-auto">
-                <Form.Label>City</Form.Label>
-                <Form.Select
-                  value={selectCity}
-                  onChange={(e) => setSelectedCity(e.target.value)}
-                >
-                  <option>Choose..</option>
-                  {recceData?.map((ele) => (
-                    <option key={ele._id} value={ele.City}>
-                      {ele.City}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Col>
-              <Col className="col-md-6 mb-2 m-auto">
+              <Col className="col-md-4 mb-2 m-auto">
                 <Form.Label>Pick a Category</Form.Label>
                 <Form.Select
                   value={selectedcategory}
                   onChange={(e) => setselectedcategory(e.target.value)}
                 >
-                  <option>Choose..</option>
-
-                  {CategoryData?.map((ele) => (
-                    <option key={ele._id} value={ele._id}>
-                      {ele.categoryName}
+                  <option value="">Select..</option>
+                  {CategoryData?.map((category) => (
+                    <option key={category._id} value={category.categoryName}>
+                      {category.categoryName}
                     </option>
                   ))}
                 </Form.Select>
               </Col>
-            </Row>
-            <Row>
-              <Col className="col-md-6 mb-2  m-auto">
+              <Col className="col-md-4 mb-2  m-auto">
                 {" "}
                 <>
                   <Form.Label>Select Clients name</Form.Label>
                   <div>
                     <Form.Control
-                      className="text-center"
-                      value={selectedClientName}
+                      placeholder="select clients name"
+                      value={selectedCheckboxes}
                       onClick={() => setClientName(!clientName)}
                       readOnly
                     />
                   </div>
                   {clientName ? (
                     <div
-                      style={{ position: "absolute", width: "14.2rem" }}
-                      className="col-md-2 table-container m-auto"
+                      style={{
+                        position: "absolute",
+                        width: "14.2rem",
+                      }}
+                      className="col-md-2 m-auto shadow-sm p-3 mb-5 bg-white rounded"
                     >
-                      <div className=" table-wrapper3">
+                      <div>
                         <div className="row">
                           <p
+                            className="cureor"
                             onClick={handleSelectClientName}
                             style={{ borderBottom: "1px solid grey" }}
                           >
@@ -899,28 +862,46 @@ export default function Reports() {
                             Apply selection
                           </p>
                         </div>
-                        <div className="row m-auto">
-                          <label>
-                            <input type="checkbox" name="option1" />
-                            {recceData?.map((ele) => (
-                              <span>{ele.City}</span>
-                            ))}
-                          </label>{" "}
-                        </div>
+                        {recceData?.map((ele) => {
+                          return (
+                            <div
+                              className="row m-auto"
+                              style={{ zIndex: "100" }}
+                            >
+                              <Form.Label>
+                                <Form.Check
+                                  type="checkbox"
+                                  name="option1"
+                                  className="me-3 d-inline"
+                                  value={ele.ClientName}
+                                  checked={selectedCheckboxes.includes(
+                                    ele.ClientName
+                                  )}
+                                  onChange={handleCheckboxChange}
+                                />
+                                <p className="d-inline ">
+                                  {ele.ClientName.charAt(0).toUpperCase() +
+                                    ele.ClientName.substr(1)}
+                                </p>
+                              </Form.Label>
+                            </div>
+                          );
+                        })}
                       </div>{" "}
                     </div>
                   ) : null}
                 </>
               </Col>
-              <Col className="col-md-6 mb-2  m-auto">
+              <Col className="col-md-4 mb-2 m-auto">
                 <Form.Label>Report's</Form.Label>
-                <Form.Select>
-                  <option>Today's</option>
-                  <option>Yesterday</option>
-                  <option>ThisWeek</option>
-                  <option>LastWeek</option>
-                  <option>ThisMonth</option>
-                  <option>LastMonth</option>
+                <Form.Select onChange={handleFilterChange}>
+                  <option value="All">All</option>
+                  <option value="Today">Today</option>
+                  <option value="Yesterday">Yesterday</option>
+                  <option value="ThisWeek">This Week</option>
+                  <option value="LastWeek">Last Week</option>
+                  <option value="ThisMonth">This Month</option>
+                  <option value="LastMonth">Last Month</option>
                 </Form.Select>
               </Col>
             </Row>

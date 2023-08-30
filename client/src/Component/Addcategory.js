@@ -67,6 +67,7 @@ function Addcategory() {
 
       if (response.status === 200) {
         alert(response.data.success);
+        window.location.reload();
       }
     } catch (error) {
       alert(error, "Cannot delete category");

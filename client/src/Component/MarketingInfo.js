@@ -8,19 +8,16 @@ import AddIcon from "@mui/icons-material/Add";
 
 import "react-data-table-component-extensions/dist/index.css";
 export default function MarketingInfo() {
-  const [togglelink, setToggleLink] = useState(false);
+  // const [togglelink, setToggleLink] = useState(false);
   const [saveDate, setSaveDate] = useState(false);
   const [shedule, setShedule] = useState(false);
   const [sheduledDate, setSheduledDate] = useState(false);
-  const [update, setupdate] = useState(false);
+
   const creatMeeting = () => {
     setShedule(!shedule);
   };
   const handleSaveDate = () => {
     setSaveDate(sheduledDate);
-  };
-  const handleUpdate = () => {
-    setupdate(true);
   };
 
   return (
@@ -94,7 +91,7 @@ export default function MarketingInfo() {
               </Card>
             </div>{" "}
           </div>
-          <div className="col-md-6 text-end ">
+          {/* <div className="col-md-6 text-end ">
             <div className="col-md-12 m-auto">
               <div className="row m-auto">
                 <span className="col-md-12 m-auto">Share link to Clients</span>
@@ -144,7 +141,7 @@ export default function MarketingInfo() {
                 ) : null}
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </>
     </>

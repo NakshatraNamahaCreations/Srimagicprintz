@@ -7,7 +7,7 @@ import "react-data-table-component-extensions/dist/index.css";
 import Col from "react-bootstrap/Col";
 import Modal from "react-bootstrap/Modal";
 import { Card } from "react-bootstrap";
-import { ToastContainer, toast } from "react-toastify";
+
 import Row from "react-bootstrap/Row";
 import "react-toastify/dist/ReactToastify.css";
 import { CSVLink, CSVDownload } from "react-csv";
@@ -17,7 +17,7 @@ import axios from "axios";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import moment from "moment";
 import jsPDF from "jspdf";
-import "jspdf-autotable"; // Import the autotable plugin
+import "jspdf-autotable";
 
 export default function Design() {
   const ApiURL = process.env.REACT_APP_API_URL;
@@ -36,8 +36,7 @@ export default function Design() {
   const [displayedData, setDisplayedData] = useState();
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchHight, setsearchHight] = useState("");
-  const [searchwidth, setsearchwidth] = useState("");
+
   const [SearchCategory, setSearchCategory] = useState("");
   const [CategoryData, setCategoryData] = useState(null);
   const [vendordata, setVendorData] = useState(null);
@@ -51,14 +50,13 @@ export default function Design() {
   const [moreoption, setmoreoption] = useState(false);
   const [selectedRecceItems, setSelectedRecceItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [selectedRow, setSelectedRow] = useState(null);
+
   const [assign, setAssign] = useState([]);
   const [show, setShow] = useState(false);
   const [selctedVendor, setselctedVendor] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(false);
   useEffect(() => {
     getAllRecce();
-    getAllDesign();
   }, []);
 
   const getAllRecce = async () => {
@@ -70,8 +68,8 @@ export default function Design() {
         const filteredRecceData = res.data.RecceData.filter(
           (item) => item._id === item.completedRecceId
         );
-        console.log("filteredRecceData", filteredRecceData);
         setRecceData(filteredRecceData);
+        // window.location.reload();
       }
     } catch (err) {
       console.error(err);
@@ -442,16 +440,7 @@ export default function Design() {
   };
 
   const [designData, setDesignData] = useState([]);
-  const getAllDesign = async () => {
-    try {
-      const response = await axios.get(`${ApiURL}/design/design/getalldesigns`);
-      if (response.status === 200) {
-        setDesignData(response.data.alldesigns);
-      }
-    } catch (err) {
-      alert("can't able to fetch data");
-    }
-  };
+
   const handleEdit = (item) => {
     setgetreccedata(item, designData);
     setDesignData(designData);
@@ -574,7 +563,7 @@ export default function Design() {
               {moreoption ? (
                 <>
                   <p
-                    className="mroe "
+                    className="mroe m-auto"
                     onClick={() => setselectAction(!selectAction)}
                     style={{
                       border: "1px solid white",
@@ -598,7 +587,7 @@ export default function Design() {
                       }}
                     >
                       <Card className="m-auto p-3" style={{ width: "12rem" }}>
-                        {/* <li onClick={handlesendPrinting}>Delete</li> */}
+                        <li onClick={handleDeleteSelectedRecceItems}>Delete</li>
                         <li className="cureor" onClick={handleAssignVendor}>
                           Assign to recce
                         </li>

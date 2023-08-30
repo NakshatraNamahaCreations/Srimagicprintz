@@ -36,8 +36,7 @@ export default function Fabrication() {
   const [displayedData, setDisplayedData] = useState();
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchHight, setsearchHight] = useState("");
-  const [searchwidth, setsearchwidth] = useState("");
+ 
   const [SearchCategory, setSearchCategory] = useState("");
   const [CategoryData, setCategoryData] = useState(null);
   const [vendordata, setVendorData] = useState(null);
@@ -51,11 +50,10 @@ export default function Fabrication() {
   const [moreoption, setmoreoption] = useState(false);
   const [selectedRecceItems, setSelectedRecceItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [selectedRow, setSelectedRow] = useState(null);
+ 
 
   useEffect(() => {
     getAllRecce();
-    getAllDesign();
   }, []);
 
   const getAllRecce = async () => {
@@ -381,16 +379,7 @@ export default function Fabrication() {
   };
 
   const [designData, setDesignData] = useState([]);
-  const getAllDesign = async () => {
-    try {
-      const response = await axios.get(`${ApiURL}/design/design/getalldesigns`);
-      if (response.status === 200) {
-        setDesignData(response.data.alldesigns);
-      }
-    } catch (err) {
-      alert("can't able to fetch data");
-    }
-  };
+
   const handleEdit = (item) => {
     setgetreccedata(item, designData);
     setDesignData(designData);
@@ -518,7 +507,7 @@ export default function Fabrication() {
               {moreoption ? (
                 <>
                   <p
-                    className="mroe "
+                    className="mroe m-auto"
                     onClick={() => setselectAction(!selectAction)}
                     style={{
                       border: "1px solid white",
