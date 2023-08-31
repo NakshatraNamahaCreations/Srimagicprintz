@@ -54,12 +54,12 @@ export default function ReceeManagement() {
   const [selectedcategory, setselectedcategory] = useState("");
 
   const [SearchCategory, setSearchCategory] = useState("");
-  const [assignvendor, setAssignVendor] = useState(false);
-  const [reccedatastatus, setReccedatastatus] = useState("");
-  const [reccehight, setreccehight] = useState("");
-  const [reccewidth, setreccewidth] = useState("");
-  const [recceunit, setrecceunit] = useState("");
-  const [reccedesign, setreccedesign] = useState("");
+  // const [assignvendor, setAssignVendor] = useState(false);
+  // const [reccedatastatus, setReccedatastatus] = useState("");
+  // const [reccehight, setreccehight] = useState("");
+  // const [reccewidth, setreccewidth] = useState("");
+  // const [recceunit, setrecceunit] = useState("");
+  // const [reccedesign, setreccedesign] = useState("");
   const [selectedRecceItems, setSelectedRecceItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [assign, setAssign] = useState([]);
@@ -71,13 +71,13 @@ export default function ReceeManagement() {
   const [EditContactNumber, setEditContactNumber] = useState("");
   const [EditPincode, setEditPincode] = useState("");
   const [EditZone, setEditZone] = useState("");
-  const [Editvendor, setEditvendor] = useState("");
-  const [Editcategory, setEditcategory] = useState("");
+  // const [Editvendor, setEditvendor] = useState("");
+  // const [Editcategory, setEditcategory] = useState("");
   const [Editdatastatus, setEditdatastatus] = useState("");
   const [Editreccehight, setEditreccehight] = useState("");
   const [Editreccewidth, setEditreccewidth] = useState("");
   const [EditrecceUnit, setEditrecceUnit] = useState("");
-  const [Editreccedesign, setEditreccedesign] = useState("");
+  // const [Editreccedesign, setEditreccedesign] = useState("");
   const [editRecceData, setEditRecceData] = useState({});
   const [moreoption, setmoreoption] = useState(false);
   const [show, setShow] = useState(false);
@@ -86,7 +86,7 @@ export default function ReceeManagement() {
   const [shopName, setShopName] = useState("");
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
-  const [showvendorlist, setshowvendorlist] = useState(false);
+  // const [showvendorlist, setshowvendorlist] = useState(false);
 
   useEffect(() => {
     getAllRecce();
@@ -94,13 +94,7 @@ export default function ReceeManagement() {
     getAllCategory();
   }, []);
 
-  // <RotatingLines
-  //   strokeColor="grey"
-  //   strokeWidth="5"
-  //   animationDuration="0.75"
-  //   width="96"
-  //   visible={true}
-  // />;
+
 
   const getAllRecce = async () => {
     try {
@@ -323,7 +317,7 @@ export default function ReceeManagement() {
   };
 
   const [uploading, setUploading] = useState(false);
-  const [image, setimage] = useState(null);
+  // const [image, setimage] = useState(null);
   const [designImages, setDesignImages] = useState("");
   const handleImport = async () => {
     if (importXLSheet.length > 0) {

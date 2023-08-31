@@ -19,6 +19,7 @@ class VendorInfo {
       VendorContactNumber,
       VendorEmail,
       VendorAdress,
+      Selectedemp,
     } = req.body;
 
     let file = req.file?.filename;
@@ -34,6 +35,7 @@ class VendorInfo {
         VendorContactNumber,
         VendorEmail,
         VendorAdress,
+        Selectedemp,
         VendorImage: file,
         selectedbank: null,
         AccountHolderName: null,
@@ -124,6 +126,7 @@ class VendorInfo {
       BankBranch,
       BankAccountType,
       IFSCCode,
+      Selectedemp
     } = req.body;
     try {
       let vendor = await VendorInfoModel.findOneAndUpdate(
@@ -142,6 +145,7 @@ class VendorInfo {
           BankBranch,
           BankAccountType,
           IFSCCode,
+          Selectedemp,
         }
       );
       if (vendor) {

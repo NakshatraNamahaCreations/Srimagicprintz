@@ -34,10 +34,10 @@ export default function Category() {
     await getAllCategory();
   };
 
-  const handlesubCategoryAdded = async (e) => {
-    e.preventDefault();
-    window.location.href = "/Subcategory";
-  };
+  // const handlesubCategoryAdded = async (e) => {
+  //   e.preventDefault();
+  //   window.location.href = "/Subcategory";
+  // };
   const deleteCatagory = async (row) => {
     try {
       const response = await axios.delete(
@@ -79,32 +79,33 @@ export default function Category() {
     <>
       <Header />
       <div className="row  m-auto containerPadding">
-        <Button className="col-md-2 " onClick={handleCategoryAdded}>
+        <Button className="col-md-2 m-auto" onClick={handleCategoryAdded}>
           Add Category
         </Button>
 
-        <Button
+        {/* <Button
           className="col-md-2 "
           style={{ marginLeft: "5px" }}
           onClick={handlesubCategoryAdded}
         >
           Add Subcategory
-        </Button>
-
-        <div className="col-md-8 mt-3  containerPadding">
-          <BootstrapTable
-            striped
-            bordered
-            hover
-            keyField="_id"
-            data={categoryData}
-            columns={columns}
-            noDataIndication="No data available"
-            pagination={paginationFactory({
-              sizePerPage: 5,
-              hidePageListOnlyOnePage: true,
-            })}
-          />
+        </Button> */}
+        <div className="row">
+          <div className="col-md-8 mt-3  containerPadding">
+            <BootstrapTable
+              striped
+              bordered
+              hover
+              keyField="_id"
+              data={categoryData}
+              columns={columns}
+              noDataIndication="No data available"
+              pagination={paginationFactory({
+                sizePerPage: 5,
+                hidePageListOnlyOnePage: true,
+              })}
+            />
+          </div>
         </div>
       </div>
     </>

@@ -940,7 +940,7 @@ export default function Design() {
             </div>
 
             <div className="row mt-3">
-              <Button className="col-md-2" onClick={updateRecceData}>
+              <Button className="col-md-3" onClick={updateRecceData}>
                 Update Design
               </Button>
             </div>

@@ -30,7 +30,7 @@ import MarketingAddClient from "./Component/MarketingAddClient";
 import MarketingInfo from "./Component/MarketingInfo";
 import Estimate from "./Component/Estimate";
 import Addcategory from "./Component/Addcategory";
-import Subcategory from "./Component/Subcategory";
+// import Subcategory from "./Component/Subcategory";
 import VendorInfo from "./Component/VendorInfo";
 import ClientInfo from "./Component/ClientsInfo";
 import ReceeManagementApi from "./Component/Recceapi";
@@ -81,7 +81,7 @@ export default function App() {
             <Route path="/Billingquote" element={<Billingquote />} />
             <Route path="/Estimate" element={<Estimate />} />
             <Route path="/Addcategory" element={<Addcategory />} />
-            <Route path="/Subcategory" element={<Subcategory />} />
+            {/* <Route path="/Subcategory" element={<Subcategory />} /> */}
             <Route
               path="/Estiamtecalculation"
               element={<Estiamtecalculation />}

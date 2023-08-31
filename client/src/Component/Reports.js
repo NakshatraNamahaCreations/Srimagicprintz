@@ -880,8 +880,9 @@ export default function Reports() {
                                   onChange={handleCheckboxChange}
                                 />
                                 <p className="d-inline ">
-                                  {ele.ClientName.charAt(0).toUpperCase() +
-                                    ele.ClientName.substr(1)}
+                                  {/* {ele.ClientName.charAt(0).toUpperCase() + */}
+                                    {/* ele.ClientName.substr(1)} */}
+                                    {ele.ClientName}
                                 </p>
                               </Form.Label>
                             </div>

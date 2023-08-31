@@ -3,16 +3,18 @@ import CategoryIcon from "@mui/icons-material/Category";
 import DesignServicesIcon from "@mui/icons-material/DesignServices";
 import PrintIcon from "@mui/icons-material/Print";
 import BuildIcon from "@mui/icons-material/Build";
-import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
+import Button from "react-bootstrap/Button";
 import Header from "./Header";
 import Card from "react-bootstrap/Card";
 import Table from "react-bootstrap/Table";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import BusinessIcon from "@mui/icons-material/Business";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import moment from "moment";
+// import moment from "moment";
 import axios from "axios";
 import RunningWithErrorsIcon from "@mui/icons-material/RunningWithErrors";
+import ArrowCircleDownIcon from "@mui/icons-material/ArrowCircleDown";
+import Form from "react-bootstrap/Form";
 
 export default function Overview() {
   const [totalRecce, setTotalRecce] = useState([]);
@@ -68,7 +70,7 @@ export default function Overview() {
     getAllClientsInfo();
     getAllVendorInfo();
     setTotalRunningJob(data);
-  }, []);
+  });
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
@@ -146,6 +148,13 @@ export default function Overview() {
             className="col-md-3 m-2 c_zoom"
             style={{ height: "225px", backgroundColor: "#C63D2F" }}
           >
+            <div className="row ">
+              <div className="float-end">
+                <ArrowCircleDownIcon
+                // style={{ color: "white", fontSize: "25px" }}
+                />
+              </div>
+            </div>
             <div
               // onClick={() => handleFilterClick(totalRecce)}
               className={`row m-auto ${"active"}`}
@@ -153,9 +162,10 @@ export default function Overview() {
               <div className="col-md-6 m-auto">
                 <CategoryIcon style={{ fontSize: "50px", color: "white" }} />
               </div>
+
               <div className="col-md-6 m-auto">
                 <h4
-                  style={{ fontSize: "35px", color: "black" }}
+                  style={{ fontSize: "35px", color: "white" }}
                   className="row"
                 >
                   {totalRecce?.length}
@@ -170,6 +180,13 @@ export default function Overview() {
             className="col-md-3 m-2 c_zoom"
             style={{ height: "225px", backgroundColor: "#9A3B3B" }}
           >
+            <div className="row ">
+              <div className="float-end">
+                <ArrowCircleDownIcon
+                // style={{ color: "white", fontSize: "25px" }}
+                />
+              </div>
+            </div>
             <div
               // onClick={() => handleFilterClick("Monthly")}
               className={`row m-auto ${"active"}`}
@@ -181,7 +198,7 @@ export default function Overview() {
               </div>
               <div className="col-md-6 m-auto">
                 <h4
-                  style={{ fontSize: "35px", color: "black" }}
+                  style={{ fontSize: "35px", color: "white" }}
                   className="row"
                 >
                   {totalDesign?.length}
@@ -197,6 +214,13 @@ export default function Overview() {
             className="col-md-3 m-2 c_zoom"
             style={{ height: "225px", backgroundColor: "#FFBB5C" }}
           >
+            <div className="row ">
+              <div className="float-end">
+                <ArrowCircleDownIcon
+                // style={{ color: "white", fontSize: "25px" }}
+                />
+              </div>
+            </div>
             <div
               // onClick={() => handleFilterClick(totalPrinting)}
               className={`row m-auto ${"active"}`}
@@ -206,7 +230,7 @@ export default function Overview() {
               </div>
               <div className="col-md-6 m-auto">
                 <h4
-                  style={{ fontSize: "35px", color: "black" }}
+                  style={{ fontSize: "35px", color: "white" }}
                   className="row"
                 >
                   {totalPrinting?.length}
@@ -222,6 +246,13 @@ export default function Overview() {
             className="col-md-3 m-2 c_zoom"
             style={{ height: "225px", backgroundColor: "#FFBB5C" }}
           >
+            <div className="row ">
+              <div className="float-end">
+                <ArrowCircleDownIcon
+                // style={{ color: "white", fontSize: "25px" }}
+                />
+              </div>
+            </div>
             <div
               // onClick={() => handleFilterClick(totalfabrication)}
               className={`row m-auto ${"active"}`}
@@ -231,7 +262,7 @@ export default function Overview() {
               </div>
               <div className="col-md-6 m-auto">
                 <h4
-                  style={{ fontSize: "35px", color: "black" }}
+                  style={{ fontSize: "35px", color: "white" }}
                   className="row"
                 >
                   {totalfabrication?.length}
@@ -247,13 +278,20 @@ export default function Overview() {
             className="col-md-3 m-2 c_zoom"
             style={{ height: "225px", backgroundColor: "#FFBB5C" }}
           >
+            <div className="row ">
+              <div className="float-end">
+                <ArrowCircleDownIcon
+                // style={{ color: "white", fontSize: "25px" }}
+                />
+              </div>
+            </div>
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
                 <BusinessIcon style={{ fontSize: "50px", color: "white" }} />
               </div>
               <div className="col-md-6 m-auto">
                 <h4
-                  style={{ fontSize: "35px", color: "black" }}
+                  style={{ fontSize: "35px", color: "white" }}
                   className="row"
                 >
                   {totalAddClients?.length}
@@ -269,13 +307,20 @@ export default function Overview() {
             className="col-md-3 m-2 c_zoom"
             style={{ height: "225px", backgroundColor: "#7091F5" }}
           >
+            <div className="row ">
+              <div className="float-end">
+                <ArrowCircleDownIcon
+                // style={{ color: "white", fontSize: "25px" }}
+                />
+              </div>
+            </div>
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
                 <BarChartIcon style={{ fontSize: "50px", color: "white" }} />
               </div>
               <div className="col-md-6 m-auto">
                 <h4
-                  style={{ fontSize: "35px", color: "black" }}
+                  style={{ fontSize: "35px", color: "white" }}
                   className="row"
                 >
                   {totalVendorData?.length}
@@ -291,13 +336,20 @@ export default function Overview() {
             className="col-md-3 m-2 c_zoom"
             style={{ height: "225px", backgroundColor: "#7091F5" }}
           >
+            <div className="row ">
+              <div className="float-end">
+                <ArrowCircleDownIcon
+                // style={{ color: "white", fontSize: "25px" }}
+                />
+              </div>
+            </div>
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
                 <AssignmentIcon style={{ fontSize: "50px", color: "white" }} />
               </div>
               <div className="col-md-6 m-auto">
                 <h4
-                  style={{ fontSize: "35px", color: "black" }}
+                  style={{ fontSize: "35px", color: "white" }}
                   className="row"
                 >
                   {totalInstalation?.length}
@@ -312,6 +364,13 @@ export default function Overview() {
             className="col-md-3 m-2 c_zoom"
             style={{ height: "225px", backgroundColor: "#6F61C0" }}
           >
+            <div className="row ">
+              <div className="float-end">
+                <ArrowCircleDownIcon
+                // style={{ color: "white", fontSize: "25px" }}
+                />
+              </div>
+            </div>
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
                 <RunningWithErrorsIcon
@@ -320,7 +379,7 @@ export default function Overview() {
               </div>
               <div className="col-md-6 m-auto">
                 <h4
-                  style={{ fontSize: "35px", color: "black" }}
+                  style={{ fontSize: "35px", color: "white" }}
                   className="row"
                 >
                   {totalRunningJob}
@@ -334,6 +393,31 @@ export default function Overview() {
           </Card>
         </div>
         <div className="row mt-3 m-auto">
+          <div className="col-md-5 float-end mb-3">
+            <div className="row">
+              <div className="col-md-5 ">
+                <Form.Control
+                  type="date"
+                  // value={filterStartDate}
+                  // onChange={handleFilterStartDateChange}
+                />
+              </div>
+              <div className="col-md-5 ">
+                <Form.Control
+                  type="date"
+                  // value={filterEndDate}
+                  // onChange={handleFilterEndDateChange}
+                />
+              </div>
+              <div className="col-md-2 ">
+                <Button
+                //  onClick={handleClearDateFilters}
+                >
+                  Clear
+                </Button>
+              </div>
+            </div>
+          </div>
           <Table bordered>
             <thead>
               <tr>

@@ -284,7 +284,7 @@ export default function Vendor() {
     );
     setVendorData(sortedData);
   };
-
+  console.log(vendorData);
   return (
     <>
       <Header />
@@ -327,7 +327,7 @@ export default function Vendor() {
                           ) : null}
                         </div>
                         <Button
-                          className="col-md-2 "
+                          className="col-md-2 m-1"
                           style={{ border: "1px solid green" }}
                           href="/VendorInfo"
                         >
@@ -381,6 +381,7 @@ export default function Vendor() {
                           Job Completed
                           <span style={{ margin: "5px" }}>0</span>
                         </span>
+                        <span>Selected{ele.Selectedemp}</span>
                       </div>
                     </Card>
                   ))

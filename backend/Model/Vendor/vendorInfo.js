@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const VendorInfoSchema = new mongoose.Schema(
   {
     VendorId: Number,
+    Selectedemp: String,
     VendorFirstName: String,
     VendorLastName: String,
     VendorContactNumber: String,

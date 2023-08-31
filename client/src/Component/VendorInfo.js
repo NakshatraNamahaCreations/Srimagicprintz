@@ -14,16 +14,19 @@ export default function VendorInfo() {
   const [VendorAdress, setVendorAdress] = useState("");
   const [vendorId, setVendorId] = useState(null);
   const [image, setImage] = useState("");
+  const [selected, setSelected] = useState("");
 
   const AddVendorData = async (e) => {
     e.preventDefault();
 
     const formData = new FormData();
+
     formData.append("VendorFirstName", VendorFirstName);
     formData.append("VendorLastName", VendorLastName);
     formData.append("VendorContactNumber", VendorContactNumber);
     formData.append("VendorEmail", VendorEmail);
     formData.append("VendorAdress", VendorAdress);
+    formData.append("Selectedemp", selected);
     formData.append("VendorImage", image);
     formData.append("VendorId", vendorId);
 
@@ -32,7 +35,7 @@ export default function VendorInfo() {
         url: "/Vendor/vendorInfo/addvendorinfo",
         method: "post",
         baseURL: "http://api.srimagicprintz.com/api",
-        Header: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
       const res = await axios(config);
@@ -55,7 +58,18 @@ export default function VendorInfo() {
           <>
             <Row className="mb-3">
               <Col className="mb-3">
-                <Form.Label>Vendor First Name</Form.Label>
+                <Form.Label>Select Type </Form.Label>
+                <Form.Select
+                  value={selected}
+                  onChange={(e) => setSelected(e.target.value)}
+                >
+                  <option>Choose..</option>
+                  <option value="Vendor">Vendor</option>
+                  <option value="Vendor">Staff</option>
+                </Form.Select>
+              </Col>
+              <Col className="mb-3">
+                <Form.Label> First Name</Form.Label>
                 <Form.Control
                   value={VendorFirstName}
                   onChange={(e) => setVendorFirstName(e.target.value)}
@@ -63,7 +77,7 @@ export default function VendorInfo() {
                 />
               </Col>
               <Col className="mb-3">
-                <Form.Label>Vendor Last Name</Form.Label>
+                <Form.Label> Last Name</Form.Label>
                 <Form.Control
                   value={VendorLastName}
                   onChange={(e) => setVendorLastName(e.target.value)}
@@ -73,7 +87,7 @@ export default function VendorInfo() {
             </Row>
             <Row className="mb-3">
               <Col className="mb-3">
-                <Form.Label>Vendor Phone Number</Form.Label>
+                <Form.Label> Phone Number</Form.Label>
                 <Form.Control
                   value={VendorContactNumber}
                   onChange={(e) => setVendorContactNumber(e.target.value)}
@@ -81,7 +95,7 @@ export default function VendorInfo() {
                 />
               </Col>
               <Col className="mb-3">
-                <Form.Label>Vendor Email </Form.Label>
+                <Form.Label> Email </Form.Label>
                 <Form.Control
                   value={VendorEmail}
                   onChange={(e) => setVendorEmail(e.target.value)}
@@ -101,7 +115,7 @@ export default function VendorInfo() {
             </Row>
             <Row className="mb-3">
               <Col className="mb-3">
-                <Form.Label>Vendor Address</Form.Label>
+                <Form.Label> Address</Form.Label>
                 <Form.Control
                   value={VendorAdress}
                   onChange={(e) => setVendorAdress(e.target.value)}
