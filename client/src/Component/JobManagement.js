@@ -68,7 +68,7 @@ export default function JobManagement() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -85,7 +85,7 @@ export default function JobManagement() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -404,7 +404,7 @@ export default function JobManagement() {
                                 borderRadius: "100%",
                               }}
                               className="m-auto"
-                              src={`http://localhost:8000/VendorImage/${ele.VendorImage}`}
+                              src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
                               alt=""
                             />
                           ) : (

@@ -28,7 +28,7 @@ export default function ClientsManagement() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/Client/clients/getallclient"
+        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setAddClients(res.data.client);
@@ -248,7 +248,7 @@ export default function ClientsManagement() {
               <div className="row ">
                 <img
                   variant="top"
-                  src={`http://localhost:8000/ClientImage/${clientID?.ClientImage}`}
+                  src={`http://api.srimagicprintz.com/ClientImage/${clientID?.ClientImage}`}
                   alt=""
                   style={{
                     width: "150px",

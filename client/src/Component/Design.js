@@ -62,7 +62,7 @@ export default function Design() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -379,7 +379,7 @@ export default function Design() {
   //     const config = {
   //       url: `/recce/recce/updatereccedata/${recceId}`,
   //       method: "put",
-  //       baseURL: "http://localhost:8000/api",
+  //       baseURL: "http://api.srimagicprintz.com/api",
   //       headers: { "Content-Type": "multipart/form-data" },
   //       data: formdata,
   //     };
@@ -401,7 +401,7 @@ export default function Design() {
   //   formData.append("OutlateFabricationNeed", fabricationneed);
   //   try {
   //     const response = await axios.put(
-  //       `http://localhost:8000/api/recce/recce/updatereccedata/${designid}`,
+  //       `http://api.srimagicprintz.com/api/recce/recce/updatereccedata/${designid}`,
   //       formData,
   //       {
   //         headers: {
@@ -441,7 +441,7 @@ export default function Design() {
       const config = {
         url: `/recce/recce/updatereccedata/${RecceIndex}/${getreccedata._id}`,
         method: "put",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -473,7 +473,7 @@ export default function Design() {
       ) {
         try {
           const response = await axios.post(
-            `http://localhost:8000/api/recce/recce/getdesigncompletedid/${recceData._id}`
+            `http://api.srimagicprintz.com/api/recce/recce/getdesigncompletedid/${recceData._id}`
           );
 
           if (response.status === 200) {

@@ -57,7 +57,7 @@ export default function Vendor() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -77,7 +77,7 @@ export default function Vendor() {
   const handleShow = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -115,7 +115,7 @@ export default function Vendor() {
       const config = {
         url: "/Vendor/vendorInfo/linkbankinfo",
         method: "post",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
@@ -246,7 +246,7 @@ export default function Vendor() {
       const vendorid = editVendorData._id;
       const config = {
         url: `/Vendor/vendorInfo/updatevendordata/${vendorid}`,
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         method: "put",
         Header: { "Content-type": "application/json" },
         data: formData,
@@ -265,7 +265,7 @@ export default function Vendor() {
   const deleteVendorData = async (row) => {
     try {
       const response = await axios.delete(
-        `http://localhost:8000/api/Vendor/vendorInfo/deletevendordata/${row._id}`
+        `http://api.srimagicprintz.com/api/Vendor/vendorInfo/deletevendordata/${row._id}`
       );
 
       if (response.status === 200) {
@@ -293,7 +293,7 @@ export default function Vendor() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -316,17 +316,15 @@ export default function Vendor() {
     };
 
     recceData?.forEach((recceItem) => {
-      recceItem?.outletName.forEach((outletArray) => {
-        outletArray.forEach((outlet) => {
-          if (outlet.vendor === vendorId) {
-            if (outlet.RecceStatus.includes("completed")) {
-              statusCounts.completed++;
-            }
-            if (outlet.RecceStatus.includes("proccesing")) {
-              statusCounts.processing++;
-            }
+      recceItem?.outletName.forEach((outlet) => {
+        if (outlet.vendor === vendorId) {
+          if (outlet.RecceStatus.includes("completed")) {
+            statusCounts.completed++;
           }
-        });
+          if (outlet.RecceStatus.includes("proccesing")) {
+            statusCounts.processing++;
+          }
+        }
       });
     });
 
@@ -336,7 +334,7 @@ export default function Vendor() {
   // const getAllJob = async () => {
   //   try {
   //     const res = await axios.get(
-  //       "http://localhost:8000/api/Jobmangement/assignjob/getalljob"
+  //       "http://api.srimagicprintz.com/api/Jobmangement/assignjob/getalljob"
   //     );
   //     if (res.status === 200) {
   //       setJobInfo(res.data.allJobs);
@@ -420,7 +418,7 @@ export default function Vendor() {
                               borderRadius: "100%",
                             }}
                             className="m-auto"
-                            src={`http://localhost:8000/VendorImage/${ele.VendorImage}`}
+                            src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
                             alt=""
                           />
                         ) : (
@@ -654,7 +652,7 @@ export default function Vendor() {
                                     height: "30%",
                                     borderRadius: "100%",
                                   }}
-                                  src={`http://localhost:8000/VendorImage/${vendorData[selected].VendorImage}`}
+                                  src={`http://api.srimagicprintz.com/VendorImage/${vendorData[selected].VendorImage}`}
                                   alt=""
                                 />
                               ) : null}
@@ -748,7 +746,7 @@ export default function Vendor() {
                               <img
                                 width={"200px"}
                                 height={"100px"}
-                                src={`http://localhost:8000/BankInfoImage/${vendorData[selected].BankInfoImage}`}
+                                src={`http://api.srimagicprintz.com/BankInfoImage/${vendorData[selected].BankInfoImage}`}
                                 alt=""
                               />
                             ) : null}

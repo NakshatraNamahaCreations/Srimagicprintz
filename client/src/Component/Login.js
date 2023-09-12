@@ -19,7 +19,7 @@ export const Login = () => {
       const config = {
         url: "/auth/auth/login",
         method: "POST",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         data: {
           email: email,
           password: password,
@@ -117,7 +117,7 @@ export const Login = () => {
               )}
 
               <Row className="mb-3 mt-2">
-                <Button  variant="light" onClick={loginUser}>
+                <Button variant="light" onClick={loginUser}>
                   Login
                 </Button>{" "}
               </Row>

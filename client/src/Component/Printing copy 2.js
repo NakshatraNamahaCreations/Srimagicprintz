@@ -59,7 +59,7 @@ export default function Printing() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         const filteredRecceData = res.data.RecceData.filter(
@@ -404,7 +404,7 @@ export default function Printing() {
       const config = {
         url: `/recce/recce/updatereccedata/${recceId}`,
         method: "put",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -429,7 +429,7 @@ export default function Printing() {
       ) {
         try {
           const response = await axios.post(
-            `http://localhost:8000/api/recce/recce/getcompltedprint/${recceData._id}`
+            `http://api.srimagicprintz.com/api/recce/recce/getcompltedprint/${recceData._id}`
           );
 
           if (response.status === 200) {
@@ -843,7 +843,7 @@ export default function Printing() {
                 className="me-4"
                 style={{ borderRadius: "10px", border: "1px solid grey" }}
                 alt=""
-                src={`http://localhost:8000/designimage/${getreccedata.designupload}`}
+                src={`http://api.srimagicprintz.com/designimage/${getreccedata.designupload}`}
               />
             </div>
             <p>

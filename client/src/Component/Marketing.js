@@ -18,7 +18,7 @@ export default function Marketing() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/marketingClient/marketingcliend/getmarketingclient"
+        "http://api.srimagicprintz.com/api/marketingClient/marketingcliend/getmarketingclient"
       );
       if (res.status === 200) {
         setMAddClients(res.data.mclient);
@@ -48,7 +48,7 @@ export default function Marketing() {
       const config = {
         url: `/marketingClient/marketingcliend/updatemarketingdata/${MclientId}`,
         method: "put",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: { "Content-Type": "application/json" },
         data: { msaveMeetingTime: sheduledDate },
       };
@@ -307,7 +307,7 @@ export default function Marketing() {
                   style={{
                     borderRadius: "100%",
                   }}
-                  src={`http://localhost:8000/marketing/${getMclient.mClientImage}`}
+                  src={`http://api.srimagicprintz.com/marketing/${getMclient.mClientImage}`}
                   alt=""
                 />
               </div>

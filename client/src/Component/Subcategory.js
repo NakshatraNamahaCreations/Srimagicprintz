@@ -24,7 +24,7 @@
 //       const config = {
 //         url: "/Product/subcategory/addsubcategory",
 //         method: "post",
-//         baseURL: "http://localhost:8000/api",
+//         baseURL: "http://api.srimagicprintz.com/api",
 //         Header: { "Content-Type": "application/json" },
 //         data: { catagoryName: catagoryName, subCategoryName: subcatagoryName },
 //       };
@@ -41,7 +41,7 @@
 
 //   const getAllSubcategory = async () => {
 //     let res = await axios.get(
-//       "http://localhost:8000/api/Product/subcategory/getallsubcategory"
+//       "http://api.srimagicprintz.com/api/Product/subcategory/getallsubcategory"
 //     );
 //     if (res.status === 200) {
 //       setSubcategoryData(res.data?.subcatagory);
@@ -58,7 +58,7 @@
 //   const getAllCategory = async () => {
 //     try {
 //       const res = await fetch(
-//         "http://localhost:8000/api/Product/category/getcategory"
+//         "http://api.srimagicprintz.com/api/Product/category/getcategory"
 //       );
 //       if (res.ok) {
 //         const data = await res.json();
@@ -83,7 +83,7 @@
 //       const config = {
 //         url: `/Product/subcategory/updateSubcategory/${categoryId}`,
 //         method: "put",
-//         baseURL: "http://localhost:8000/api",
+//         baseURL: "http://api.srimagicprintz.com/api",
 //         headers: {
 //           "Content-Type": "application/json",
 //         },
@@ -106,7 +106,7 @@
 //   const deleteCatagory = async (row) => {
 //     try {
 //       const response = await axios.delete(
-//         ` src={`http://localhost:8000/api/Product/subcategory/deletesubcatagory/${row._id}`
+//         ` src={`http://api.srimagicprintz.com/api/Product/subcategory/deletesubcatagory/${row._id}`
 //       );
 
 //       if (response.status === 200) {

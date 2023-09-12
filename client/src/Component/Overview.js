@@ -74,7 +74,7 @@ export default function Overview() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setTotalRecce(res.data.RecceData);
@@ -113,7 +113,7 @@ export default function Overview() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -129,7 +129,7 @@ export default function Overview() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/Client/clients/getallclient"
+        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setTotalAddClients(res.data.client);

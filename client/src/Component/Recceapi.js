@@ -19,7 +19,7 @@ export default function ReceeManagementApi() {
     try {
       const config = {
         url: "/recce/recce/addrecce",
-        baseURL: "http://localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         method: "post",
         headers: { "Content-Type": "application/json" },
         data: {

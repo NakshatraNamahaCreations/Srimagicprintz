@@ -190,7 +190,7 @@ export default function Printing() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         const filteredRecceData = res.data.RecceData.filter(
@@ -206,7 +206,7 @@ export default function Printing() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://localhost:8000/api/Product/category/getcategory"
+        "http://api.srimagicprintz.com/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -222,7 +222,7 @@ export default function Printing() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -570,7 +570,7 @@ export default function Printing() {
                   {design.reeceDetails.includes(printingdata._id) && (
                     <img
                       alt=""
-                     src={`http://localhost:8000/designimage/${design?.designimage}`}
+                     src={`http://api.srimagicprintz.com/designimage/${design?.designimage}`}
                       style={{ maxWidth: "100px", maxHeight: "100px" }}
                     />
                   )}
