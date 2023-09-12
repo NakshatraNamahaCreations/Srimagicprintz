@@ -13,10 +13,10 @@ export default function Logout() {
         </p>
         <div className="row text-center mt-5">
           <div className="m-auto">
-            <Button className=" m-1 " href="/">
+            <Button className=" m-1 c_W" href="/">
               Logout
             </Button>
-            <Button className=" m-1 ">Cancel</Button>
+            <Button className=" m-1 c_W">Cancel</Button>
           </div>
         </div>
       </div>

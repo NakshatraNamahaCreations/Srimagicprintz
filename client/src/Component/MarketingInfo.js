@@ -58,11 +58,11 @@ export default function MarketingInfo() {
               </p>
               <span>Meeting Sheduled at : {saveDate}</span>
             </div>
-            <Button className="col-md-4 m-1" onClick={creatMeeting}>
+            <Button className="col-md-4 m-1 c_W" onClick={creatMeeting}>
               <VideoCallIcon />
               New meeting
             </Button>
-            <Button className="col-md-4 m-1" href="/Marketingshedule">
+            <Button className="col-md-4 m-1 c_W" href="/Marketingshedule">
               schedule meeting
             </Button>
             <div className={!shedule ? " hide" : ""}>

@@ -26,7 +26,7 @@ export default function VendorInfo() {
     formData.append("VendorContactNumber", VendorContactNumber);
     formData.append("VendorEmail", VendorEmail);
     formData.append("VendorAdress", VendorAdress);
-    formData.append("Selectedemp", selected);
+    formData.append("SelectedType", selected);
     formData.append("VendorImage", image);
     formData.append("VendorId", vendorId);
 
@@ -34,7 +34,7 @@ export default function VendorInfo() {
       const config = {
         url: "/Vendor/vendorInfo/addvendorinfo",
         method: "post",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8000/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
@@ -64,8 +64,8 @@ export default function VendorInfo() {
                   onChange={(e) => setSelected(e.target.value)}
                 >
                   <option>Choose..</option>
-                  <option value="Vendor">Vendor</option>
-                  <option value="Vendor">Staff</option>
+                  <option >Vendor</option>
+                  <option >Staff</option>
                 </Form.Select>
               </Col>
               <Col className="mb-3">

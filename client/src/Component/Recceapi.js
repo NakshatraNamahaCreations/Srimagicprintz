@@ -8,7 +8,7 @@ import Row from "react-bootstrap/Row";
 import axios from "axios";
 
 export default function ReceeManagementApi() {
-  const [shopName, setShopName] = useState("");
+  const [brandName, setBrandName] = useState("");
   const [area, setArea] = useState("");
   const [city, setCity] = useState("");
   const [contactNumber, setContactNumber] = useState("");
@@ -19,18 +19,18 @@ export default function ReceeManagementApi() {
     try {
       const config = {
         url: "/recce/recce/addrecce",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8000/api",
         method: "post",
         headers: { "Content-Type": "application/json" },
         data: {
-          ClientName: clientName,
-          ShopName: shopName,
+          BrandOnerName: clientName,
+          BrandName: brandName,
           Area: area,
           City: city,
           ContactNumber: contactNumber,
           Pincode: pincode,
           Zone: zone,
-          datastatus: "Pending",
+          // datastatus: "Pending",
         },
       };
 
@@ -39,7 +39,7 @@ export default function ReceeManagementApi() {
       if (response.status === 200) {
         alert("Added Successfully");
         window.location.href = "/ReceeManagement";
-        setShopName("");
+        setBrandName("");
         setCity("");
         setContactNumber("");
         setArea("");
@@ -59,7 +59,7 @@ export default function ReceeManagementApi() {
           <Row>
             <Col>
               <Form.Group md="5" className="mb-3">
-                <Form.Label>Client Name</Form.Label>
+                <Form.Label>Company owner Name</Form.Label>
                 <Form.Control
                   value={clientName}
                   onChange={(e) => setclientName(e.target.value)}
@@ -70,12 +70,12 @@ export default function ReceeManagementApi() {
             </Col>
             <Col>
               <Form.Group md="5" className="mb-3">
-                <Form.Label>Shop Name</Form.Label>
+                <Form.Label>Brand Name</Form.Label>
                 <Form.Control
-                  value={shopName}
-                  onChange={(e) => setShopName(e.target.value)}
+                  value={brandName}
+                  onChange={(e) => setBrandName(e.target.value)}
                   type="text"
-                  placeholder="Enter  shop name"
+                  placeholder="Enter  brand name"
                 />
               </Form.Group>
             </Col>

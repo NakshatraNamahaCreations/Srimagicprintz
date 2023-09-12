@@ -41,7 +41,9 @@ a {
     ;
   }
 }
-
+.c_W {
+  color: white !important;
+}
 .sidenavClosed {
   height: 160vh;
   composes: sidenav;
@@ -77,7 +79,9 @@ a {
 .active {
   color: #068fff;
 }
-
+.active1:hover {
+  background-color: rgb(181, 45, 45);
+}
 .menuBtn {
   align-self: center;
   align-self: flex-start;
@@ -381,7 +385,8 @@ table th,
 }
 .c_zoom:hover {
   transform: scale(1.05);
-  background-color: #e5edf2;
+  background-color: rgb(167, 33, 33);
+  color: white;
 }
 table td {
   font-size: 13px;
@@ -400,6 +405,12 @@ table td {
 }
 .th_s {
   font-size: 15px;
+}
+.tr_C:hover {
+  background-color: #88de8547;
+}
+.tr_C:nth-child(even) {
+  background-color: #ccc !important;
 }
 .tr2 th {
   border: 1px solid black;

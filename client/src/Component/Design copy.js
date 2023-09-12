@@ -97,7 +97,7 @@ export default function Design() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8000/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setDesignToPrint(res.data.RecceData);
@@ -302,7 +302,7 @@ export default function Design() {
       setUploading(true);
       try {
         const res = await axios.post(
-          "http://api.srimagicprintz.com/api/recce/recce/addreccesviaexcelesheet",
+          "http://localhost:8000/api/recce/recce/addreccesviaexcelesheet",
           importXLSheet
         );
         if (res.status === 200) {
@@ -328,45 +328,45 @@ export default function Design() {
     }
   };
 
-  // const updateRecceData = async () => {
-  //   // if (reccedesign) {
-  //   //   formData.append("reccedesign", reccedesign);
-  //   // }
+  const updateRecceData = async () => {
+    if (reccedesign) {
+      formData.append("reccedesign", reccedesign);
+    }
 
-  //   try {
-  //     const recceId = editRecceData._id;
-  //     const config = {
-  //       url: `/recce/recce/updatereccedata/${recceId}`,
-  //       method: "put",
-  //       baseURL: "http://api.srimagicprintz.com/api",
-  //       headers: { "Content-Type": "application/json" },
-  //       data: {
-  //         Area: Editarea || editRecceData.Area,
-  //         ClientName: Editclient || editRecceData.ClientName,
-  //         City: EditCity || editRecceData.City,
-  //         ContactNumber: EditContactNumber || editRecceData.ContactNumber,
-  //         Pincode: EditPincode || editRecceData.Pincode,
-  //         Zone: EditZone || editRecceData.Zone,
-  //         recceUnit: EditrecceUnit || editRecceData.recceUnit,
-  //         category: Editcategory || editRecceData.category,
-  //         datastatus: Editdatastatus || editRecceData.datastatus,
-  //         reccehight: Editreccehight || editRecceData.reccehight,
-  //         reccewidth: Editreccewidth || editRecceData.reccewidth,
-  //         ShopName: Editshopname || editRecceData.ShopName,
-  //       },
-  //     };
+    try {
+      const recceId = editRecceData._id;
+      const config = {
+        url: `/recce/recce/updatereccedata/${recceId}`,
+        method: "put",
+        baseURL: "http://localhost:8000/api",
+        headers: { "Content-Type": "application/json" },
+        data: {
+          Area: Editarea || editRecceData.Area,
+          ClientName: Editclient || editRecceData.ClientName,
+          City: EditCity || editRecceData.City,
+          ContactNumber: EditContactNumber || editRecceData.ContactNumber,
+          Pincode: EditPincode || editRecceData.Pincode,
+          Zone: EditZone || editRecceData.Zone,
+          recceUnit: EditrecceUnit || editRecceData.recceUnit,
+          category: Editcategory || editRecceData.category,
+          datastatus: Editdatastatus || editRecceData.datastatus,
+          reccehight: Editreccehight || editRecceData.reccehight,
+          reccewidth: Editreccewidth || editRecceData.reccewidth,
+          ShopName: Editshopname || editRecceData.ShopName,
+        },
+      };
 
-  //     const res = await axios(config);
+      const res = await axios(config);
 
-  //     if (res.status === 200) {
-  //       alert("Successfully linked vendor to recce");
-  //       setSelectedIndex(null);
-  //       window.location.reload();
-  //     }
-  //   } catch (err) {
-  //     alert("Not able to add", err);
-  //   }
-  // };
+      if (res.status === 200) {
+        alert("Successfully linked vendor to recce");
+        setSelectedIndex(null);
+        window.location.reload();
+      }
+    } catch (err) {
+      alert("Not able to add", err);
+    }
+  };
 
   const handleVendorEdit = (recceid) => {
     const recceTobeedit = filteredData.find((recce) => recce._id === recceid);
@@ -433,7 +433,7 @@ export default function Design() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
+        "http://localhost:8000/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -567,7 +567,7 @@ export default function Design() {
     try {
       const config = {
         url: "/design/design/adddesign",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8000/api",
         method: "post",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
@@ -1074,7 +1074,7 @@ export default function Design() {
                 className="me-4"
                 style={{ borderRadius: "10px", border: "1px solid grey" }}
                 alt=""
-                src={`http://localhost:8000/reccedesign/${getreccedata.reccedesign}`}
+                src={` src={`http://localhost:8000/reccedesign/${getreccedata.reccedesign}`}
               />
 
               <Form.Control

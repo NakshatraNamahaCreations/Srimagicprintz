@@ -25,13 +25,27 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage: storage });
+const storage1 = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, "../../Public/excelFile"));
+  },
+  filename: (req, file, cb) => {
+    const uniqueFileName = Date.now() + "_" + file.originalname;
+    cb(null, uniqueFileName);
+  },
+});
+
+const upload1 = multer({ storage: storage1 });
 
 router.post("/addrecce", RecceController.AddRecce);
 router.get("/getallrecce", RecceController.getAllRecce);
-router.post("/addreccesviaexcelesheet", RecceController.addreccevaiexcel);
 router.post(
-  "/updatevendorname/:reccevendorid",
-
+  "/addreccesviaexcelesheet/:addexcelid",
+  upload1.single("excelFile"),
+  RecceController.updateRecceOutletName
+);
+router.post(
+  "/updatevendorname/:zone/:vendorid/:typesofjobid",
   RecceController.AddRecceDetails
 );
 router.post("/getcompletedid/:completedid", RecceController.SendRecceToDesign);
@@ -52,11 +66,12 @@ router.post(
   RecceController.SendPrintToJobTrack
 );
 
-// printingimage
 router.put(
-  "/updatereccedata/:reccedataid",
-  upload.single("designimage"),
+  "/updatereccedata/:recceindex/:getreccedataid",
+  upload.any(),
   RecceController.UpdateRecceData
 );
+
+
 router.delete("/deletereccedata/:reccedeleteid", RecceController.DeletRecce);
 module.exports = router;

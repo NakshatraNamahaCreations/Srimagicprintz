@@ -70,11 +70,11 @@ export default function Overview() {
     getAllClientsInfo();
     getAllVendorInfo();
     setTotalRunningJob(data);
-  });
+  },);
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8000/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setTotalRecce(res.data.RecceData);
@@ -113,7 +113,7 @@ export default function Overview() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -129,7 +129,7 @@ export default function Overview() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://localhost:8000/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setTotalAddClients(res.data.client);
@@ -145,8 +145,8 @@ export default function Overview() {
       <div className="row mt-3 m-auto containerPadding">
         <div className="row m-auto">
           <Card
-            className="col-md-3 m-2 c_zoom"
-            style={{ height: "225px", backgroundColor: "#C63D2F" }}
+            className={`col-md-3 m-2 c_zoom ${"active1"}`}
+            style={{ height: "225px",  }}
           >
             <div className="row ">
               <div className="float-end">
@@ -160,25 +160,25 @@ export default function Overview() {
               className={`row m-auto ${"active"}`}
             >
               <div className="col-md-6 m-auto">
-                <CategoryIcon style={{ fontSize: "50px", color: "white" }} />
+                <CategoryIcon style={{ fontSize: "50px", color: "black" }} />
               </div>
 
               <div className="col-md-6 m-auto">
                 <h4
-                  style={{ fontSize: "35px", color: "white" }}
+                  style={{ fontSize: "35px", color: "black" }}
                   className="row"
                 >
                   {totalRecce?.length}
                 </h4>
-                <p style={{ color: "white" }} className="row">
+                <p style={{ color: "black" }} className="row">
                   Total Recce Jobs
                 </p>
               </div>
             </div>
           </Card>
           <Card
-            className="col-md-3 m-2 c_zoom"
-            style={{ height: "225px", backgroundColor: "#9A3B3B" }}
+            className={`col-md-3 m-2 c_zoom ${"active1"}`}
+            style={{ height: "225px",  }}
           >
             <div className="row ">
               <div className="float-end">
@@ -193,17 +193,17 @@ export default function Overview() {
             >
               <div className="col-md-6 m-auto">
                 <DesignServicesIcon
-                  style={{ fontSize: "50px", color: "white" }}
+                  style={{ fontSize: "50px", color: "black" }}
                 />
               </div>
               <div className="col-md-6 m-auto">
                 <h4
-                  style={{ fontSize: "35px", color: "white" }}
+                  style={{ fontSize: "35px", color: "black" }}
                   className="row"
                 >
                   {totalDesign?.length}
                 </h4>
-                <p style={{ color: "white" }} className="row">
+                <p style={{ color: "black" }} className="row">
                   {" "}
                   Total Design Jobs
                 </p>
@@ -211,8 +211,8 @@ export default function Overview() {
             </div>
           </Card>
           <Card
-            className="col-md-3 m-2 c_zoom"
-            style={{ height: "225px", backgroundColor: "#FFBB5C" }}
+            className={`col-md-3 m-2 c_zoom ${"active1"}`}
+            style={{ height: "225px", }}
           >
             <div className="row ">
               <div className="float-end">
@@ -226,16 +226,16 @@ export default function Overview() {
               className={`row m-auto ${"active"}`}
             >
               <div className="col-md-6 m-auto">
-                <PrintIcon style={{ fontSize: "50px", color: "white" }} />
+                <PrintIcon style={{ fontSize: "50px", color: "black" }} />
               </div>
               <div className="col-md-6 m-auto">
                 <h4
-                  style={{ fontSize: "35px", color: "white" }}
+                  style={{ fontSize: "35px", color: "black" }}
                   className="row"
                 >
                   {totalPrinting?.length}
                 </h4>
-                <p style={{ color: "white" }} className="row">
+                <p style={{ color: "black" }} className="row">
                   {" "}
                   Total Printing Jobs
                 </p>
@@ -243,8 +243,8 @@ export default function Overview() {
             </div>
           </Card>
           <Card
-            className="col-md-3 m-2 c_zoom"
-            style={{ height: "225px", backgroundColor: "#FFBB5C" }}
+            className={`col-md-3 m-2 c_zoom ${"active1"}`}
+            style={{ height: "225px",}}
           >
             <div className="row ">
               <div className="float-end">
@@ -258,16 +258,16 @@ export default function Overview() {
               className={`row m-auto ${"active"}`}
             >
               <div className="col-md-6 m-auto">
-                <BuildIcon style={{ fontSize: "50px", color: "white" }} />
+                <BuildIcon style={{ fontSize: "50px", color: "black" }} />
               </div>
               <div className="col-md-6 m-auto">
                 <h4
-                  style={{ fontSize: "35px", color: "white" }}
+                  style={{ fontSize: "35px", color: "black" }}
                   className="row"
                 >
                   {totalfabrication?.length}
                 </h4>
-                <p style={{ color: "white" }} className="row">
+                <p style={{ color: "black" }} className="row">
                   {" "}
                   Total Fabrication Jobs
                 </p>
@@ -275,8 +275,8 @@ export default function Overview() {
             </div>
           </Card>
           <Card
-            className="col-md-3 m-2 c_zoom"
-            style={{ height: "225px", backgroundColor: "#FFBB5C" }}
+            className={`col-md-3 m-2 c_zoom ${"active1"}`}
+            style={{ height: "225px", }}
           >
             <div className="row ">
               <div className="float-end">
@@ -287,16 +287,16 @@ export default function Overview() {
             </div>
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
-                <BusinessIcon style={{ fontSize: "50px", color: "white" }} />
+                <BusinessIcon style={{ fontSize: "50px", color: "black" }} />
               </div>
               <div className="col-md-6 m-auto">
                 <h4
-                  style={{ fontSize: "35px", color: "white" }}
+                  style={{ fontSize: "35px", color: "black" }}
                   className="row"
                 >
                   {totalAddClients?.length}
                 </h4>
-                <p style={{ color: "white" }} className="row">
+                <p style={{ color: "black" }} className="row">
                   {" "}
                   Total Number of Clients
                 </p>
@@ -304,8 +304,8 @@ export default function Overview() {
             </div>
           </Card>
           <Card
-            className="col-md-3 m-2 c_zoom"
-            style={{ height: "225px", backgroundColor: "#7091F5" }}
+            className={`col-md-3 m-2 c_zoom ${"active1"}`}
+            style={{ height: "225px", }}
           >
             <div className="row ">
               <div className="float-end">
@@ -316,16 +316,16 @@ export default function Overview() {
             </div>
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
-                <BarChartIcon style={{ fontSize: "50px", color: "white" }} />
+                <BarChartIcon style={{ fontSize: "50px", color: "black" }} />
               </div>
               <div className="col-md-6 m-auto">
                 <h4
-                  style={{ fontSize: "35px", color: "white" }}
+                  style={{ fontSize: "35px", color: "black" }}
                   className="row"
                 >
                   {totalVendorData?.length}
                 </h4>
-                <p style={{ color: "white" }} className="row">
+                <p style={{ color: "black" }} className="row">
                   {" "}
                   Total Number Of Venders
                 </p>
@@ -333,8 +333,8 @@ export default function Overview() {
             </div>
           </Card>
           <Card
-            className="col-md-3 m-2 c_zoom"
-            style={{ height: "225px", backgroundColor: "#7091F5" }}
+            className={`col-md-3 m-2 c_zoom ${"active1"}`}
+            style={{ height: "225px", }}
           >
             <div className="row ">
               <div className="float-end">
@@ -345,24 +345,24 @@ export default function Overview() {
             </div>
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
-                <AssignmentIcon style={{ fontSize: "50px", color: "white" }} />
+                <AssignmentIcon style={{ fontSize: "50px", color: "black" }} />
               </div>
               <div className="col-md-6 m-auto">
                 <h4
-                  style={{ fontSize: "35px", color: "white" }}
+                  style={{ fontSize: "35px", color: "black" }}
                   className="row"
                 >
                   {totalInstalation?.length}
                 </h4>
-                <p style={{ color: "white" }} className="row">
+                <p style={{ color: "black" }} className="row">
                   Total Installation{" "}
                 </p>
               </div>
             </div>
           </Card>
           <Card
-            className="col-md-3 m-2 c_zoom"
-            style={{ height: "225px", backgroundColor: "#6F61C0" }}
+            className={`col-md-3 m-2 c_zoom ${"active1"}`}
+            style={{ height: "225px",  }}
           >
             <div className="row ">
               <div className="float-end">
@@ -374,17 +374,17 @@ export default function Overview() {
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
                 <RunningWithErrorsIcon
-                  style={{ fontSize: "50px", color: "white" }}
+                  style={{ fontSize: "50px", color: "black" }}
                 />
               </div>
               <div className="col-md-6 m-auto">
                 <h4
-                  style={{ fontSize: "35px", color: "white" }}
+                  style={{ fontSize: "35px", color: "black" }}
                   className="row"
                 >
                   {totalRunningJob}
                 </h4>
-                <p style={{ color: "white" }} className="row">
+                <p style={{ color: "black" }} className="row">
                   {" "}
                   Total Running Jobs
                 </p>

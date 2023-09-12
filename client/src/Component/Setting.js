@@ -4,6 +4,7 @@ import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
 export default function Setting() {
   const user = JSON.parse(sessionStorage.getItem("userData"));
+  console.log(user)
   return (
     <>
       <Header />
@@ -24,7 +25,7 @@ export default function Setting() {
                     width={"100px"}
                     height={"100px"}
                     style={{ borderRadius: "100px" }}
-                   src={`http://api.srimagicprintz.com/profileImage/${user?.profileImage}`}
+                   src={`http://localhost:8000/ProfileImage/${user?.profileImage}`}
                     alt=""
                   />
                 )}

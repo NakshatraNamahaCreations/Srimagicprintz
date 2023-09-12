@@ -39,7 +39,7 @@ function MarketingAddClient() {
     try {
       const config = {
         url: "/marketingClient/marketingcliend/addmarketingclient",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8000/api",
         headers: { "Content-Type": "multipart/form-data" },
         method: "post",
         data: formData,
@@ -163,7 +163,7 @@ function MarketingAddClient() {
             </Form.Group> */}
           </Row>
           <Row className="mb-3">
-            <Button onClick={AddMClientsData} className="col-md-2 m-auto">
+            <Button onClick={AddMClientsData} className="col-md-2 m-auto c_W">
               Add Clients
             </Button>{" "}
           </Row>

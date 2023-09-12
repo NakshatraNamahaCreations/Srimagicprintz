@@ -8,7 +8,11 @@ function uuidStringToNumber(uuid) {
     hash = (hash << 5) - hash + char;
     hash |= 0;
   }
-  return Math.abs(hash);
+
+  const sixDigitNumber = Math.abs(hash) % 1000000;
+  const formattedSixDigitNumber = String(sixDigitNumber).padStart(6, "0");
+
+  return formattedSixDigitNumber;
 }
 
 class VendorInfo {
@@ -19,13 +23,14 @@ class VendorInfo {
       VendorContactNumber,
       VendorEmail,
       VendorAdress,
-      Selectedemp,
+      SelectedType,
     } = req.body;
 
     let file = req.file?.filename;
 
     try {
       const uniqueId = uuidv4();
+
       const numericVendorId = uuidStringToNumber(uniqueId);
 
       let newVendorInfo = new VendorInfoModel({
@@ -35,7 +40,7 @@ class VendorInfo {
         VendorContactNumber,
         VendorEmail,
         VendorAdress,
-        Selectedemp,
+        SelectedType,
         VendorImage: file,
         selectedbank: null,
         AccountHolderName: null,
@@ -126,7 +131,7 @@ class VendorInfo {
       BankBranch,
       BankAccountType,
       IFSCCode,
-      Selectedemp
+      SelectedType,
     } = req.body;
     try {
       let vendor = await VendorInfoModel.findOneAndUpdate(
@@ -145,7 +150,7 @@ class VendorInfo {
           BankBranch,
           BankAccountType,
           IFSCCode,
-          Selectedemp,
+          SelectedType,
         }
       );
       if (vendor) {

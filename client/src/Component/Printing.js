@@ -21,7 +21,7 @@ import "jspdf-autotable"; // Import the autotable plugin
 
 export default function Printing() {
   const ApiURL = process.env.REACT_APP_API_URL;
-  const [recceData, setRecceData] = useState([]);
+  const [RecceData, setRecceData] = useState([]);
   const [searchshopName, setSearchshopName] = useState("");
   const [searcharea, setSearcharea] = useState("");
   const [searchcity, setSearchcity] = useState("");
@@ -40,8 +40,8 @@ export default function Printing() {
   const [SearchCategory, setSearchCategory] = useState("");
   const [CategoryData, setCategoryData] = useState(null);
   const [vendordata, setVendorData] = useState(null);
-  const [getreccedata, setgetreccedata] = useState("");
-  const [SelecteddesignIndex, setSelectedDesignIndex] = useState(false);
+  // const [PrintData, setgetreccedata] = useState("");
+  // const [SelecteddesignIndex, setSelectedDesignIndex] = useState(false);
   const [designImages, setDesignImages] = useState("");
   const [SearchclientName, setSearchclientName] = useState("");
   const [searchdatastatus, setSearchdatastatus] = useState("");
@@ -50,7 +50,6 @@ export default function Printing() {
   const [moreoption, setmoreoption] = useState(false);
   const [selectedRecceItems, setSelectedRecceItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
- 
 
   useEffect(() => {
     getAllRecce();
@@ -59,22 +58,18 @@ export default function Printing() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8000/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
-        const filteredRecceData = res.data.RecceData.filter(
-          (item) => item._id === item.completedDesign
-        );
-        console.log("filteredRecceData", filteredRecceData);
-        setRecceData(filteredRecceData);
+        setRecceData(res.data.RecceData);
       }
     } catch (err) {
-      console.error(err);
+      alert(err);
     }
   };
   useEffect(() => {
     const filteredClients = () => {
-      let results = [...recceData];
+      let results = [...RecceData];
 
       if (searchSINO) {
         results = results.filter((item, index) => {
@@ -185,7 +180,7 @@ export default function Printing() {
     };
     filteredClients();
   }, [
-    recceData,
+    RecceData,
     SearchclientName,
     searchshopName,
     searchVendorName,
@@ -380,11 +375,11 @@ export default function Printing() {
 
   const [designData, setDesignData] = useState([]);
 
-  const handleEdit = (item) => {
-    setgetreccedata(item, designData);
-    setDesignData(designData);
-    setSelectedDesignIndex(true);
-  };
+  // const handleEdit = (item) => {
+  //   setgetreccedata(item, designData);
+  //   setDesignData(designData);
+
+  // };
   const updateRecceData = async () => {
     const formdata = new FormData();
 
@@ -394,17 +389,14 @@ export default function Printing() {
       }
     }
 
-    formdata.append(
-      "printingStatus",
-      printstatus || getreccedata.printingStatus
-    );
+    formdata.append("printingStatus", printstatus || PrintData.printingStatus);
 
     try {
-      const recceId = getreccedata._id;
+      const recceId = PrintData._id;
       const config = {
         url: `/recce/recce/updatereccedata/${recceId}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8000/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -429,7 +421,7 @@ export default function Printing() {
       ) {
         try {
           const response = await axios.post(
-            `http://api.srimagicprintz.com/api/recce/recce/getcompltedprint/${recceData._id}`
+            `http://localhost:8000/api/recce/recce/getcompltedprint/${recceData._id}`
           );
 
           if (response.status === 200) {
@@ -446,12 +438,28 @@ export default function Printing() {
       }
     }
   };
-  // completedPrinting
+  let serialNumber = 0;
+  let rowsDisplayed = 0;
+  const [rowsPerPage1, setRowsPerPage1] = useState(5);
+  const handleRowsPerPageChange = (e) => {
+    const newRowsPerPage = parseInt(e.target.value);
+    setRowsPerPage1(newRowsPerPage);
+    serialNumber = 0;
+    rowsDisplayed = 0;
+  };
+  const [PrintData, setPrintData] = useState(null);
+  const [selectedPrint, setSelectedPrint] = useState(false);
+
+  const handleEdit = (selectedSNo, recceItem) => {
+    setPrintData(selectedSNo);
+    setSelectedPrint(true);
+  };
+
   return (
     <>
       <Header />
 
-      {!SelecteddesignIndex ? (
+      {!selectedPrint ? (
         <div className="row  m-auto containerPadding">
           <div className="row ">
             <Col className="col-md-1 mb-3">
@@ -474,7 +482,7 @@ export default function Printing() {
                   <option value={200}>200</option>
                 </Form.Control>
                 <Form.Label>
-                  {displayedData?.length} of: {recceData?.length}
+                  {displayedData?.length} of: {RecceData?.length}
                 </Form.Label>
               </Form.Group>
             </Col>
@@ -545,235 +553,99 @@ export default function Printing() {
           <div className="row ">
             <table className="t-p">
               <thead className="t-c">
-                <tr className="tr2">
-                  <th></th>
-                  <th>
-                    <input
-                      className="col-md-1"
-                      placeholder="SI.No"
-                      value={searchSINO}
-                      onChange={(e) => setSearchSINO(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-2">
-                    <input
-                      className="col-md-1"
-                      placeholder="client name"
-                      value={SearchclientName}
-                      onChange={(e) => setSearchclientName(e.target.value)}
-                      style={{ width: "65px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Shop name"
-                      value={searchshopName}
-                      onChange={(e) => setSearchshopName(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  {/* <th>
-                    <input
-                      className="col-md-1"
-                      placeholder="Vendor name"
-                      value={searchVendorName}
-                      onChange={(e) => setSearchVendorName(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th> */}
-                  <th>
-                    <input
-                      className="col-md-1"
-                      placeholder="Contact"
-                      value={searchcontactNumber}
-                      onChange={(e) => setSearchcontactNumber(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Area"
-                      value={searcharea}
-                      onChange={(e) => setSearcharea(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-
-                  <th>
-                    <input
-                      className="col-md-1"
-                      placeholder="City"
-                      value={searchcity}
-                      onChange={(e) => setSearchcity(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Pincode"
-                      value={searchpincode}
-                      onChange={(e) => setSearchpincode(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Zone"
-                      value={searchzone}
-                      onChange={(e) => setSearchzone(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Date"
-                      value={searchdate}
-                      onChange={(e) => setSearchDate(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Status"
-                      value={searchstatus}
-                      onChange={(e) => setSearchStatus(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th>
-                    {/* <input
-                      className="col-md-1"
-                      placeholder="Seach hight"
-                      value={searchHight}
-                      onChange={(e) => setsearchHight(e.target.value)}
-                      style={{ width: "79px" }}
-                    /> */}
-                  </th>
-                  <th>
-                    {/* <input
-                      className="col-md-1"
-                      placeholder=" width"
-                      value={searchwidth}
-                      onChange={(e) => setsearchwidth(e.target.value)}
-                      style={{ width: "79px" }}
-                    /> */}
-                  </th>
-                  <th>
-                    <input
-                      className="col-md-1"
-                      placeholder=" category"
-                      value={SearchCategory}
-                      onChange={(e) => setSearchCategory(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th></th>
-                </tr>
                 <tr>
-                  <th className="th_s ">
-                    <input
-                      type="checkbox"
-                      style={{
-                        width: "15px",
-                        height: "15px",
-                        marginRight: "5px",
-                      }}
-                      checked={selectAll}
-                      onChange={handleSelectAllChange}
-                    />
-                  </th>
-                  <th className="th_s p-1">SI.No.</th>
-                  <th className="th_s ">Client Name</th>{" "}
+                  <th className="th_s p-1">SI.No</th>
+                  <th className="th_s p-1">Job.No</th>
+                  <th className="th_s p-1">Brand </th>
                   <th className="th_s p-1">Shop Name</th>
+                  <th className="th_s p-1">Client Name</th>
+                  <th className="th_s p-1">State</th>
                   <th className="th_s p-1">Contact Number</th>
-                  <th className="th_s p-1">Area</th>
-                  <th className="th_s p-1">City</th>
-                  <th className="th_s p-1">Pincode</th>
                   <th className="th_s p-1">Zone</th>
-                  <th className="th_s p-1"> Date</th>
-                  <th className="th_s p-1"> Status</th>
-                  <th className="th_s p-1"> Height</th>
-                  <th className="th_s p-1"> Width</th>
-                  <th className="th_s p-1"> Category</th>
+                  <th className="th_s p-1">Pincode</th>
+                  <th className="th_s p-1">City</th>
+                  <th className="th_s p-1">FL Board</th>
+                  <th className="th_s p-1">GSB</th>
+                  <th className="th_s p-1">Inshop</th>
+                  <th className="th_s p-1">Category</th>
+                  <th className="th_s p-1">Hight</th>
+                  <th className="th_s p-1">Width</th>
+                  <th className="th_s p-1">Date</th>
                   <th className="th_s p-1">Action</th>
                 </tr>
               </thead>
-              <tbody className="table">
-                {filteredData?.map((item, index) => {
-                  return (
-                    <tr className="design" key={item._id}>
-                      <td className="td_S p-1">
-                        <input
-                          style={{
-                            width: "15px",
-                            height: "15px",
-                            marginRight: "5px",
-                          }}
-                          type="checkbox"
-                          checked={selectedRecceItems.includes(item._id)}
-                          onChange={() => handleToggleSelect(item._id)}
-                        />
-                      </td>
-                      <td className="td_S p-1">{index + 1}</td>
-                      <td className="td_S p-1">{item.ClientName}</td>
-                      <td className="td_S p-1">{item.ShopName}</td>
-                      {/* <td className="td_S p-1">
-                        {selectedVendor ? selectedVendor?.VendorFirstName : ""}
-                      </td> */}
-                      <td className="td_S p-1">{item.ContactNumber}</td>
-                      <td className="td_S p-1">{item.Area}</td>
-                      <td className="td_S p-1">{item.City}</td>
-                      <td className="td_S p-1">{item.Pincode}</td>
-                      <td className="td_S p-1">{item.Zone}</td>
-                      <td className="td_S p-1">
-                        {item.createdAt
-                          ? new Date(item.createdAt).toISOString().slice(0, 10)
-                          : ""}
-                      </td>
-                      <td className="td_S">{item.printingStatus}</td>
-                      <td className="td_S">
-                        {" "}
-                        {item.reccehight}
-                        {item.recceUnit}
-                      </td>
-                      <td className="td_S">
-                        {item.reccewidth}
-                        {item.recceUnit}
-                      </td>
+              <tbody>
+                {filteredData?.map((recceItem, index) =>
+                  recceItem?.outletName.map((outlet, outletArray) => {
+                    if (rowsDisplayed < rowsPerPage1) {
+                      const pincodePattern = /\b\d{6}\b/;
 
-                      <td className="td_S p-1">
-                        {item.category}
-                        {/* {category ? category?.categoryName : ""} */}
-                      </td>
-                      <td className="td_S p-1">
-                        <span
-                          className="col-md-5 p-1"
-                          variant="info "
-                          onClick={() => {
-                            handleEdit(item);
-                          }}
-                          style={{ cursor: "pointer", color: "skyblue" }}
-                        >
-                          View
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
+                      const address = outlet?.OutletAddress;
+                      const extractedPincode = address?.match(pincodePattern);
+
+                      if (extractedPincode) {
+                        outlet.OutletPincode = extractedPincode[0];
+                      }
+                      if (outlet?.RecceStatus.includes("completed")) {
+                        serialNumber++;
+                        rowsDisplayed++;
+                        return (
+                          <tr className="tr_C" key={serialNumber}>
+                            <td className="td_S p-1">{serialNumber}</td>
+                            <td className="td_S p-1">Job{index + 1}</td>
+                            <td className="td_S p-1">{recceItem.BrandName}</td>
+                            <td className="td_S p-1">{outlet.ShopName}</td>
+                            <td className="td_S p-1">{outlet.ClientName}</td>
+                            <td className="td_S p-1">{outlet.State}</td>
+                            <td className="td_S p-1">
+                              {outlet.OutletContactNumber}
+                            </td>
+
+                            <td className="td_S p-1">{outlet.OutletZone}</td>
+                            <td className="td_S p-1">
+                              {extractedPincode ? extractedPincode[0] : ""}
+                            </td>
+                            <td className="td_S p-1">{outlet.OutletCity}</td>
+                            <td className="td_S p-1">{outlet.FLBoard}</td>
+                            <td className="td_S p-1">{outlet.GSB}</td>
+                            <td className="td_S p-1">{outlet.Inshop}</td>
+                            <td className="td_S p-1">{outlet.Category}</td>
+                            <td className="td_S p-1">
+                              {outlet.height}
+                              {outlet.unit}
+                            </td>
+                            <td className="td_S p-1">
+                              {outlet.width}
+                              {outlet.unit}
+                            </td>
+                            <td className="td_S ">
+                              {recceItem.createdAt
+                                ? new Date(recceItem.createdAt)
+                                    .toISOString()
+                                    .slice(0, 10)
+                                : ""}
+                            </td>
+                            <td className="td_S ">
+                              <span
+                                variant="info "
+                                onClick={() => {
+                                  handleEdit(outlet, recceItem);
+                                }}
+                                style={{
+                                  cursor: "pointer",
+                                  color: "skyblue",
+                                }}
+                              >
+                                view
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      }
+                    }
+                    return null;
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -783,103 +655,62 @@ export default function Printing() {
           <div className="row">
             <div className="col-md-1">
               <ArrowCircleLeftIcon
-                onClick={(e) => setSelectedDesignIndex(null)}
+                onClick={(e) => setSelectedPrint(false)}
                 style={{ color: "#068FFF" }}
               />{" "}
             </div>
           </div>
           <div className="col-md-8">
             <p>
-              <span className="me-3 clr">Store Name:</span>
-              <span className="me-3 ">{getreccedata.ShopName}</span>
+              <span className="cl"> Shop Name:</span>
+              <span>{PrintData.ShopName}</span>
             </p>
             <p>
-              <span className="me-3 clr">Hight:</span>
-              <span className="me-3 ">
-                {getreccedata.reccehight}
-                {getreccedata.recceUnit}
-              </span>
+              <span className="cl"> Partner Code:</span>
+              <span> {PrintData.PartnerCode}</span>
             </p>
             <p>
-              <span className="me-3 clr">Width:</span>
-              <span className="me-3 ">
-                {getreccedata.reccewidth}
-                {getreccedata.recceUnit}
-              </span>
+              <span className="cl"> Category :</span>
+              <span> {PrintData.Category}</span>
             </p>
             <p>
-              <span className="me-3 clr">Contact Number:</span>
-              <span className="me-3 ">{getreccedata.ContactNumber}</span>
-            </p>
-
-            <p>
-              <span className="me-3 clr">Category :</span>
-              <span className="me-3 ">
-                {/* {selectcategry
-                  ? selectcategry?.categoryName
-                  : "Category not available"} */}
-                {getreccedata.category}
-              </span>
+              <span className="cl">Outlet Pincode :</span>
+              <span> {PrintData.OutletPincode}</span>
             </p>
             <p>
-              <span className="me-3 clr">Zone :</span>
-              <span>{getreccedata.Zone}</span>
-            </p>
-            <p>
-              <span className="me-3 clr">Pincode :</span>
-              <span>{getreccedata.Pincode}</span>
-            </p>
-
-            <p className="col-md-8">
-              <span className="me-3 clr">Address :</span>
+              <span className="cl"> Inshop :</span>
               <span>
-                {getreccedata.Area} {getreccedata.City}
+                {PrintData.Inshop === "Y" || "y" ? PrintData.Inshop : "No"}
               </span>
             </p>
-            <div className="mt-2">
-              <img
-                width={"100px"}
-                height={"50px"}
-                className="me-4"
-                style={{ borderRadius: "10px", border: "1px solid grey" }}
-                alt=""
-                src={`http://api.srimagicprintz.com/designimage/${getreccedata.designupload}`}
-              />
-            </div>
             <p>
-              <span className="me-3 clr">Status:</span>
-
-              <span className="me-3 ">
-                {getreccedata ? getreccedata.printingStatus : null}
+              <span className="cl"> GSB :</span>
+              <span>{PrintData.GSB === "Y" || "y" ? PrintData.GSB : "No"}</span>
+            </p>
+            <p>
+              <span className="cl"> FLBoard :</span>
+              <span>
+                {PrintData.FLBoard === "Y" ? PrintData.FLBoard : "No"}
               </span>
             </p>
-            <div className="col-md-3 mt-2">
-              <Form.Control
-                type="file"
-                name="designimages"
-                onChange={handleImageUpload}
-                multiple
-                className="col-md-3"
-              />
-            </div>
-            <div className="col-md-3 mt-2">
-              <Form.Label>Status</Form.Label>
-              <Form.Select
-                defaultValue={getreccedata?.printingStatus}
-                onChange={(e) => setPrintStatus(e.target.value)}
-              >
-                <option>Choose Status...</option>
-                <option value="Pending">Pending</option>
-                <option value="Processing">Processing</option>
-                <option value="Completed">Completed</option>
-              </Form.Select>
-            </div>
-
-            <div className="row mt-3">
-              <Button className="col-md-2" onClick={updateRecceData}>
-                Update Design
-              </Button>
-            </div>
+            <p>
+              <span className="cl"> Hight:</span>
+              <span>
+                {PrintData.Height}
+                {PrintData.unit}
+              </span>
+            </p>
+            <p>
+              <span className="cl"> Width :</span>
+              <span>
+                {PrintData.width}
+                {PrintData.unit}
+              </span>
+            </p>
+            <p>
+              <span className="cl"> GST Number :</span>
+              <span>{PrintData.GSTNumber}</span>
+            </p>
           </div>
         </div>
       )}

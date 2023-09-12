@@ -56,7 +56,7 @@ export default function Reports() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
+        "http://localhost:8000/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -70,7 +70,7 @@ export default function Reports() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8000/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);

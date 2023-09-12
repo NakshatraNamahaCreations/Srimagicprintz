@@ -41,15 +41,23 @@ export default function Vendor() {
   const [editVendorContactNumber, setEditVendorContactNumber] = useState("");
   const [editVendorAdress, setEditVendorAdress] = useState("");
   const [editVendorData, setEditVendorData] = useState(null);
+  const [recceData, setRecceData] = useState([]);
+  const [jobdata, setJobInfo] = useState([]);
 
   useEffect(() => {
     getAllVendorInfo();
+    // getAllJob();
+    getAllRecce();
   }, []);
+
+  // useEffect(() => {
+  //   getLengthofStatus();
+  // }, [recceData]);
 
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -69,7 +77,7 @@ export default function Vendor() {
   const handleShow = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -107,7 +115,7 @@ export default function Vendor() {
       const config = {
         url: "/Vendor/vendorInfo/linkbankinfo",
         method: "post",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8000/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
@@ -128,9 +136,7 @@ export default function Vendor() {
     setSelected(index);
   };
 
-  useEffect(() => {
-    console.log(selected);
-  }, [selected]);
+  useEffect(() => {}, [selected]);
 
   const handleFilter = () => {
     setFilter(!filter);
@@ -240,7 +246,7 @@ export default function Vendor() {
       const vendorid = editVendorData._id;
       const config = {
         url: `/Vendor/vendorInfo/updatevendordata/${vendorid}`,
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8000/api",
         method: "put",
         Header: { "Content-type": "application/json" },
         data: formData,
@@ -259,7 +265,7 @@ export default function Vendor() {
   const deleteVendorData = async (row) => {
     try {
       const response = await axios.delete(
-        `http://api.srimagicprintz.com/api/Vendor/vendorInfo/deletevendordata/${row._id}`
+        `http://localhost:8000/api/Vendor/vendorInfo/deletevendordata/${row._id}`
       );
 
       if (response.status === 200) {
@@ -284,7 +290,64 @@ export default function Vendor() {
     );
     setVendorData(sortedData);
   };
-  console.log(vendorData);
+  const getAllRecce = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:8000/api/recce/recce/getallrecce"
+      );
+      if (res.status === 200) {
+        setRecceData(res.data.RecceData);
+      }
+    } catch (err) {
+      alert(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const vendorStatusData = {};
+
+  vendorData.forEach((vendor) => {
+    const vendorId = vendor._id;
+
+    const statusCounts = {
+      completed: 0,
+      processing: 0,
+    };
+
+    recceData?.forEach((recceItem) => {
+      recceItem?.outletName.forEach((outletArray) => {
+        outletArray.forEach((outlet) => {
+          if (outlet.vendor === vendorId) {
+            if (outlet.RecceStatus.includes("completed")) {
+              statusCounts.completed++;
+            }
+            if (outlet.RecceStatus.includes("proccesing")) {
+              statusCounts.processing++;
+            }
+          }
+        });
+      });
+    });
+
+    vendorStatusData[vendorId] = statusCounts;
+  });
+
+  // const getAllJob = async () => {
+  //   try {
+  //     const res = await axios.get(
+  //       "http://localhost:8000/api/Jobmangement/assignjob/getalljob"
+  //     );
+  //     if (res.status === 200) {
+  //       setJobInfo(res.data.allJobs);
+  //     }
+  //   } catch (err) {
+  //     alert(err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   return (
     <>
       <Header />
@@ -326,11 +389,7 @@ export default function Vendor() {
                             </div>
                           ) : null}
                         </div>
-                        <Button
-                          className="col-md-2 m-1"
-                          style={{ border: "1px solid green" }}
-                          href="/VendorInfo"
-                        >
+                        <Button className="col-md-2 m-1 c_W" href="/VendorInfo">
                           Add Vendor
                         </Button>
                       </div>
@@ -345,14 +404,14 @@ export default function Vendor() {
                     <Card
                       className="col-md-4 m-3 "
                       style={{
-                        width: "200px",
-                        height: "250px",
+                        width: "230px",
+                        height: "290px",
                         borderRadius: "10%",
                       }}
                       key={ele._id}
                       onClick={() => handlesetSelected(index)}
                     >
-                      <div className="row text-center m-auto">
+                      <div className="row  m-auto">
                         {ele.VendorImage ? (
                           <img
                             style={{
@@ -361,12 +420,16 @@ export default function Vendor() {
                               borderRadius: "100%",
                             }}
                             className="m-auto"
-                            src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
+                            src={`http://localhost:8000/VendorImage/${ele.VendorImage}`}
                             alt=""
                           />
                         ) : (
                           <span>No Image Available</span>
                         )}
+                        <p className="m-0">
+                          <span className="me-2">Employee Type:</span>
+                          <span> {ele.SelectedType}</span>
+                        </p>
                         <span>
                           {ele.VendorFirstName.charAt(0).toUpperCase() +
                             ele.VendorFirstName.substr(1)}{" "}
@@ -375,13 +438,20 @@ export default function Vendor() {
 
                         <span style={{ color: "orange" }}>
                           Job Assigned
-                          <span style={{ margin: "5px" }}>0</span>
+                          <span style={{ margin: "5px" }}>
+                            {vendorStatusData[ele._id]?.processing || 0}
+                          </span>
                         </span>
                         <span style={{ color: "green" }}>
                           Job Completed
-                          <span style={{ margin: "5px" }}>0</span>
+                          <span style={{ margin: "5px" }}>
+                            {vendorStatusData[ele._id]?.completed || 0}
+                          </span>
                         </span>
-                        <span>Selected{ele.Selectedemp}</span>
+                        <p className="m-0">
+                          <span className="me-2">Employee Id:</span>
+                          <span>{ele?.VendorId}</span>{" "}
+                        </p>
                       </div>
                     </Card>
                   ))
@@ -420,6 +490,15 @@ export default function Vendor() {
                                 }
                               />
                             </Col>
+                            {/* <Col className="col-md-4 mb-3">
+                              <Form.Label>First Name</Form.Label>
+                              <Form.Control
+                                defaultValue={editVendorData?.SelectedType}
+                                onChange={(e) =>
+                                  setEditVendorFristName(e.target.value)
+                                }
+                              />
+                            </Col> */}
                             <Col className="col-md-4 mb-3">
                               <Form.Label>First Name</Form.Label>
                               <Form.Control
@@ -553,7 +632,7 @@ export default function Vendor() {
                           </Row>
                           <Row>
                             <Button
-                              className="col-md-3 m-auto"
+                              className="col-md-3 m-auto c_W"
                               onClick={handleVendorupdate}
                             >
                               {" "}
@@ -575,10 +654,35 @@ export default function Vendor() {
                                     height: "30%",
                                     borderRadius: "100%",
                                   }}
-                                  src={`http://api.srimagicprintz.com/VendorImage/${vendorData[selected].VendorImage}`}
+                                  src={`http://localhost:8000/VendorImage/${vendorData[selected].VendorImage}`}
                                   alt=""
                                 />
                               ) : null}
+                            </p>
+                            {/* 
+                            <p>
+                              <span className="cl">Job Type:</span>
+
+                              {jobdata.map((ele) => {
+                                return ele.vendor.map((vendorid) => {
+                                  if (
+                                    vendorid._id[0] ===
+                                    vendorData[selected].VendorId
+                                  ) {
+                                    return (
+                                      <span key={vendorid.VendorId}>
+                                        {ele.typesofjob}
+                                      </span>
+                                    );
+                                  }
+                                  // Return null if the condition is not met
+                                  return null;
+                                });
+                              })}
+                            </p> */}
+                            <p>
+                              <span className="cl">Employee Type:</span>
+                              <span>{vendorData[selected].SelectedType}</span>
                             </p>
                             <p>
                               <span className="cl">Name:</span>
@@ -644,20 +748,20 @@ export default function Vendor() {
                               <img
                                 width={"200px"}
                                 height={"100px"}
-                                src={`http://api.srimagicprintz.com/BankInfoImage/${vendorData[selected].BankInfoImage}`}
+                                src={`http://localhost:8000/BankInfoImage/${vendorData[selected].BankInfoImage}`}
                                 alt=""
                               />
                             ) : null}
 
                             <div className="row ">
                               <Button
-                                className="col-md-3 m-2"
+                                className="col-md-3 m-2 c_W"
                                 onClick={handleShow}
                               >
                                 Add Bank{" "}
                               </Button>
                               <Button
-                                className="col-md-3 m-2"
+                                className="col-md-3 m-2 c_W"
                                 onClick={() =>
                                   handleVendorEdit(
                                     vendorData[selected].VendorId
@@ -667,7 +771,7 @@ export default function Vendor() {
                                 Edit
                               </Button>
                               <Button
-                                className="col-md-3 m-2"
+                                className="col-md-3 m-2 c_W"
                                 onClick={() =>
                                   deleteVendorData(vendorData[selected])
                                 }
@@ -771,10 +875,18 @@ export default function Vendor() {
                     </Form>
                   </Modal.Body>
                   <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>
+                    <Button
+                      className="c_W"
+                      variant="secondary"
+                      onClick={handleClose}
+                    >
                       Close
                     </Button>
-                    <Button variant="primary" onClick={AddVendorBankData}>
+                    <Button
+                      className="c_W"
+                      variant="primary"
+                      onClick={AddVendorBankData}
+                    >
                       Save
                     </Button>
                   </Modal.Footer>

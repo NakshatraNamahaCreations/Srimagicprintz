@@ -18,7 +18,7 @@ export default function Marketing() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/marketingClient/marketingcliend/getmarketingclient"
+        "http://localhost:8000/api/marketingClient/marketingcliend/getmarketingclient"
       );
       if (res.status === 200) {
         setMAddClients(res.data.mclient);
@@ -48,7 +48,7 @@ export default function Marketing() {
       const config = {
         url: `/marketingClient/marketingcliend/updatemarketingdata/${MclientId}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8000/api",
         headers: { "Content-Type": "application/json" },
         data: { msaveMeetingTime: sheduledDate },
       };
@@ -71,7 +71,7 @@ export default function Marketing() {
           <div className="row  m-auto containerPadding">
             <div className="col-md-12 ">
               <Button
-                className="col-md-2"
+                className="col-md-2 c_W"
                 href="/MarketingAddClient"
                 style={{ marginRight: "5px", color: "white" }}
               >
@@ -80,7 +80,7 @@ export default function Marketing() {
               <Button
                 href="/Marketingshedule"
                 style={{ color: "white" }}
-                className="col-md-2 m-1"
+                className="col-md-2 m-1 c_W"
               >
                 Sheduled Meeting
               </Button>
@@ -307,7 +307,7 @@ export default function Marketing() {
                   style={{
                     borderRadius: "100%",
                   }}
-                  src={`http://api.srimagicprintz.com/marketing/${getMclient.mClientImage}`}
+                  src={`http://localhost:8000/marketing/${getMclient.mClientImage}`}
                   alt=""
                 />
               </div>
@@ -360,14 +360,14 @@ export default function Marketing() {
                 </p>
                 <span>Meeting Sheduled at : {saveDate}</span>
               </div>
-              <Button className="col-md-4 m-1" onClick={creatMeeting}>
+              <Button className="col-md-4 m-1 c_W" onClick={creatMeeting}>
                 <VideoCallIcon />
                 New meeting
               </Button>
-              <Button className="col-md-4 m-1" onClick={updateShedule}>
+              <Button className="col-md-4 m-1 c_W" onClick={updateShedule}>
                 Save meeting
-              </Button>
-              <Button href="/Marketingshedule" className="col-md-4 m-1">
+              </Button> 
+              <Button href="/Marketingshedule" className="col-md-4 m-1 c_W" >
                 Sheduled Meeting
               </Button>
               <div className={!shedule ? " hide" : ""}>

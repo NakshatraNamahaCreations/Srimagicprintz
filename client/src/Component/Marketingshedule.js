@@ -13,7 +13,7 @@ function Marketingshedule() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/marketingClient/marketingcliend/getmarketingclient"
+        "http://localhost:8000/api/marketingClient/marketingcliend/getmarketingclient"
       );
       if (res.status === 200) {
         setSheduleData(res.data.mclient);
@@ -67,25 +67,18 @@ function Marketingshedule() {
           {reshedule ? (
             <>
               <p>
-                {/* <div>
-                  <p>Selected Date: {EditSheduled.selectedDay}</p>
-                  <p>Selected Month: {EditSheduled.selectedMonth}</p>
-                  <p>Selected Year: {EditSheduled.selectedYear}</p>
-                  <p>Selected Time: {EditSheduled.selectedTime}</p>
-                </div> */}
-
                 <span>Time : {EditSheduled.msaveMeetingTime}</span>
               </p>
               <p>
                 <span>Sheduled call with : {EditSheduled.mclientsName}</span>
               </p>
               <Button
-                className="col-md-2 m-2"
+                className="col-md-2 m-2 c_W"
                 onClick={() => setReshedule(!reshedule)}
               >
                 Reshedule
               </Button>
-              <Button className="col-md-2 m-2">delete</Button>
+              <Button className="col-md-2 m-2 c_W">delete</Button>
             </>
           ) : (
             <div className="col-md-7 m-auto">
@@ -93,118 +86,7 @@ function Marketingshedule() {
                 <div className="calendar__month">
                   <h3>Upcoming Events</h3>
                 </div>
-                {/* <div className="row">
-                  <div className="col-md-6">
-                    <div>
-                      <p className="clr1 clr">July 2023</p>
-                    </div>
-                    <div>
-                      <p onClick={() => setReshedule(!reshedule)}>
-                        <span className="clr1">14 </span>{" "}
-                        <span>Sheduled call with Nike</span>
-                      </p>
-                      <p onClick={() => setReshedule(!reshedule)}>
-                        <span className="clr1">19 </span>{" "}
-                        <span>Sheduled call with Linskart</span>
-                      </p>
-                      <p onClick={() => setReshedule(!reshedule)}>
-                        <span className="clr1">25 </span>{" "}
-                        <span>Sheduled call with Bata</span>
-                      </p>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div>
-                      <p className="clr1 clr">October 2023</p>
-                    </div>
-                    <div>
-                      <p onClick={() => setReshedule(!reshedule)}>
-                        <span className="clr1">14 </span>{" "}
-                        <span>Sheduled call with Nike</span>
-                      </p>
-                      <p onClick={() => setReshedule(!reshedule)}>
-                        <span className="clr1">19 </span>{" "}
-                        <span>Sheduled call with Linskart</span>
-                      </p>
-                      <p onClick={() => setReshedule(!reshedule)}>
-                        <span className="clr1">25 </span>{" "}
-                        <span>Sheduled call with Bata</span>
-                      </p>
-                    </div>
-                  </div>{" "}
-                  <div className="col-md-6">
-                    <div>
-                      <p className="clr1 clr">November 2023</p>
-                    </div>
-                    <div>
-                      <p onClick={() => setReshedule(!reshedule)}>
-                        <span className="clr1">14 </span>{" "}
-                        <span>Sheduled call with Nike</span>
-                      </p>
-                      <p onClick={() => setReshedule(!reshedule)}>
-                        <span className="clr1">19 </span>{" "}
-                        <span>Sheduled call with Linskart</span>
-                      </p>
-                      <p onClick={() => setReshedule(!reshedule)}>
-                        <span className="clr1">25 </span>{" "}
-                        <span>Sheduled call with Bata</span>
-                      </p>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div>
-                      <p className="clr1 clr">December 2023</p>
-                    </div>
-                    <div>
-                      <p onClick={() => setReshedule(!reshedule)}>
-                        <span className="clr1">14 </span>{" "}
-                        <span>Sheduled call with Nike</span>
-                      </p>
-                      <p onClick={() => setReshedule(!reshedule)}>
-                        <span className="clr1">19 </span>{" "}
-                        <span>Sheduled call with Linskart</span>
-                      </p>
-                      <p onClick={() => setReshedule(!reshedule)}>
-                        <span className="clr1">25 </span>{" "}
-                        <span>Sheduled call with Bata</span>
-                      </p>
-                    </div>
-                  </div>{" "}
-                </div> */}
 
-                {/* {sheduledData
-                  .filter(
-                    (item) =>
-                      item.msaveMeetingTime !== null &&
-                      !isNaN(new Date(item.msaveMeetingTime))
-                  )
-                  .map((item) => {
-                    const date = new Date(item.msaveMeetingTime);
-                    if (isNaN(date)) {
-                      return null;
-                    }
-                    const month = date.getMonth();
-                    const year = date.getFullYear();
-                    const monthName = new Date(2000, month, 1).toLocaleString(
-                      "default",
-                      { month: "long" }
-                    );
-
-                    return (
-                      <div key={item._id}>
-                        <div>
-                          <p className="clr1 clr">{`${monthName} ${year}`}</p>
-                        </div>
-
-                        <div>
-                          <p onClick={() => handleEditSheduleMeeting(item)}>
-                            <span className="clr1"></span>{" "}
-                            <span>Sheduled call with {item.mclientsName} </span>
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })} */}
                 {Object.keys(groupedByDate).map((key) => {
                   const date = new Date(key);
                   const year = date.getFullYear();
@@ -240,7 +122,7 @@ function Marketingshedule() {
                 })}
               </div>
               <div className="col-md-2 m-auto">
-                <Button className=" mt-4" href="/Marketing">
+                <Button className=" mt-4 c_W" href="/Marketing">
                   Sheduled
                 </Button>
               </div>

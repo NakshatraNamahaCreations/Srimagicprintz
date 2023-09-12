@@ -11,29 +11,25 @@ import { ToastContainer, toast } from "react-toastify";
 import Row from "react-bootstrap/Row";
 import "react-toastify/dist/ReactToastify.css";
 import { CSVLink, CSVDownload } from "react-csv";
-import * as XLSX from "xlsx"; // Import the xlsx library
+import * as XLSX from "xlsx";
 import axios from "axios";
-
+import pptxgen from "pptxgenjs";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import moment from "moment";
+import { saveAs } from "file-saver";
+const ExcelJS = require("exceljs");
 
-// import { RotatingLines } from "react-loader-spinner";
 export default function ReceeManagement() {
   const ApiURL = process.env.REACT_APP_API_URL;
-  const [trackJob, setTrackJob] = useState(false);
+
   const [selectedIndex, setSelectedIndex] = useState(false);
   const [loading, setLoading] = useState(true);
-
   const [area, setArea] = useState("");
   const [city, setCity] = useState("");
-  const [contactNumber, setContactNumber] = useState("");
-  const [pincode, setPincode] = useState("");
-  const [zone, setzone] = useState("");
-  const [clientName, setclientName] = useState("");
+
   const [recceexcel, setrecceexcel] = useState("");
   const [reccedata, setRecceData] = useState([]);
   const [vendordata, setVendorData] = useState([]);
-  const [selctedVendor, setselctedVendor] = useState("");
   const [searchshopName, setSearchshopName] = useState("");
   const [searcharea, setSearcharea] = useState("");
   const [searchcity, setSearchcity] = useState("");
@@ -52,17 +48,9 @@ export default function ReceeManagement() {
   const [getVendorName, setgetVendorName] = useState(null);
   const [CategoryData, setCategoryData] = useState();
   const [selectedcategory, setselectedcategory] = useState("");
-
   const [SearchCategory, setSearchCategory] = useState("");
-  // const [assignvendor, setAssignVendor] = useState(false);
-  // const [reccedatastatus, setReccedatastatus] = useState("");
-  // const [reccehight, setreccehight] = useState("");
-  // const [reccewidth, setreccewidth] = useState("");
-  // const [recceunit, setrecceunit] = useState("");
-  // const [reccedesign, setreccedesign] = useState("");
   const [selectedRecceItems, setSelectedRecceItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [assign, setAssign] = useState([]);
   const [editrecce, setEditRecce] = useState(false);
   const [Editarea, setEditArea] = useState("");
   const [Editclient, setEditclient] = useState("");
@@ -71,35 +59,60 @@ export default function ReceeManagement() {
   const [EditContactNumber, setEditContactNumber] = useState("");
   const [EditPincode, setEditPincode] = useState("");
   const [EditZone, setEditZone] = useState("");
-  // const [Editvendor, setEditvendor] = useState("");
-  // const [Editcategory, setEditcategory] = useState("");
   const [Editdatastatus, setEditdatastatus] = useState("");
   const [Editreccehight, setEditreccehight] = useState("");
   const [Editreccewidth, setEditreccewidth] = useState("");
   const [EditrecceUnit, setEditrecceUnit] = useState("");
-  // const [Editreccedesign, setEditreccedesign] = useState("");
   const [editRecceData, setEditRecceData] = useState({});
   const [moreoption, setmoreoption] = useState(false);
   const [show, setShow] = useState(false);
   const [selectAction, setselectAction] = useState(false);
-  const handleClose1 = () => setShow(false);
-  const [shopName, setShopName] = useState("");
+
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
-  // const [showvendorlist, setshowvendorlist] = useState(false);
 
+  const [rowsPerPage1, setRowsPerPage1] = useState(5);
+  const [uploading, setUploading] = useState(false);
+  const [outletNames, setOutletNames] = useState(null);
+  const [designImages, setDesignImages] = useState("");
+
+  const [SNo, setSNo] = useState();
+  const [ShopName, setShopName] = useState();
+  const [ClientName, setClientName] = useState();
+  const [OutletContactNumber, setOutletContactNumber] = useState();
+  const [OutletZone, setOutletZone] = useState();
+  const [OutletCity, setOutletCity] = useState();
+  const [FLBoard, setFLBoard] = useState();
+  const [GSB, setGSB] = useState();
+  const [Inshop, setInshop] = useState();
+  const [Category, setCategory] = useState();
+  const [height, setheight] = useState();
+  const [unit, setunit] = useState();
+  const [width, setwidth] = useState();
+  const [vendor, setvendor] = useState();
+  const [RecceStatus, setRecceStatus] = useState();
+  const [State, setState] = useState();
+  const [completedStatus, setcompletedStatus] = useState([]);
+  const [pendingStatus, setpendingStatus] = useState([]);
+  const [cancelledStatus, setcancelledStatus] = useState([]);
+  const [proccesingStatus, setproccesingStatus] = useState([]);
+
+  console.log(completedStatus);
+  console.log(pendingStatus);
+  console.log(cancelledStatus);
+  console.log(proccesingStatus);
   useEffect(() => {
     getAllRecce();
     getAllVendorInfo();
     getAllCategory();
   }, []);
-
-
-
+  useEffect(() => {
+    getLengthofStatus();
+  }, [reccedata]);
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8000/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -107,13 +120,13 @@ export default function ReceeManagement() {
     } catch (err) {
       alert(err);
     } finally {
-      setLoading(false); // Set loading to false after data is fetched or an error occurs
+      setLoading(false);
     }
   };
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -126,6 +139,7 @@ export default function ReceeManagement() {
       alert("can't able to fetch data");
     }
   };
+
   useEffect(() => {
     const filteredClients = () => {
       let results = [...reccedata];
@@ -262,26 +276,6 @@ export default function ReceeManagement() {
     handleImport();
   }, [recceexcel, importXLSheet]);
 
-  function readFile() {
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const bstr = evt.target.result;
-      const wb = XLSX.read(bstr, { type: "binary" });
-      const wsname = wb.SheetNames[0];
-      const ws = wb.Sheets[wsname];
-      const data = XLSX.utils.sheet_to_csv(ws, { header: 1 });
-
-      try {
-        const jsonData = convertToJson(data);
-        setImportXLSheet(jsonData);
-      } catch (error) {
-        console.error("Error parsing JSON:", error);
-      }
-    };
-
-    reader.readAsBinaryString(recceexcel);
-  }
-
   function convertToJson(csv) {
     const lines = csv.split("\n");
     const result = [];
@@ -311,44 +305,94 @@ export default function ReceeManagement() {
     }
     return result;
   }
-  const handleEdit = (vendor) => {
+  const handleEdit = (vendor, action) => {
     setgetVendorName(vendor);
-    setSelectedIndex(true);
+    setSelectedIndex({ action });
   };
 
-  const [uploading, setUploading] = useState(false);
-  // const [image, setimage] = useState(null);
-  const [designImages, setDesignImages] = useState("");
-  const handleImport = async () => {
-    if (importXLSheet.length > 0) {
-      setUploading(true);
-      try {
-        const res = await axios.post(
-          "http://api.srimagicprintz.com/api/recce/recce/addreccesviaexcelesheet",
-          importXLSheet
-        );
-        if (res.status === 200) {
-          toast.success("Recce uploaded successfully!");
-          setRecceData((prevData) => [...prevData, ...importXLSheet]);
-          setrecceexcel(null);
-          setImportXLSheet([]);
-          window.location.reload();
-        } else {
-          toast.error("Failed to upload recce data. Please check the data.");
+  const handleImport = async (outlateid) => {
+    if (!outlateid) {
+      return;
+    }
+    if (selectedRecceItems.length === 0) {
+      alert("Please select at least one row before importing.");
+    } else {
+      if (filteredData.length > 0) {
+        setUploading(true);
+        try {
+          const flattenOutletNames = (data) => {
+            return data.reduce((acc, item) => {
+              if (Array.isArray(item)) {
+                return [...acc, ...flattenOutletNames(item)];
+              }
+              return [...acc, item];
+            }, []);
+          };
 
-          const errorMessage =
-            res.data && res.data.message
-              ? res.data.message
-              : "Error occurred while importing recce data.";
-          toast.error(errorMessage);
+          const outletNames = flattenOutletNames(filteredData);
+
+          const res = await axios.post(
+            `http://localhost:8000/api/recce/recce/addreccesviaexcelesheet/${outlateid}`,
+            { outletName: outletNames },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (res.status === 200) {
+            toast.success("Outlet names updated successfully!");
+
+            setOutletNames(outletNames);
+
+            toast.success("Outlet names in recce updated successfully!");
+            setrecceexcel(null);
+            setDisplayedData();
+            window.location.reload();
+          } else {
+            toast.error(
+              "Failed to update outlet names. Please check the data."
+            );
+
+            const errorMessage =
+              res.data && res.data.message
+                ? res.data.message
+                : "Error occurred while updating outlet names.";
+            toast.error(errorMessage);
+          }
+        } catch (error) {
+          toast.error("Error occurred while updating outlet names.");
+        } finally {
+          setUploading(false);
         }
-      } catch (error) {
-        toast.error("Error occurred while uploading the file.");
-      } finally {
-        setUploading(false);
       }
     }
   };
+
+  function readFile() {
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const bstr = evt.target.result;
+      const wb = XLSX.read(bstr, { type: "binary" });
+      const wsname = wb.SheetNames[0];
+      const ws = wb.Sheets[wsname];
+      const data = XLSX.utils.sheet_to_csv(ws, { header: 1 });
+
+      try {
+        const jsonData = convertToJson(data);
+
+        const flattenedData = jsonData.flat();
+
+        setDisplayedData(flattenedData);
+      } catch (error) {
+        console.error("Error parsing JSON:", error);
+      }
+    };
+
+    reader.readAsBinaryString(recceexcel);
+  }
+
   const handleImageUpload = (event) => {
     const files = event.target.files;
     setDesignImages(files);
@@ -384,7 +428,7 @@ export default function ReceeManagement() {
       const config = {
         url: `/recce/recce/updatereccedata/${recceId}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8000/api",
         headers: { "Content-Type": "application/json" },
 
         data: formdata,
@@ -414,82 +458,48 @@ export default function ReceeManagement() {
     }
   };
 
-  const selectedVendor = vendordata?.find(
-    (vendor) => vendor._id === selctedVendor
-  );
-
-  const AssignVendor = async () => {
-    try {
-      let alreadyAssigned = false;
-      let clientName = "";
-
-      for (const recceId of selectedRecceItems) {
-        const currentRecceData = reccedata.find((item) => item._id === recceId);
-
-        if (currentRecceData.vendor) {
-          alreadyAssigned = true;
-          clientName = currentRecceData.ClientName;
-          break;
-        }
-      }
-
-      if (alreadyAssigned) {
-        alert(
-          `A vendor has already been assigned to  for client ${clientName}.`
-        );
-        return;
-      }
-
-      for (const recceId of selectedRecceItems) {
-        const config = {
-          url: `/recce/recce/updatevendorname/${recceId}`,
-          baseURL: "http://api.srimagicprintz.com/api",
-          method: "post",
-          headers: { "Content-Type": "application/json" },
-          data: { vendor: selectedVendor._id },
-        };
-
-        const res = await axios(config);
-
-        if (res.status === 200) {
-          alert(`Recce assigned to: ${selectedVendor.VendorFirstName}`);
-          // setReccedata([...reccedata]);
-        } else {
-          alert(`Failed to assign recce to: ${selectedVendor.VendorFirstName}`);
-        }
-      }
-
-      alert("Successfully linked vendors to recce items");
-      setSelectedIndex(null);
-      window.location.reload();
-    } catch (err) {
-      alert("Not able to assign", err);
-    }
-  };
-
   const handleDownload = () => {
     const wb = XLSX.utils.book_new();
     const wsData = [
       [
-        "ClientName",
+        "SNo",
         "ShopName",
-        "ContactNumber",
-        "Area",
-        "City",
-        "Pincode",
-        "Zone",
+        "ClientName",
+        "State",
+        "OutletContactNumber",
+        "OutletZone",
+        "OutletCity",
+        "FLBoard",
+        "GSB",
+        "Inshop",
+        "Category",
+        "height",
+        "unit",
+        "width",
+        "unit",
+        "vendor",
+        "RecceStatus",
       ],
     ];
 
     wsData.push([
-      clientName,
-      shopName,
-      contactNumber,
-      area,
-      city,
-      pincode,
-      zone,
-      selctedVendor,
+      SNo,
+      ShopName,
+      ClientName,
+      State,
+      OutletContactNumber,
+      OutletZone,
+      OutletCity,
+      FLBoard,
+      GSB,
+      Inshop,
+      Category,
+      height,
+      unit,
+      width,
+      unit,
+      vendor,
+      RecceStatus,
     ]);
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
@@ -511,7 +521,7 @@ export default function ReceeManagement() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
+        "http://localhost:8000/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -524,12 +534,6 @@ export default function ReceeManagement() {
     }
   };
 
-  const handleAssignVendor = async () => {
-    for (const itemId of selectedRecceItems) {
-      setAssign(itemId);
-      setShow(true);
-    }
-  };
   const handleToggleSelect = (itemId) => {
     let updatedSelectedRecceItems;
 
@@ -625,33 +629,589 @@ export default function ReceeManagement() {
 
   const filteredData = filterDate(displayedData);
 
-  const handlesendRecceToDesign = async () => {
-    for (const recceId of selectedRecceItems) {
-      const recceData = filteredData.find((item) => item._id === recceId);
+  const filteredData1 = filteredData?.filter(
+    (vendor) => vendor?._id === getVendorName?._id
+  );
 
-      if (
-        recceData.datastatus === "Completed" &&
-        recceData.reccehight > 0 &&
-        recceData.reccewidth > 0 &&
-        recceData.reccedesign !== null
-      ) {
-        try {
-          const response = await axios.post(
-            `http://api.srimagicprintz.com/api/recce/recce/getcompletedid/${recceData._id}`
-          );
+  let serialNumber = 0;
+  let rowsDisplayed = 0;
 
-          if (response.status === 200) {
-            alert(`Successfully sent recce to design`);
-            window.location.href = "/Design";
-          } else {
-            alert(`Failed to send recce to design`);
-          }
-        } catch (err) {
-          alert(`Please Complete Recce or fill all data`);
-        }
-      } else {
-        alert(`Recce  not completed yet`);
+  const handleRowsPerPageChange = (e) => {
+    const newRowsPerPage = parseInt(e.target.value);
+    setRowsPerPage1(newRowsPerPage);
+    serialNumber = 0;
+    rowsDisplayed = 0;
+  };
+
+  useEffect(() => {
+    const filteredClients = () => {
+      if (SearchclientName) {
+        filteredData1.flatMap((ele) =>
+          ele.outletName.flatMap((item) =>
+            item.filter(
+              (data) =>
+                !SearchclientName ||
+                (data.clientName &&
+                  data.clientName
+                    .toLowerCase()
+                    .includes(SearchclientName.toLowerCase()))
+            )
+          )
+        );
       }
+    };
+    filteredClients();
+  }, [
+    filteredData1,
+    SearchclientName,
+    searchshopName,
+    searchVendorName,
+    searchcontactNumber,
+    searcharea,
+    searchcity,
+    searchpincode,
+    searchzone,
+    searchdate,
+    searchdatastatus,
+    searchSINO,
+    rowsPerPage,
+  ]);
+
+  const getLengthofStatus = () => {
+    const statusCounts = {
+      completed: 0,
+      pending: 0,
+      cancelled: 0,
+      processing: 0,
+    };
+
+    filteredData1?.map((recceItem, index) =>
+      recceItem?.outletName.forEach((outlet, outletArray) => {
+        const vendorId = outlet.vendor;
+        const RecceStatus = outlet.RecceStatus;
+        if (Array.isArray(RecceStatus)) {
+          if (RecceStatus.includes("pending")) {
+            statusCounts.pending++;
+          }
+          if (RecceStatus.includes("cancelled")) {
+            statusCounts.cancelled++;
+          }
+          if (
+            RecceStatus.includes("completed") &&
+            vendorId !== null &&
+            vendorId !== undefined
+          ) {
+            statusCounts.completed++;
+          }
+          if (
+            RecceStatus.includes("proccesing") &&
+            vendorId !== null &&
+            vendorId !== undefined
+          ) {
+            statusCounts.processing++;
+          }
+        }
+      })
+    );
+
+    setcompletedStatus(statusCounts.completed);
+    setpendingStatus(statusCounts.pending);
+    setcancelledStatus(statusCounts.cancelled);
+    setproccesingStatus(statusCounts.processing);
+  };
+
+  function convertToFeet(value, unit) {
+    if (unit === "inch") {
+      return Math.round(value / 12);
+    } else if (unit === "cm") {
+      return Math.round(value * 0.0328084);
+    } else {
+      return value;
+    }
+  }
+
+  const Export = () => {
+    const extractedData = [];
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Extracted Data");
+
+    if (selectedRecceItems.length === 0 || filteredData.length === 0) {
+      alert("Please import outlet or select brand");
+      return;
+    }
+
+    try {
+      for (const recceId of selectedRecceItems) {
+        if (!recceId) {
+          continue;
+        }
+
+        const recceData = filteredData.find((item) => item._id === recceId);
+
+        if (!recceData) {
+          alert("Recce data not found for selected item");
+          continue;
+        }
+
+        recceData.outletName.forEach((outlet) => {
+          if (outlet.length === 0) {
+            throw new Error("Please import outlet");
+          }
+
+          if (outlet.RecceStatus.includes("completed")) {
+            const rHeightInFeet = convertToFeet(outlet.height, outlet.unit);
+            const rWidthInFeet = convertToFeet(outlet.width, outlet.unit);
+            extractedData.push({
+              "Outlet Name": outlet.ShopName,
+              "Outlate Name": outlet.ShopName,
+              "Outlet Address": outlet.OutletAddress,
+              "Outlet Contact Number": outlet.OutletContactNumber,
+              "GST Number": outlet.GSTNumber,
+              "Media .": outlet.Category,
+              "A Height": outlet.height,
+              "A Width": outlet.width,
+              "No.Quantity": outlet.Qty,
+              "R Height": rHeightInFeet,
+              "R Width": rWidthInFeet,
+            });
+          }
+        });
+
+        const headerRow = worksheet.addRow([
+          "Outlate Name",
+          "Outlet Address",
+          "Outlet Contact Number",
+          "GST Number",
+          "Media .",
+          "A Height",
+          "A Width",
+          "No.Quantity",
+          "R Height",
+          "R Width",
+        ]);
+        worksheet.getColumn(1).width = 20;
+        worksheet.getColumn(2).width = 30;
+        worksheet.getColumn(3).width = 20;
+        worksheet.getColumn(4).width = 20;
+        worksheet.getColumn(5).width = 15;
+        worksheet.getColumn(6).width = 8;
+        worksheet.getColumn(7).width = 8;
+        worksheet.getColumn(8).width = 8;
+        worksheet.getColumn(9).width = 8;
+        worksheet.getColumn(10).width = 8;
+
+        extractedData.forEach((dataItem) => {
+          const row = worksheet.addRow([
+            dataItem["Outlate Name"],
+            dataItem["Outlet Address"],
+            dataItem["Outlet Contact Number"],
+            dataItem["GST Number"],
+            dataItem["Media ."],
+            dataItem["A Height"],
+            dataItem["A Width"],
+            dataItem["No.Quantity"],
+            dataItem["R Height"],
+            dataItem["R Width"],
+          ]);
+          row.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+            if (colNumber <= 10) {
+              cell.alignment = { wrapText: true };
+            }
+          });
+
+          row.getCell(9).numFmt = "0.00";
+          row.getCell(10).numFmt = "0.00";
+        });
+
+        headerRow.eachCell((cell) => {
+          cell.alignment = { wrapText: true };
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "74BDE2" },
+          };
+          cell.font = {
+            size: 12,
+          };
+        });
+
+        for (let i = 2; i <= worksheet.rowCount; i++) {
+          worksheet.getRow(i).eachCell((cell) => {
+            cell.font = {
+              size: 10,
+            };
+          });
+        }
+
+        const lastRowNumber = worksheet.rowCount;
+        for (let i = extractedData.length; i <= lastRowNumber; i++) {
+          const cellA = worksheet.getCell(`A${i}`);
+          const cellB = worksheet.getCell(`B${i}`);
+          if (!cellA.isMerged) {
+            worksheet.mergeCells(`A${i}:B${i}`);
+          }
+          if (!cellB.isMerged) {
+            worksheet.mergeCells(`B${i}:C${i}`);
+          }
+        }
+      }
+      workbook.xlsx
+        .writeBuffer()
+        .then((buffer) => {
+          const blob = new Blob([buffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.style.display = "none";
+          a.href = url;
+          a.download = "actual.xlsx";
+          document.body.appendChild(a);
+          a.click();
+
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        })
+
+        .catch((error) => {
+          alert(error.message);
+          console.error("Error creating Excel file:", error);
+        });
+    } catch (error) {
+      alert("Please import outlate");
+      console.error("Error in processing data:", error);
+    }
+  };
+
+  const handlePPT = () => {
+    const pptx = new pptxgen();
+
+    if (selectedRecceItems.length === 0 || filteredData.length === 0) {
+      alert("Please import outlet or select a brand");
+      return;
+    }
+
+    try {
+      for (const recceId of selectedRecceItems) {
+        if (!recceId) {
+          continue;
+        }
+
+        const recceData = filteredData.find((item) => item._id === recceId);
+
+        if (!recceData) {
+          alert("Recce data not found for the selected item");
+          continue;
+        }
+
+        for (const outlet of recceData.outletName) {
+          if (outlet.length === 0) {
+            alert("Please import outlet");
+            continue;
+          }
+
+          if (outlet.RecceStatus.includes("completed")) {
+            const rHeightInFeet = convertToFeet(outlet.height, outlet.unit);
+            const rWidthInFeet = convertToFeet(outlet.width, outlet.unit);
+            const media = outlet.Category || "";
+
+            const formattedDimensions = `H${Math.round(
+              rHeightInFeet
+            )}XW${Math.round(rWidthInFeet)}`;
+
+            const slide = pptx.addSlide();
+            slide.addText(`Outlatename:${outlet.ShopName}`, {
+              x: 1,
+              y: 0.3,
+              w: "100%",
+              fontSize: 12,
+            });
+
+            slide.addText(`Address:${outlet.OutletAddress}`, {
+              x: 1,
+              y: 0.1,
+              w: "100%",
+              fontSize: 12,
+            });
+
+            const imageUrls = ["url1.jpg", "url2.jpg", "url3.jpg"];
+            const imageWidth = "30%";
+
+            const centerX = "35%";
+
+            const centerY = "30%";
+
+            let currentX = centerX;
+            for (const imageUrl of imageUrls) {
+              slide.addImage({
+                path: imageUrl,
+                x: currentX,
+                y: centerY,
+                w: imageWidth,
+              });
+              currentX = `+=35%`;
+            }
+
+            slide.addText(formattedDimensions, {
+              x: 1,
+              y: "90%",
+              w: "100%",
+              fontSize: 12,
+            });
+
+            slide.addText(`Category: ${media}`, {
+              x: 1,
+              y: "95%",
+              w: "100%",
+              fontSize: 12,
+              align: "left",
+            });
+          }
+        }
+      }
+
+      pptx.write("blob").then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = "presentation.pptx";
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      });
+    } catch (err) {
+      console.error("Error:", err);
+      alert("An error occurred. Please try again.");
+    }
+  };
+
+  const handleEstimate = () => {
+    const extractedData = [];
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Extracted Data");
+
+    if (selectedRecceItems.length === 0 || filteredData.length === 0) {
+      alert("Please import outlet or select brand");
+      return;
+    }
+
+    try {
+      for (const recceId of selectedRecceItems) {
+        if (!recceId) {
+          continue;
+        }
+
+        const recceData = filteredData.find((item) => item._id === recceId);
+
+        if (!recceData) {
+          alert("Recce data not found for selected item");
+          continue;
+        }
+
+        recceData.outletName.forEach((outlet) => {
+          if (outlet.length === 0) {
+            throw new Error("Please import outlet");
+          }
+
+          if (outlet.RecceStatus.includes("completed")) {
+            const rHeightInFeet = convertToFeet(outlet.height, outlet.unit);
+            const rWidthInFeet = convertToFeet(outlet.width, outlet.unit);
+            extractedData.push({
+              "Outlet Name": outlet.ShopName,
+              "Outlet Address": outlet.OutletAddress,
+              "Outlet Contact Number": outlet.OutletContactNumber,
+              "GST Number": outlet.GSTNumber,
+              "GSB/inshop": outlet.GSB || outlet.Inshop,
+              "Media .": outlet.Category,
+              Height: rHeightInFeet || 0,
+              Width: rWidthInFeet || 0,
+              "No.Quantity": outlet.No_Quantity || 0,
+              SFT: outlet.SFT,
+              "Production Rate": outlet.ProductionRate,
+              "Production Cost": outlet.ProductionCost,
+              "Installation Rate": outlet.InstallationRate,
+              "Installation Cost": outlet.InstallationCost,
+              "transportation rate": outlet.transportationRate,
+              "transportation cost": outlet.transportationcost,
+              "Production Cost + Installation Cost + transportation cost":
+                0 + 18 + 0,
+            });
+          }
+        });
+        const totalProductionCost = extractedData.reduce((sum, item) => {
+          return sum + (item["Production Cost"] || 0);
+        }, 0);
+
+        const totalInstallationCost = extractedData.reduce((sum, item) => {
+          return sum + (item["Installation Cost"] || 0);
+        }, 0);
+
+        const totalTransportationCost = extractedData.reduce((sum, item) => {
+          return sum + (item["transportation cost"] || 0);
+        }, 0);
+
+        const grossAmount =
+          totalProductionCost + totalInstallationCost + totalTransportationCost;
+
+        const gst18 = (grossAmount * 0.18).toFixed(2);
+
+        const rof = calculateRof(
+          totalProductionCost,
+          totalInstallationCost,
+          totalTransportationCost
+        );
+
+        function calculateRof(
+          totalProductionCost,
+          totalInstallationCost,
+          totalTransportationCost
+        ) {
+          return 0;
+        }
+        const firstRow = extractedData.length + 1;
+        const secondRow = firstRow + 1;
+        const thirdRow = secondRow + 1;
+
+        extractedData.push({
+          "GST @18%": `M${firstRow}`,
+          "Gross Amount": `M${secondRow}`,
+          Rof: `M${thirdRow}`,
+
+          "transportation rate": `O${firstRow}`,
+          "transportation cost": `O${secondRow}`,
+          "Production Cost + Installation Cost + transportation cost": `O${thirdRow}`,
+        });
+
+        console.log("extractedData", extractedData);
+        const headerRow = worksheet.addRow([
+          "Outlet Name",
+          "Outlet Address",
+          "Outlet Contact Number",
+          "GST Number",
+          "Media .",
+          "No.Quantity",
+          "Height",
+          "Width",
+          "SFT",
+          "Production Rate",
+          "Production Cost",
+          "Installation Rate",
+          "Installation Cost",
+          "transportation cost",
+          "Production Cost + Installation Cost + transportation cost",
+        ]);
+
+        worksheet.getColumn(1).width = 20;
+        worksheet.getColumn(2).width = 30;
+        worksheet.getColumn(3).width = 20;
+        worksheet.getColumn(4).width = 20;
+        worksheet.getColumn(5).width = 15;
+        worksheet.getColumn(6).width = 8;
+        worksheet.getColumn(7).width = 8;
+        worksheet.getColumn(8).width = 8;
+        worksheet.getColumn(9).width = 8;
+        worksheet.getColumn(10).width = 8;
+        worksheet.getColumn(11).width = 8;
+        worksheet.getColumn(12).width = 8;
+        worksheet.getColumn(13).width = 10;
+        worksheet.getColumn(14).width = 10;
+        worksheet.getColumn(15).width = 20;
+
+        extractedData.forEach((dataItem) => {
+          const row = worksheet.addRow([
+            dataItem["Outlet Name"],
+            dataItem["Outlet Address"],
+            dataItem["Outlet Contact Number"],
+            dataItem["GST Number"],
+            dataItem["Media ."],
+            dataItem["No.Quantity"],
+            dataItem["Height"],
+            dataItem["Width"],
+            dataItem["SFT"],
+            dataItem["Production Rate"],
+            dataItem["Production Cost"],
+            dataItem["Installation Rate"],
+            dataItem["Installation Cost"],
+            dataItem["transportation cost"],
+            dataItem[
+              "Production Cost + Installation Cost + transportation cost"
+            ],
+          ]);
+          row.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+            if (colNumber <= 10) {
+              cell.alignment = { wrapText: true };
+            }
+          });
+
+          row.getCell(9).numFmt = "0.00";
+          row.getCell(10).numFmt = "0.00";
+        });
+
+        headerRow.eachCell((cell) => {
+          cell.alignment = { wrapText: true };
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "74BDE2" },
+          };
+          cell.font = {
+            size: 12,
+            // bold: true,
+          };
+        });
+
+        for (let i = 2; i <= worksheet.rowCount; i++) {
+          worksheet.getRow(i).eachCell((cell) => {
+            cell.font = {
+              size: 10,
+            };
+          });
+        }
+
+        const lastRowNumber = worksheet.rowCount;
+        for (let i = extractedData.length; i <= lastRowNumber; i++) {
+          // Check if the cell is already merged before merging
+          const cellA = worksheet.getCell(`A${i}`);
+          const cellB = worksheet.getCell(`B${i}`);
+          if (!cellA.isMerged) {
+            worksheet.mergeCells(`A${i}:B${i}`);
+          }
+          if (!cellB.isMerged) {
+            worksheet.mergeCells(`B${i}:C${i}`);
+          }
+          // Continue with other columns as needed
+        }
+      }
+      workbook.xlsx
+        .writeBuffer()
+        .then((buffer) => {
+          const blob = new Blob([buffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.style.display = "none";
+          a.href = url;
+          a.download = "estimate.xlsx";
+          document.body.appendChild(a);
+          a.click();
+
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        })
+
+        .catch((error) => {
+          alert(error.message);
+          console.error("Error creating Excel file:", error);
+        });
+    } catch (error) {
+      alert("Please import outlate");
+      console.error("Error in processing data:", error);
     }
   };
 
@@ -662,35 +1222,43 @@ export default function ReceeManagement() {
         <ToastContainer position="top-right" />
 
         {!selectedIndex ? (
-          <div className="col-md-12">
+          <div className="row m-auto containerPadding">
             <div className="row ">
-              <div className="col-md-6">
+              <div className="col-md-8">
                 <div className="row">
-                  <Button className="col-md-3 m-1" href="/Recceapi">
+                  <Button className="col-md-2 m-1 c_W" href="/Recceapi">
                     Add Recce
                   </Button>
 
                   <Button
-                    className="col-md-3 btn btn-danger m-1"
+                    className="col-md-2 btn btn-danger m-1"
                     onClick={handleDownload}
                     style={{ backgroundColor: "#a9042e", border: 0 }}
                   >
                     Download
                   </Button>
-
-                  <CSVLink
-                    className="col-md-1 m-1 p-0 me-4"
-                    data={reccedata}
-                    filename={"recce.csv"}
+                  <Button
+                    onClick={handlePPT}
+                    className="col-md-1 btn btn-danger m-1"
+                    style={{ backgroundColor: "#a9042e", border: 0 }}
                   >
-                    <Button
-                      className=" btn btn-danger "
-                      style={{ backgroundColor: "#a9042e", border: 0 }}
-                    >
-                      Export
-                    </Button>
-                  </CSVLink>
-                  <div className="col-md-4 ">
+                    PPT
+                  </Button>
+                  <Button
+                    onClick={handleEstimate}
+                    className="col-md-2 btn btn-danger m-1"
+                    style={{ backgroundColor: "#a9042e", border: 0 }}
+                  >
+                    Estimate
+                  </Button>
+                  <button
+                    className="col-md-2 btn btn-danger m-1"
+                    onClick={Export}
+                    style={{ backgroundColor: "#a9042e", border: 0 }}
+                  >
+                    Export
+                  </button>
+                  <div className="col-md-2 ">
                     {moreoption ? (
                       <>
                         <p
@@ -713,30 +1281,16 @@ export default function ReceeManagement() {
                           <div
                             style={{
                               position: "absolute",
-                              zIndex: "10px",
+                              zIndex: "100",
                               top: "21%",
                             }}
                           >
                             <Card
                               className="m-auto p-3"
-                              style={{ width: "12rem" }}
+                              style={{ width: "6rem" }}
                             >
-                              <li
-                                className="cureor"
-                                onClick={handleAssignVendor}
-                              >
-                                Assign to recce
-                              </li>
-
                               <li onClick={handleDeleteSelectedRecceItems}>
-                                Delete
-                              </li>
-
-                              <li
-                                className="cureor"
-                                onClick={handlesendRecceToDesign}
-                              >
-                                Mark as Completed
+                                <span style={{ color: "red" }}>Delete</span>
                               </li>
                             </Card>
                           </div>
@@ -746,21 +1300,24 @@ export default function ReceeManagement() {
                   </div>
                 </div>
               </div>
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <div className="row ">
-                  <div className="col-md-5">
+                  <div className="col-md-6">
                     <Form.Label
-                      className="btn btn-outline-danger "
+                      className="btn btn-outline-danger"
                       style={{ borderColor: "#a9042e" }}
                       htmlFor="icon-button-file"
                     >
                       <input
-                        className="col-md-1 p-0"
+                        className="col-md-3 p-0"
                         accept=".xlsx,.xls,.csv"
                         style={{ display: "none" }}
                         id="icon-button-file"
                         type="file"
-                        onChange={(e) => setrecceexcel(e.target.files[0])}
+                        disabled={selectedRecceItems.length === 0}
+                        onChange={(e) => {
+                          setrecceexcel(e.target.files[0]);
+                        }}
                       />
                       Import Excel
                     </Form.Label>
@@ -770,35 +1327,102 @@ export default function ReceeManagement() {
                       <Button
                         className="btn btn-danger"
                         style={{ backgroundColor: "#a9042e", border: 0 }}
-                        onClick={handleImport}
+                        onClick={() => handleImport(selectedRecceItems[0])}
                         disabled={uploading}
                       >
                         {uploading ? "Uploading..." : "Upload"}
                       </Button>
                     )}
                   </div>
-                  {/* <div className="col-md-4">
-                    <Button onClick={(e) => setshowvendorlist(!showvendorlist)}>
-                      {" "}
-                      Assigned To
-                    </Button>
-                    {showvendorlist ? (
-                      <Card style={{ position: "absolute", width: "200px" }}>
-                        {filteredData?.map((ele, index) => {
-                          return (
-                            <ul key={index}>
-                              <li>{vendor ? vendor?.VendorFirstName : null}</li>
-                            </ul>
-                          );
-                        })}
-                      </Card>
-                    ) : null}
-                  </div> */}
                 </div>
               </div>
             </div>
-
-            <div className="row mt-2">
+            <div className="row m-auto mt-3">
+              <Card
+                className={`col-md-3 m-2 c_zoom ${"active1"}`}
+                style={{ height: "125px" }}
+              >
+                <div className="row "></div>
+                <div className="row m-auto">
+                  <p
+                    style={{
+                      fontSize: "25px",
+                      color: "green",
+                      textAlign: "center",
+                    }}
+                  >
+                    {" "}
+                    {completedStatus}
+                  </p>
+                  <p style={{ color: "black", textAlign: "center" }}>
+                    Total Completed{" "}
+                  </p>
+                </div>
+              </Card>
+              <Card
+                className={`col-md-3 m-2 c_zoom ${"active1"}`}
+                style={{ height: "125px" }}
+              >
+                <div className="row "></div>
+                <div className="row m-auto">
+                  <p
+                    style={{
+                      fontSize: "25px",
+                      color: "red",
+                      textAlign: "center",
+                    }}
+                  >
+                    {" "}
+                    {pendingStatus}
+                  </p>
+                  <p style={{ color: "black", textAlign: "center" }}>
+                    Total Pending{" "}
+                  </p>
+                </div>
+              </Card>
+              <Card
+                className={`col-md-3 m-2 c_zoom ${"active1"}`}
+                style={{ height: "125px" }}
+              >
+                <div className="row "></div>
+                <div className={`row m-auto ${"active"}`}>
+                  <p
+                    style={{
+                      fontSize: "25px",
+                      color: "orange",
+                      textAlign: "center",
+                    }}
+                  >
+                    {" "}
+                    {proccesingStatus}
+                  </p>
+                  <p style={{ color: "black", textAlign: "center" }}>
+                    Total Processing{" "}
+                  </p>
+                </div>
+              </Card>
+              <Card
+                className={`col-md-3 m-2 c_zoom ${"active1"}`}
+                style={{ height: "125px" }}
+              >
+                <div className="row "></div>
+                <div className="row m-auto">
+                  <p
+                    style={{
+                      fontSize: "25px",
+                      color: "red",
+                      textAlign: "center",
+                    }}
+                  >
+                    {cancelledStatus}
+                  </p>
+                  <p style={{ color: "black", textAlign: "center" }}>
+                    Total Cancelled
+                  </p>
+                </div>
+              </Card>
+            </div>
+            <div className="row mt-3">
               <div className="row ">
                 <div className="row ">
                   <label className="col-md-2">
@@ -808,7 +1432,7 @@ export default function ReceeManagement() {
                     <div className="row float-end ">
                       <label className="col-md-6  m-auto">Start Date:</label>
 
-                      <label className="col-md-6 m-auto">Start Date:</label>
+                      <label className="col-md-6 m-auto">End Date:</label>
                     </div>{" "}
                   </div>
                 </div>
@@ -872,146 +1496,6 @@ export default function ReceeManagement() {
             <div className=" row mt-3">
               <table>
                 <thead className="t-c">
-                  <tr className="tr2">
-                    <th className="p-2"></th>
-                    <th>
-                      <input
-                        className="col-md-1"
-                        placeholder="SI.No"
-                        value={searchSINO}
-                        onChange={(e) => setSearchSINO(e.target.value)}
-                        style={{ width: "25px" }}
-                      />
-                    </th>
-                    <th className="p-2">
-                      <input
-                        className="col-md-1"
-                        placeholder="client name"
-                        value={SearchclientName}
-                        onChange={(e) => setSearchclientName(e.target.value)}
-                        style={{ width: "65px" }}
-                      />
-                    </th>
-                    <th className="p-2">
-                      {" "}
-                      <input
-                        className="col-md-1"
-                        placeholder="Shop name"
-                        value={searchshopName}
-                        onChange={(e) => setSearchshopName(e.target.value)}
-                        style={{ width: "65px" }}
-                      />
-                    </th>
-
-                    <th>
-                      <input
-                        className="col-md-1"
-                        placeholder="Contact"
-                        value={searchcontactNumber}
-                        onChange={(e) => setSearchcontactNumber(e.target.value)}
-                        style={{ width: "65px" }}
-                      />
-                    </th>
-                    <th className="p-2">
-                      {" "}
-                      <input
-                        className="col-md-1"
-                        placeholder="Area"
-                        value={searcharea}
-                        onChange={(e) => setSearcharea(e.target.value)}
-                        style={{ width: "65px" }}
-                      />
-                    </th>
-
-                    <th>
-                      <input
-                        className="col-md-1"
-                        placeholder=" city"
-                        value={searchcity}
-                        onChange={(e) => setSearchcity(e.target.value)}
-                        style={{ width: "65px" }}
-                      />
-                    </th>
-
-                    <th className="p-2">
-                      {" "}
-                      <input
-                        className="col-md-1"
-                        placeholder=" pincode"
-                        value={searchpincode}
-                        onChange={(e) => setSearchpincode(e.target.value)}
-                        style={{ width: "65px" }}
-                      />
-                    </th>
-                    <th className="p-2">
-                      {" "}
-                      <input
-                        className="col-md-1"
-                        placeholder=" zone"
-                        value={searchzone}
-                        onChange={(e) => setSearchzone(e.target.value)}
-                        style={{ width: "65px" }}
-                      />
-                    </th>
-
-                    <th>
-                      <input
-                        className="col-md-1"
-                        placeholder="Vendor name"
-                        value={searchVendorName}
-                        onChange={(e) => setSearchVendorName(e.target.value)}
-                        style={{ width: "79px" }}
-                      />
-                    </th>
-                    <th className="p-2">
-                      {" "}
-                      <input
-                        className="col-md-1"
-                        placeholder=" date"
-                        value={searchdate}
-                        onChange={(e) => setSearchDate(e.target.value)}
-                        style={{ width: "65px" }}
-                      />
-                    </th>
-                    <th className="p-2">
-                      {" "}
-                      <input
-                        className="col-md-1"
-                        placeholder=" status"
-                        value={searchdatastatus}
-                        onChange={(e) => setSearchdatastatus(e.target.value)}
-                        style={{ width: "65px" }}
-                      />
-                    </th>
-                    <th>
-                      {/* <input
-                          className="col-md-1"
-                          placeholder=" hight"
-                          value={searchHight}
-                          onChange={(e) => setsearchHight(e.target.value)}
-                          style={{ width: "79px" }}
-                        /> */}
-                    </th>
-                    <th>
-                      {/* <input
-                          className="col-md-1"
-                          placeholder=" width"
-                          value={searchwidth}
-                          onChange={(e) => setsearchwidth(e.target.value)}
-                          style={{ width: "79px" }}
-                        /> */}
-                    </th>
-                    <th>
-                      <input
-                        className="col-md-1"
-                        placeholder=" category"
-                        value={SearchCategory}
-                        onChange={(e) => setSearchCategory(e.target.value)}
-                        style={{ width: "65px" }}
-                      />
-                    </th>
-                    <th></th>
-                  </tr>
                   <tr>
                     <th className="th_s ">
                       <input
@@ -1026,46 +1510,17 @@ export default function ReceeManagement() {
                       />
                     </th>
                     <th className="th_s ">SI.No.</th>
-                    <th className="th_s ">Client Name</th>{" "}
-                    <th className="th_s ">Shop Name</th>
+                    <th className="th_s ">Job.No.</th>
+                    <th className="th_s ">Brand Name</th>
                     <th className="th_s ">Contact Number</th>
-                    <th className="th_s ">Area</th>
-                    <th className="th_s ">City</th>
-                    <th className="th_s ">Pincode</th>
-                    <th className="th_s ">Zone</th>
-                    <th className="th_s ">Vendor Name</th>
                     <th className="th_s "> Date</th>
-                    <th className="th_s "> Status</th>
-                    <th className="th_s "> Height</th>
-                    <th className="th_s "> Width</th>
-                    <th className="th_s "> Category</th>
                     <th className="th_s ">Action</th>
+                    <th className="th_s ">Outlate</th>
                   </tr>
                 </thead>
-                {/* {loading ? (
-                  <RotatingLines
-                    strokeColor="grey"
-                    strokeWidth="2"
-                    animationDuration="0.75"
-                    width="1px"
-                    height="1px"
-                    visible={true}
-                  />
-                ) : ( */}
+
                 <tbody>
                   {filteredData?.map((item, index) => {
-                    const selectedVendorId = item?.vendor?.[0];
-                    const vendor = selectedVendorId
-                      ? vendordata?.find((ele) => ele._id === selectedVendorId)
-                      : null;
-
-                    // const selectedCategoryId = item?.category?.[0];
-                    // const category = selectedCategoryId
-                    //   ? CategoryData?.find(
-                    //       (ele) => ele._id === selectedCategoryId
-                    //     )
-                    //   : null;
-
                     return (
                       <tr key={item._id}>
                         <td className="td_S p-1">
@@ -1081,19 +1536,9 @@ export default function ReceeManagement() {
                           />
                         </td>
                         <td className="td_S ">{index + 1}</td>
-                        <td className="td_S ">{item.ClientName}</td>
-                        <td className="td_S ">{item.ShopName}</td>
-
+                        <td className="td_S ">Job {index + 1}</td>
+                        <td className="td_S ">{item.BrandName}</td>
                         <td className="td_S ">{item.ContactNumber}</td>
-                        <td className="td_S ">{item.Area}</td>
-                        <td className="td_S ">{item.City}</td>
-                        <td className="td_S ">{item.Pincode}</td>
-                        <td className="td_S ">{item.Zone}</td>
-                        <td className="td_S ">
-                          {vendor
-                            ? vendor?.VendorFirstName
-                            : vendor?.VendorFirstName}
-                        </td>
                         <td className="td_S ">
                           {item.createdAt
                             ? new Date(item.createdAt)
@@ -1102,40 +1547,27 @@ export default function ReceeManagement() {
                             : ""}
                         </td>
 
-                        <td className="td_S">{item.datastatus}</td>
-                        <td className="td_S">
-                          {" "}
-                          {item.reccehight}
-                          {item.recceUnit}
-                        </td>
-                        <td className="td_S">
-                          {" "}
-                          {item.reccewidth} {item.recceUnit}
-                        </td>
-                        <td className="td_S">
-                          {item.category}
-                          {/* {category ? category?.categoryName : ""} */}
+                        <td className="td_S ">
+                          <span
+                            variant="info "
+                            onClick={() => {
+                              handleEdit(item, "details");
+                            }}
+                            style={{ cursor: "pointer", color: "skyblue" }}
+                          >
+                            Details
+                          </span>
                         </td>
                         <td className="td_S ">
                           <span
                             variant="info "
                             onClick={() => {
-                              handleEdit(item);
+                              handleEdit(item, "view");
                             }}
                             style={{ cursor: "pointer", color: "skyblue" }}
                           >
-                            View
+                            view
                           </span>
-                          {/* <span
-                              className="col-md-5 "
-                              variant="success "
-                              onClick={() => {
-                                handlesendRecceToDesign(item);
-                              }}
-                              style={{ cursor: "pointer", color: "green" }}
-                            >
-                              completed
-                            </span> */}
                         </td>
                       </tr>
                     );
@@ -1143,43 +1575,6 @@ export default function ReceeManagement() {
                 </tbody>
               </table>
             </div>
-            <Modal show={show} onHide={handleClose1}>
-              <Modal.Header closeButton>
-                <Modal.Title>Assign Recce </Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <Form className="row">
-                  <Col className="mb-3">
-                    <Form.Label>Select Vendor</Form.Label>
-                    <Form.Group
-                      md="5"
-                      className="mb-3"
-                      controlId="exampleForm.ControlInput1"
-                    >
-                      <Form.Select
-                        value={selctedVendor}
-                        onChange={(e) => setselctedVendor(e.target.value)}
-                      >
-                        <option>Choose..</option>
-                        {vendordata?.map((vendorele) => (
-                          <option key={vendorele._id} value={vendorele._id}>
-                            {vendorele?.VendorFirstName}
-                          </option>
-                        ))}
-                      </Form.Select>
-                    </Form.Group>
-                  </Col>
-                </Form>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose1}>
-                  Close
-                </Button>
-                <Button variant="primary" onClick={AssignVendor}>
-                  Save
-                </Button>
-              </Modal.Footer>
-            </Modal>
           </div>
         ) : (
           <div className="row  m-auto containerPadding">
@@ -1339,220 +1734,373 @@ export default function ReceeManagement() {
                 </Form>
               </>
             ) : (
-              <div className="col-md-8">
-                <div className="row">
-                  <div className="col-md-1">
-                    <ArrowCircleLeftIcon
-                      onClick={(e) => setSelectedIndex(null)}
-                      style={{ color: "#068FFF" }}
-                    />{" "}
+              <>
+                {selectedIndex.action === "details" ? (
+                  <div className="col-md-8">
+                    <div className="row">
+                      <div className="col-md-1">
+                        <ArrowCircleLeftIcon
+                          onClick={(e) => setSelectedIndex(null)}
+                          style={{ color: "#068FFF" }}
+                        />{" "}
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="row"></div>
+
+                      <p>
+                        <span className="me-3 clr">Brand Name:</span>
+                        <span className="me-3 ">
+                          {getVendorName.BrandName || null}
+                        </span>
+                      </p>
+
+                      <p className="col-md-8">
+                        <span className="me-3 clr">Area :</span>{" "}
+                        {getVendorName.Area}
+                      </p>
+                      <p>
+                        <span className="me-3 clr">City :</span>{" "}
+                        {getVendorName.City}
+                      </p>
+                      <p>
+                        <span className="me-3 clr">Contact Number :</span>
+                        {getVendorName.ContactNumber}
+                      </p>
+                      <p>
+                        <span className="me-3 clr">Pincode :</span>
+                        {getVendorName.Pincode}
+                      </p>
+                      <p>
+                        <span className="me-3 clr">Zone :</span>
+                        {getVendorName.Zone}
+                      </p>
+                      <p>
+                        <span className="me-3 clr">createdAt :</span>
+                        {getVendorName.createdAt
+                          ? new Date(getVendorName.createdAt)
+                              .toISOString()
+                              .slice(0, 10)
+                          : ""}
+                      </p>
+
+                      <p>
+                        <Button
+                          className="m-2"
+                          onClick={() => handleVendorEdit(getVendorName._id)}
+                        >
+                          Edit
+                        </Button>
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="row">
-                  <div className="row"></div>
-                  <p>
-                    <span className="me-3 clr">Vendor Name:</span>
-
-                    <span className="me-2 ">
-                      {selectedVendor ? selectedVendor?.VendorFirstName : ""}
-                    </span>
-                  </p>
-                  <p className="col-md-8">
-                    <span className="me-3 clr">Category :</span>{" "}
-                    {/* {selectedCategory ? selectedCategory?.categoryName : ""} */}
-                    {getVendorName.category}
-                  </p>
-
-                  <p>
-                    <span className="me-3 clr">Shop Name:</span>
-                    <span className="me-3 ">
-                      {getVendorName.ShopName || null}
-                    </span>
-                  </p>
-
-                  <p className="col-md-8">
-                    <span className="me-3 clr">Area :</span>{" "}
-                    {getVendorName.Area}
-                  </p>
-                  <p>
-                    <span className="me-3 clr">City :</span>{" "}
-                    {getVendorName.City}
-                  </p>
-                  <p>
-                    <span className="me-3 clr">Contact Number :</span>
-                    {getVendorName.ContactNumber}
-                  </p>
-                  <p>
-                    <span className="me-3 clr">Pincode :</span>
-                    {getVendorName.Pincode}
-                  </p>
-                  <p>
-                    <span className="me-3 clr">Zone :</span>
-                    {getVendorName.Zone}
-                  </p>
-                  <p>
-                    <span className="me-3 clr">createdAt :</span>
-                    {getVendorName.createdAt
-                      ? new Date(getVendorName.createdAt)
-                          .toISOString()
-                          .slice(0, 10)
-                      : ""}
-                  </p>
-
-                  <p>
-                    <Button
-                      className="m-2"
-                      onClick={() => handleVendorEdit(getVendorName._id)}
-                    >
-                      Edit
-                    </Button>
-                    {/* <Button onClick={() => handleVendorEdit(getVendorName._id)}>
-                      Edit
-                    </Button> */}
-                  </p>
-                  {/* <div className="col-md-12">
-                    <Modal show={assignvendor} onHide={handleClose}>
-                      <Modal.Header closeButton>
-                        <Modal.Title>Add Recce Details</Modal.Title>
-                      </Modal.Header>
-                      <Modal.Body>
-                        <Form className="row">
-                          <Row className="mb-3">
-                            <Col className="mb-3">
-                              <Form.Label>Recce Hight</Form.Label>
+                ) : (
+                  <>
+                    <div className="row ">
+                      <div className="col-md-1 mb-3">
+                        <ArrowCircleLeftIcon
+                          onClick={() => setSelectedIndex(null)}
+                          style={{ color: "#068FFF", cursor: "pointer" }}
+                        />
+                      </div>
+                      <div className="row ">
+                        <div className="col-md-6 mb-3">
+                          <div className="row ">
+                            <div className="col-md-2 ">
                               <Form.Control
-                                value={reccehight}
-                                onChange={(e) => setreccehight(e.target.value)}
-                                placeholder="Please enter  account number"
-                              />
-                            </Col>
-                            <Col className="mb-3">
-                              <Form.Label>Recce Width</Form.Label>
-                              <Form.Control
-                                value={reccewidth}
-                                onChange={(e) => setreccewidth(e.target.value)}
-                                placeholder="Please enter branch"
-                              />
-                            </Col>
-
-                            <Col className="mb-3">
-                              <Form.Label> Shop Name</Form.Label>
-                              <Form.Control
-                                value={shopName}
-                                onChange={(e) => setShopName(e.target.value)}
-                                placeholder="Please enter branch"
-                              />
-                            </Col>
-                          </Row>
-
-                          <Row className="mb-3">
-                            <Col className="mb-3">
-                              <Form.Label>Recce Status</Form.Label>
-
-                              <Form.Select
-                                value={reccestatus}
-                                onChange={(e) => setRecceStatus(e.target.value)}
+                                as="select"
+                                value={rowsPerPage1}
+                                onChange={handleRowsPerPageChange}
                               >
-                                <option>Choose...</option>
-                                <option>Pending</option>
-                                <option>Processing</option>
-                                <option>Completed</option>
-                              </Form.Select>
-                            </Col>{" "}
-                            <Col className="mb-3">
-                              <Form.Label>Recce Unit</Form.Label>
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={30}>30</option>
+                                <option value={50}>50</option>
+                                <option value={80}>80</option>
+                                <option value={100}>100</option>
+                                <option value={140}>140</option>
+                                <option value={200}>200</option>
+                                <option value={300}>300</option>
+                                <option value={400}>400</option>
+                                <option value={600}>600</option>
+                                <option value={700}>700</option>
+                                <option value={1000}>1000</option>
+                                <option value={1500}>1500</option>
+                                <option value={10000}>10000</option>
+                              </Form.Control>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <table>
+                      <thead className="t-c">
+                        <tr className="tr2">
+                          <th className="p-1"></th>
+                          <th className="p-1"></th>
 
-                              <Form.Select
-                                value={recceunit}
-                                onChange={(e) => setrecceunit(e.target.value)}
-                              >
-                                <option>Choose...</option>
-                                <option>cm</option>
-                                <option>inch</option>
-                              </Form.Select>
-                            </Col>
-                          </Row>
-                          <Row className="mb-3">
-                            <Col className="mb-3">
-                              <Form.Label>Select VendorName</Form.Label>
-                              <Form.Group
-                                md="5"
-                                className="mb-3"
-                                controlId="exampleForm.ControlInput1"
-                              >
-                                <Form.Select
-                                  value={selctedVendor}
-                                  onChange={(e) =>
-                                    setselctedVendor(e.target.value)
-                                  }
-                                >
-                                  <option>Choose..</option>
-                                  {vendordata.map((vendorele) => (
-                                    <option
-                                      key={vendorele._id}
-                                      value={vendorele._id}
-                                    >
-                                      {vendorele?.VendorFirstName}
-                                    </option>
-                                  ))}
-                                </Form.Select>
-                              </Form.Group>
-                            </Col>
-                            <Col className="mb-3">
-                              <Form.Group
-                                md="5"
-                                className="mb-3"
-                                controlId="exampleForm.ControlInput1"
-                              >
-                                <Form.Label>Select Category</Form.Label>
-                                <Form.Select
-                                  value={selectedcategory}
-                                  onChange={(e) =>
-                                    setselectedcategory(e.target.value)
-                                  }
-                                >
-                                  <option>Choose..</option>
+                          <th className="p-1"></th>
+                          <th className="p-1"></th>
+                          <th className="p-1">
+                            {" "}
+                            <input
+                              className="col-md-1"
+                              placeholder="Shop name"
+                              value={searchshopName}
+                              onChange={(e) =>
+                                setSearchshopName(e.target.value)
+                              }
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+                          <th className="p-1">
+                            <input
+                              className="col-md-1"
+                              placeholder="owner name"
+                              value={SearchclientName}
+                              onChange={(e) =>
+                                setSearchclientName(e.target.value)
+                              }
+                              style={{ width: "55px" }}
+                            />
+                          </th>
 
-                                  {CategoryData.map((ele) => (
-                                    <option key={ele._id} value={ele._id}>
-                                      {ele.categoryName}
-                                    </option>
-                                  ))}
-                                </Form.Select>
-                              </Form.Group>
-                            </Col>
-                          </Row>
-                          <Row className="mb-3 text-center">
-                            <Col>OR</Col>
-                          </Row>
-                          <Row className="mb-3 m-auto upload">
-                            <Col>
-                              <Form.Label>
-                                <p className="m-auto">upload file</p>
-                                <Form.Control
-                                  onChange={(e) =>
-                                    setreccedesign(e.target.files[0])
-                                  }
-                                  type="file"
-                                  style={{ display: "none" }}
-                                />
-                              </Form.Label>
-                            </Col>
-                          </Row>
-                        </Form>
-                      </Modal.Body>
-                      <Modal.Footer>
-                        <Button variant="secondary" onClick={handleClose}>
-                          Close
-                        </Button>
-                        <Button variant="primary" onClick={updateRecceData}>
-                          Save
-                        </Button>
-                      </Modal.Footer>
-                    </Modal>
-                  </div> */}
-                </div>
-              </div>
+                          <th></th>
+                          <th className="p-1">
+                            <input
+                              className="col-md-1"
+                              placeholder="Contact"
+                              value={searchcontactNumber}
+                              onChange={(e) =>
+                                setSearchcontactNumber(e.target.value)
+                              }
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+                          <th className="p-1">
+                            <input
+                              className="col-md-1"
+                              placeholder=" zone"
+                              value={searchzone}
+                              onChange={(e) => setSearchzone(e.target.value)}
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+
+                          <th>
+                            <input
+                              className="col-md-1"
+                              placeholder=" pincode"
+                              value={searchpincode}
+                              onChange={(e) => setSearchpincode(e.target.value)}
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+
+                          <th className="p-1">
+                            <input
+                              className="col-md-1"
+                              placeholder=" city"
+                              value={searchcity}
+                              onChange={(e) => setSearchcity(e.target.value)}
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+                          <th className="p-1"></th>
+
+                          <th className="p-1"></th>
+                          <th className="p-1"> </th>
+                          <th className="p-1">
+                            <input
+                              className="col-md-1"
+                              placeholder=" category"
+                              value={SearchCategory}
+                              onChange={(e) =>
+                                setSearchCategory(e.target.value)
+                              }
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+                          <th className="p-1"></th>
+                          <th className="p-1"></th>
+                          <th className="p-1">
+                            <input
+                              className="col-md-1"
+                              placeholder="Vendor name"
+                              value={searchVendorName}
+                              onChange={(e) =>
+                                setSearchVendorName(e.target.value)
+                              }
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+                          <th className="p-1">
+                            <input
+                              className="col-md-1"
+                              placeholder=" date"
+                              value={searchdate}
+                              onChange={(e) => setSearchDate(e.target.value)}
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+                          <th className="p-1">
+                            {" "}
+                            <input
+                              className="col-md-1"
+                              placeholder=" status"
+                              value={searchdatastatus}
+                              onChange={(e) =>
+                                setSearchdatastatus(e.target.value)
+                              }
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+                        </tr>
+
+                        <tr>
+                          <th className="th_s ">
+                            <input
+                              type="checkbox"
+                              style={{
+                                width: "15px",
+                                height: "15px",
+                                marginRight: "5px",
+                              }}
+                              checked={selectAll}
+                              onChange={handleSelectAllChange}
+                            />
+                          </th>
+                          <th className="th_s ">SI.No</th>
+                          <th className="th_s ">Job.No</th>
+                          <th className="th_s ">Brand </th>
+                          <th className="th_s ">Shop Name</th>
+                          <th className="th_s ">Client Name</th>
+                          <th className="th_s ">State</th>
+                          <th className="th_s ">Contact Number</th>
+                          <th className="th_s ">Zone</th>
+                          <th className="th_s ">Pincode</th>
+                          <th className="th_s ">City</th>
+                          <th className="th_s ">FL Board</th>
+                          <th className="th_s ">GSB</th>
+                          <th className="th_s ">Inshop</th>
+                          <th className="th_s ">Category</th>
+                          <th className="th_s ">Height</th>
+                          <th className="th_s ">Width</th>
+                          <th className="th_s ">Vendor Name</th>
+                          <th className="th_s ">Date</th>
+                          <th className="th_s ">Status</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {filteredData1?.map((recceItem, index) =>
+                          recceItem?.outletName?.map((outlet, outletArray) => {
+                            console.log(recceItem, "recceItem");
+                            if (rowsDisplayed < rowsPerPage1) {
+                              const selectedVendorId = outlet?.vendor;
+                              const vendor = selectedVendorId
+                                ? vendordata?.find(
+                                    (ele) => ele?._id === selectedVendorId
+                                  )
+                                : null;
+
+                              rowsDisplayed++;
+                              const pincodePattern = /\b\d{6}\b/;
+
+                              const address = outlet?.OutletAddress;
+                              const extractedPincode =
+                                address?.match(pincodePattern);
+
+                              if (extractedPincode) {
+                                outlet.OutletPincode = extractedPincode[0];
+                              }
+
+                              return (
+                                <tr className="tr_C" key={outlet._id}>
+                                  <td className="td_S p-1">
+                                    <input
+                                      style={{
+                                        width: "15px",
+                                        height: "15px",
+                                        marginRight: "5px",
+                                      }}
+                                      type="checkbox"
+                                      checked={selectedRecceItems.includes(
+                                        outlet._id
+                                      )}
+                                      onChange={() =>
+                                        handleToggleSelect(outlet._id)
+                                      }
+                                    />
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outletArray + 1}
+                                  </td>
+                                  <td className="td_S p-1">Job{index + 1}</td>
+                                  <td className="td_S p-1">
+                                    {recceItem.BrandName}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet.ShopName}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet.ClientName}
+                                  </td>
+                                  <td className="td_S p-1">{outlet.State}</td>
+                                  <td className="td_S p-1">
+                                    {outlet.OutletContactNumber}
+                                  </td>
+
+                                  <td className="td_S p-1">
+                                    {outlet.OutletZone}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {extractedPincode
+                                      ? extractedPincode[0]
+                                      : ""}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet.OutletCity}
+                                  </td>
+                                  <td className="td_S p-1">{outlet.FLBoard}</td>
+                                  <td className="td_S p-1">{outlet.GSB}</td>
+                                  <td className="td_S p-1">{outlet.Inshop}</td>
+                                  <td className="td_S p-1">
+                                    {outlet.Category}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet.height}
+                                    {outlet.unit}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet.width}
+                                    {outlet.unit}
+                                  </td>
+
+                                  <td className="td_S p-1">
+                                    {vendor?.VendorFirstName}
+                                  </td>
+                                  <td className="td_S ">
+                                    {recceItem.createdAt
+                                      ? new Date(recceItem.createdAt)
+                                          .toISOString()
+                                          .slice(0, 10)
+                                      : ""}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet.RecceStatus}
+                                  </td>
+                                </tr>
+                              );
+                            }
+                            return null;
+                          })
+                        )}
+                      </tbody>
+                    </table>
+                  </>
+                )}
+              </>
             )}
           </div>
         )}

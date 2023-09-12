@@ -5,7 +5,7 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import axios from "axios";
-import Header from "./Header";
+// import Header from "./Header";
 import ImageIcon from "@mui/icons-material/Image";
 
 export function Signup() {
@@ -47,7 +47,7 @@ export function Signup() {
       const config = {
         url: "/auth/auth/signup",
         method: "POST",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8000/api",
         data: formData,
       };
 

@@ -1,4 +1,8 @@
 const RecceModel = require("../../Model/Reccemanagement/recce");
+
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
+
 var savedCompletedRecceId;
 var savecompletedDesignId;
 var savecompletedPrintId;
@@ -7,47 +11,26 @@ var savecompletedinstalationId;
 class Reccemanagement {
   async AddRecce(req, res) {
     let {
-      ClientName,
-      ShopName,
+      BrandOnerName,
       Area,
       City,
       ContactNumber,
       Pincode,
       Zone,
-      datastatus,
-      Designstatus,
-      printingStatus,
-      fabricationstatus,
-      installationSTatus,
+      outletName,
+      BrandName,
     } = req.body;
 
     try {
       let newRecce = new RecceModel({
-        ClientName,
-        ShopName,
-        Designstatus: "Pending",
-        printingStatus: "Pending",
-        fabricationstatus: "Pending",
+        BrandOnerName,
         Area,
         City,
         ContactNumber,
         Pincode,
         Zone,
-        vendor: null,
-        category: null,
-        datastatus: "Pending",
-        reccehight: null,
-        reccewidth: null,
-        recceUnit: null,
-        reccedesign: null,
-        designupload: null,
-        completedPrinting: null,
-        completedFabrication: null,
-        completedInstallation: null,
-        installationSTatus: "Pending",
-        printupload: null,
-        fabricationupload: null,
-        installationupload: null,
+        outletName,
+        BrandName,
       });
 
       let allrecce = await newRecce.save();
@@ -60,59 +43,62 @@ class Reccemanagement {
     }
   }
 
-  async addreccevaiexcel(req, res) {
-    const data = req.body;
-
-    try {
-      const transformedData = data.map((item) => ({
-        ClientName: item.ClientName,
-        ShopName: item.ShopName,
-        Area: item.Area,
-        City: item.City,
-        ContactNumber: item.ContactNumber,
-        Pincode: item.Pincode,
-        Zone: item.Zone,
-        vendor: [item.VendorId],
-      }));
-
-      const insertedRecce = await RecceModel.insertMany(transformedData);
-      if (insertedRecce.length > 0) {
-        return res.status(200).json({ message: "Recce uploaded successfully" });
-      } else {
-        return res.status(400).json({ error: "Failed to add Recce" });
-      }
-    } catch (error) {
-      console.error("Error adding Recce:", error);
-      return res.status(500).json({ error: "Internal server error" });
-    }
-  }
   async AddRecceDetails(req, res) {
-    const recceId = req.params.reccevendorid;
-
+    const venoderid = req.params.vendorid;
+    const typesofjobid = req.params.typesofjobid;
+    const zone = req.params.zone;
     try {
-      const { vendor } = req.body;
-      const updatedRecce = await RecceModel.findOne({ _id: recceId });
+      const recceDataArray = req.body.RecceData;
 
-      if (!updatedRecce) {
-        return res.status(404).json({ message: "Recce entry not found" });
+      if (!Array.isArray(recceDataArray)) {
+        return res.status(400).json({ message: "Invalid RecceData format" });
       }
 
-      if (vendor !== undefined) {
-        updatedRecce.vendor = vendor;
+      const updatedRecceData = [];
+
+      for (const recceData of recceDataArray) {
+        if (!recceData || !Array.isArray(recceData.outletName)) {
+          continue;
+        }
+
+        for (const outletArray of recceData.outletName) {
+          if (!Array.isArray(outletArray)) {
+            continue;
+          }
+
+          for (const outlet of outletArray) {
+            if (!outlet) {
+              continue;
+            }
+
+            if (outlet.OutletZone === zone) {
+              outlet.typesofjob = typesofjobid;
+              outlet.vendor = venoderid;
+              outlet.updatedAt = new Date();
+            }
+          }
+        }
+
+        const updatedRecce = await RecceModel.findOneAndUpdate(
+          { _id: recceData._id },
+          recceData,
+          { new: true }
+        );
+
+        if (!updatedRecce) {
+          return res.status(404).json({ message: "Document not found" });
+        }
+
+        updatedRecceData.push(updatedRecce);
       }
 
-      const saveRecce = await RecceModel.findOneAndUpdate(
-        { _id: recceId },
-        updatedRecce,
-        { new: true }
-      );
-
-      return res
-        .status(200)
-        .json({ message: "Recce details added", data: saveRecce });
+      return res.status(200).json({
+        message: "Vendor updated successfully for the selected zone",
+        data: updatedRecceData,
+      });
     } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: "Error updating recce" });
+      console.error("Error updating vendor:", error);
+      return res.status(500).json({ message: "Error updating vendor" });
     }
   }
 
@@ -128,80 +114,6 @@ class Reccemanagement {
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Error while deleting recce" });
-    }
-  }
-
-  async UpdateRecceData(req, res) {
-    const recceId = req.params.reccedataid;
-    let file = req?.file?.filename;
-    try {
-      const {
-        ClientName,
-        Designstatus,
-        ShopName,
-        Area,
-        City,
-        ContactNumber,
-        Pincode,
-        Zone,
-        reccedesign,
-        fabricationstatus,
-        category,
-        datastatus,
-        reccehight,
-        reccewidth,
-        recceUnit,
-        designupload,
-        printingStatus,
-        printupload,
-        fabricationupload,
-        installationupload,
-        installationSTatus,
-      } = req.body;
-
-      // Find the existing record first
-      const existingRecce = await RecceModel.findById(recceId);
-
-      if (!existingRecce) {
-        return res.status(404).json({ message: "Recce not found" });
-      }
-
-      // Update the properties with new or existing values based on conditions
-      const updatedRecce = await RecceModel.findOneAndUpdate(
-        { _id: recceId },
-        {
-          ClientName,
-          ShopName,
-          Area,
-          City,
-          ContactNumber,
-          Pincode,
-          Zone,
-          fabricationstatus,
-          installationSTatus,
-          category,
-          datastatus,
-          reccehight,
-          reccewidth,
-          recceUnit,
-          Designstatus,
-          printingStatus,
-          reccedesign: file || existingRecce.reccedesign,
-          designupload: file || existingRecce.designupload,
-          printupload: file || existingRecce.printupload,
-          fabricationupload: file || existingRecce.fabricationupload,
-          installationupload: file || existingRecce.installationupload,
-        },
-        { new: true }
-      );
-
-      console.log(updatedRecce, "after");
-      return res
-        .status(200)
-        .json({ message: "Recce details updated", data: updatedRecce });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: "Error updating recce" });
     }
   }
 
@@ -284,13 +196,135 @@ class Reccemanagement {
       return res.status(500).json({ err: "server error" });
     }
   }
-  completedFabrication;
+
   async getAllRecce(req, res) {
     try {
       const RecceData = await RecceModel.find({});
       return res.status(200).json({ RecceData });
     } catch (err) {
       return res.status(500).json({ err: "server error" });
+    }
+  }
+
+  async updateRecceOutletName(req, res) {
+    const outletid = req.params.addexcelid;
+
+    try {
+      if (!outletid || !mongoose.Types.ObjectId.isValid(outletid)) {
+        return res.status(400).json({ error: "Invalid outletid provided" });
+      }
+
+      // Extract fields from the request body
+      const {
+        outletName,
+        OutlateFabricationNeed,
+        fabricationupload,
+        Designstatus,
+        printingStatus,
+        fabricationstatus,
+        installationSTatus,
+        printupload,
+        installationupload,
+        completedDesign,
+        completedRecceId,
+        completedPrinting,
+        completedInstallation,
+        designupload,
+        reccedesign,
+        No_Quantity,
+        SFT,
+        ProductionRate,
+        ProductionCost,
+        transportationcost,
+        InstallationRate,
+        InstallationCost,
+        transportationRate,
+        RecceStatus,
+      } = req.body;
+
+      const outletNameArrayWithIDs = outletName.map((outlet) => ({
+        _id: new ObjectId(),
+        OutlateFabricationNeed,
+        fabricationupload,
+        Designstatus: "Pending",
+        printingStatus: "Pending",
+        fabricationstatus: "Pending",
+        installationSTatus: "Pending",
+        printupload,
+        RecceStatus: "Pending",
+        installationupload,
+        completedDesign,
+        completedRecceId,
+        completedPrinting,
+        completedInstallation,
+        designupload,
+        reccedesign,
+        No_Quantity,
+        SFT,
+        ProductionRate,
+        ProductionCost,
+        transportationcost,
+        InstallationRate,
+        InstallationCost,
+        transportationRate,
+        ...outlet,
+      }));
+
+      const updatedRecce = await RecceModel.findByIdAndUpdate(
+        outletid,
+        { $push: { outletName: { $each: outletNameArrayWithIDs } } },
+        { new: true }
+      );
+
+      if (!updatedRecce) {
+        return res
+          .status(404)
+          .json({ error: `Document with _id ${outletid} not found` });
+      }
+
+      return res
+        .status(200)
+        .json({ message: "Outlet names updated successfully" });
+    } catch (error) {
+      console.error("Error:", error);
+      console.log("Error occurred");
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  async UpdateRecceData(req, res) {
+    const outlateid = req.params.getreccedataid;
+    const filesToUpdate = req.files || [];
+    const { OutlateFabricationNeed, Designstatus } = req.body;
+    const recceIdToUpdate = new mongoose.Types.ObjectId(req.params.recceindex);
+
+    try {
+      const updatedRecceDoc = await RecceModel.updateOne(
+        {
+          _id: recceIdToUpdate,
+          "outletName._id": outlateid,
+        },
+        {
+          $set: {
+            "outletName.$.OutlateFabricationNeed": OutlateFabricationNeed,
+            "outletName.$.designupload": filesToUpdate,
+            "outletName.$.Designstatus": Designstatus,
+          },
+        }
+      );
+
+      if (!updatedRecceDoc) {
+        return res
+          .status(404)
+          .json({ message: "Outlet not found in Recce document" });
+      }
+
+      return res.status(200).json({
+        message: "Outlet updated successfully",
+        data: updatedRecceDoc,
+      });
+    } catch (error) {
+      return res.status(500).json({ message: "Error updating document" });
     }
   }
 }

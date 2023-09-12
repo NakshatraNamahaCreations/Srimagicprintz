@@ -7,7 +7,7 @@ import "react-data-table-component-extensions/dist/index.css";
 import Col from "react-bootstrap/Col";
 import Modal from "react-bootstrap/Modal";
 import { Card } from "react-bootstrap";
-
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import Row from "react-bootstrap/Row";
 import "react-toastify/dist/ReactToastify.css";
 import { CSVLink, CSVDownload } from "react-csv";
@@ -42,7 +42,7 @@ export default function Design() {
   const [vendordata, setVendorData] = useState(null);
   const [getreccedata, setgetreccedata] = useState("");
   const [SelecteddesignIndex, setSelectedDesignIndex] = useState(false);
-  const [designImages, setDesignImages] = useState("");
+
   const [SearchclientName, setSearchclientName] = useState("");
   const [searchdatastatus, setSearchdatastatus] = useState("");
   const [filterStartDate, setFilterStartDate] = useState("");
@@ -53,8 +53,8 @@ export default function Design() {
 
   const [assign, setAssign] = useState([]);
   const [show, setShow] = useState(false);
-  const [selctedVendor, setselctedVendor] = useState("");
-  const [selectedIndex, setSelectedIndex] = useState(false);
+
+  const [fabricationneed, setFabricationneed] = useState("");
   useEffect(() => {
     getAllRecce();
   }, []);
@@ -62,14 +62,10 @@ export default function Design() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8000/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
-        const filteredRecceData = res.data.RecceData.filter(
-          (item) => item._id === item.completedRecceId
-        );
-        setRecceData(filteredRecceData);
-        // window.location.reload();
+        setRecceData(res.data.RecceData);
       }
     } catch (err) {
       console.error(err);
@@ -210,73 +206,7 @@ export default function Design() {
       setShow(true);
     }
   };
-  // const handleEdit = (vendor) => {
-  //   setgetreccedata(vendor);
-  //   setSelectedDesignIndex(true);
-  // };
 
-  // const selectedVendorId = getreccedata?.vendor?.[0];
-  // const selectedVendor = vendordata?.find(
-  //   (vendor) => vendor._id === selectedVendorId
-  // );
-
-  // const selectedcategoryID = getreccedata?.category?.[0];
-  // const selectcategry = CategoryData?.find(
-  //   (ele) => ele?._id === selectedcategoryID
-  // );
-
-  const selectedVendor = vendordata?.find(
-    (vendor) => vendor._id === selctedVendor
-  );
-  const AssignVendor = async () => {
-    try {
-      let alreadyAssigned = false;
-      let clientName = "";
-
-      for (const recceId of selectedRecceItems) {
-        const currentRecceData = recceData.find((item) => item._id === recceId);
-
-        if (currentRecceData.vendor) {
-          alreadyAssigned = true;
-          clientName = currentRecceData.ClientName;
-          break;
-        }
-      }
-
-      if (alreadyAssigned) {
-        alert(
-          `A vendor has already been assigned to  for client ${clientName}.`
-        );
-        return;
-      }
-
-      for (const recceId of selectedRecceItems) {
-        const formData = new FormData();
-        formData.append("vendor", selectedVendor._id);
-
-        const config = {
-          url: `/recce/recce/updatevendorname/${recceId}`,
-          method: "post",
-          baseURL: "http://api.srimagicprintz.com/api",
-          data: formData,
-        };
-
-        const res = await axios(config);
-
-        if (res.status === 200) {
-          alert(`Recce assigned to: ${selectedVendor.VendorFirstName}`);
-        } else {
-          alert(`Failed to assign recce to: ${selectedVendor.VendorFirstName}`);
-        }
-      }
-
-      alert("Successfully linked vendors to recce items");
-      setSelectedIndex(null);
-      window.location.reload();
-    } catch (err) {
-      alert("Not able to assign", err);
-    }
-  };
   const handleExportPDF = () => {
     const pdf = new jsPDF();
     const tableColumn = [
@@ -339,10 +269,6 @@ export default function Design() {
 
     pdf.save("exported_data.pdf");
   };
-  const handleImageUpload = (event) => {
-    const files = event.target.files;
-    setDesignImages(files);
-  };
 
   const [designStatus, setdesignStatus] = useState("");
 
@@ -373,32 +299,32 @@ export default function Design() {
     });
   };
   const filteredData = filterDate(displayedData);
-  const handleToggleSelect = (itemId) => {
-    let updatedSelectedRecceItems;
+  // const handleToggleSelect = (itemId) => {
+  //   let updatedSelectedRecceItems;
 
-    if (selectedRecceItems.includes(itemId)) {
-      updatedSelectedRecceItems = selectedRecceItems.filter(
-        (id) => id !== itemId
-      );
-    } else {
-      updatedSelectedRecceItems = [...selectedRecceItems, itemId];
-    }
+  //   if (selectedRecceItems.includes(itemId)) {
+  //     updatedSelectedRecceItems = selectedRecceItems.filter(
+  //       (id) => id !== itemId
+  //     );
+  //   } else {
+  //     updatedSelectedRecceItems = [...selectedRecceItems, itemId];
+  //   }
 
-    setSelectedRecceItems(updatedSelectedRecceItems);
-    setmoreoption(updatedSelectedRecceItems.length > 0);
-  };
+  //   setSelectedRecceItems(updatedSelectedRecceItems);
+  //   setmoreoption(updatedSelectedRecceItems.length > 0);
+  // };
 
-  const handleSelectAllChange = () => {
-    setSelectAll(!selectAll);
+  // const handleSelectAllChange = () => {
+  //   setSelectAll(!selectAll);
 
-    if (!selectAll) {
-      setSelectedRecceItems(displayedData.map((item) => item._id));
-    } else {
-      setSelectedRecceItems([]);
-    }
+  //   if (!selectAll) {
+  //     setSelectedRecceItems(displayedData.map((item) => item._id));
+  //   } else {
+  //     setSelectedRecceItems([]);
+  //   }
 
-    setmoreoption(!selectAll);
-  };
+  //   setmoreoption(!selectAll);
+  // };
   async function deleteRecce(recceId) {
     try {
       const response = await axios.delete(
@@ -439,28 +365,83 @@ export default function Design() {
     setFilterEndDate(event.target.value);
   };
 
-  const [designData, setDesignData] = useState([]);
+  // const updateRecceData = async () => {
+  //   const formdata = new FormData();
+  //   if ("designupload") {
+  //     for (const image of designImages) {
+  //       formdata.append("designimage", image);
+  //     }
+  //   }
 
-  const handleEdit = (item) => {
-    setgetreccedata(item, designData);
-    setDesignData(designData);
-    setSelectedDesignIndex(true);
-  };
-  const updateRecceData = async () => {
+  //   formdata.append("Designstatus", designStatus || getreccedata.Designstatus);
+  //   try {
+  //     const recceId = getreccedata._id;
+  //     const config = {
+  //       url: `/recce/recce/updatereccedata/${recceId}`,
+  //       method: "put",
+  //       baseURL: "http://localhost:8000/api",
+  //       headers: { "Content-Type": "multipart/form-data" },
+  //       data: formdata,
+  //     };
+
+  //     const res = await axios(config);
+
+  //     if (res.status === 200) {
+  //       alert("Successfully updated design");
+  //       window.location.reload();
+  //     }
+  //   } catch (err) {
+  //     alert("Not able to add", err);
+  //   }
+  // };
+
+  // const handleUpdate = async (designid) => {
+  //   const formData = new FormData();
+  //   formData.append("designimages", designImage);
+  //   formData.append("OutlateFabricationNeed", fabricationneed);
+  //   try {
+  //     const response = await axios.put(
+  //       `http://localhost:8000/api/recce/recce/updatereccedata/${designid}`,
+  //       formData,
+  //       {
+  //         headers: {
+  //           "Content-Type": "multipart/form-data",
+  //         },
+  //       }
+  //     );
+
+  //     if (response.status === 200) {
+  //       alert("Design image updated successfully");
+  //     }
+  //   } catch (error) {
+  //     alert("Error updating design image");
+  //     console.error(error);
+  //   }
+  // };
+  const [selectedFiles, setselectedFiles] = useState([]);
+
+  const handleUpdate = async () => {
     const formdata = new FormData();
-    if ("designupload") {
-      for (const image of designImages) {
-        formdata.append("designimage", image);
+
+    if (fabricationneed !== undefined && fabricationneed !== null) {
+      formdata.append("OutlateFabricationNeed", fabricationneed);
+    }
+
+    if (designStatus !== undefined && designStatus !== null) {
+      formdata.append("Designstatus", designStatus);
+    }
+
+    if (selectedFiles.length > 0) {
+      for (const file of selectedFiles) {
+        formdata.append("designupload", file);
       }
     }
 
-    formdata.append("Designstatus", designStatus || getreccedata.Designstatus);
     try {
-      const recceId = getreccedata._id;
       const config = {
-        url: `/recce/recce/updatereccedata/${recceId}`,
+        url: `/recce/recce/updatereccedata/${RecceIndex}/${getreccedata._id}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8000/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -468,14 +449,20 @@ export default function Design() {
       const res = await axios(config);
 
       if (res.status === 200) {
-        alert("Successfully updated design");
-        // set(null);
+        alert("Successfully updated outlet");
         window.location.reload();
+      } else {
+        console.error("Received non-200 status code:", res.status);
       }
     } catch (err) {
-      alert("Not able to add", err);
+      console.error("Error:", err.response ? err.response.data : err.message);
+      alert(
+        "Not able to update: " +
+          (err.response ? err.response.data.message : err.message)
+      );
     }
   };
+
   const handlesendPrinting = async () => {
     for (const recceId of selectedRecceItems) {
       const recceData = filteredData.find((item) => item._id === recceId);
@@ -486,7 +473,7 @@ export default function Design() {
       ) {
         try {
           const response = await axios.post(
-            `http://api.srimagicprintz.com/api/recce/recce/getdesigncompletedid/${recceData._id}`
+            `http://localhost:8000/api/recce/recce/getdesigncompletedid/${recceData._id}`
           );
 
           if (response.status === 200) {
@@ -504,6 +491,28 @@ export default function Design() {
     }
   };
 
+  let serialNumber = 0;
+  let rowsDisplayed = 0;
+  const [rowsPerPage1, setRowsPerPage1] = useState(5);
+  const handleRowsPerPageChange = (e) => {
+    const newRowsPerPage = parseInt(e.target.value);
+    setRowsPerPage1(newRowsPerPage);
+    serialNumber = 0;
+    rowsDisplayed = 0;
+  };
+  const [RecceIndex, setRecceIndex] = useState(null);
+  const handleEdit = (selectedSNo, recceItem) => {
+    setgetreccedata(selectedSNo);
+    setRecceIndex(recceItem._id);
+    setSelectedDesignIndex(true);
+  };
+  const handleFileChange = (e) => {
+    const selectedFiles = e.target.files;
+    setselectedFiles(selectedFiles);
+  };
+
+  const handleAddmultipleDesign = () => {};
+
   return (
     <>
       <Header />
@@ -512,28 +521,27 @@ export default function Design() {
         <div className="row  m-auto containerPadding">
           <div className="row ">
             <Col className="col-md-1 mb-3">
-              <Form.Group className="row float-right">
-                <Form.Control
-                  as="select"
-                  value={rowsPerPage}
-                  onChange={(e) => {
-                    setRowsPerPage(parseInt(e.target.value));
-                    setCurrentPage(1);
-                  }}
-                >
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={30}>30</option>
-                  <option value={50}>50</option>
-                  <option value={80}>80</option>
-                  <option value={100}>100</option>
-                  <option value={140}>140</option>
-                  <option value={200}>200</option>
-                </Form.Control>
-                <Form.Label>
-                  {displayedData?.length} of: {recceData?.length}
-                </Form.Label>
-              </Form.Group>
+              <Form.Control
+                as="select"
+                value={rowsPerPage1}
+                onChange={handleRowsPerPageChange}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={30}>30</option>
+                <option value={50}>50</option>
+                <option value={80}>80</option>
+                <option value={100}>100</option>
+                <option value={140}>140</option>
+                <option value={200}>200</option>
+                <option value={300}>300</option>
+                <option value={400}>400</option>
+                <option value={600}>600</option>
+                <option value={700}>700</option>
+                <option value={1000}>1000</option>
+                <option value={1500}>1500</option>
+                <option value={10000}>10000</option>
+              </Form.Control>
             </Col>
             <Col className="col-md-5">
               <div className="row">
@@ -602,346 +610,247 @@ export default function Design() {
               ) : null}
             </Col>
           </div>
-          <div className="row ">
+
+          <div className="row">
             <table className="t-p">
               <thead className="t-c">
-                <tr className="tr2">
-                  <th></th>
-                  <th>
-                    <input
-                      className="col-md-1"
-                      placeholder="SI.No"
-                      value={searchSINO}
-                      onChange={(e) => setSearchSINO(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-2">
-                    <input
-                      className="col-md-1"
-                      placeholder="client name"
-                      value={SearchclientName}
-                      onChange={(e) => setSearchclientName(e.target.value)}
-                      style={{ width: "65px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Shop name"
-                      value={searchshopName}
-                      onChange={(e) => setSearchshopName(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  {/* <th>
-                    <input
-                      className="col-md-1"
-                      placeholder="Vendor name"
-                      value={searchVendorName}
-                      onChange={(e) => setSearchVendorName(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th> */}
-                  <th>
-                    <input
-                      className="col-md-1"
-                      placeholder="Contact"
-                      value={searchcontactNumber}
-                      onChange={(e) => setSearchcontactNumber(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Area"
-                      value={searcharea}
-                      onChange={(e) => setSearcharea(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-
-                  <th>
-                    <input
-                      className="col-md-1"
-                      placeholder="City"
-                      value={searchcity}
-                      onChange={(e) => setSearchcity(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Pincode"
-                      value={searchpincode}
-                      onChange={(e) => setSearchpincode(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Zone"
-                      value={searchzone}
-                      onChange={(e) => setSearchzone(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Date"
-                      value={searchdate}
-                      onChange={(e) => setSearchDate(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Status"
-                      value={searchstatus}
-                      onChange={(e) => setSearchStatus(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th>
-                    {/* <input
-                      className="col-md-1"
-                      placeholder="Seach hight"
-                      value={searchHight}
-                      onChange={(e) => setsearchHight(e.target.value)}
-                      style={{ width: "79px" }}
-                    /> */}
-                  </th>
-                  <th>
-                    {/* <input
-                      className="col-md-1"
-                      placeholder=" width"
-                      value={searchwidth}
-                      onChange={(e) => setsearchwidth(e.target.value)}
-                      style={{ width: "79px" }}
-                    /> */}
-                  </th>
-                  <th>
-                    <input
-                      className="col-md-1"
-                      placeholder=" category"
-                      value={SearchCategory}
-                      onChange={(e) => setSearchCategory(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th></th>
-                </tr>
                 <tr>
-                  <th className="th_s ">
-                    <input
-                      type="checkbox"
-                      style={{
-                        width: "15px",
-                        height: "15px",
-                        marginRight: "5px",
-                      }}
-                      checked={selectAll}
-                      onChange={handleSelectAllChange}
-                    />
-                  </th>
-                  <th className="th_s p-1">SI.No.</th>
-                  <th className="th_s ">Client Name</th>{" "}
+                  <th className="th_s p-1">SI.No</th>
+                  <th className="th_s p-1">Job.No</th>
+                  <th className="th_s p-1">Brand </th>
                   <th className="th_s p-1">Shop Name</th>
+                  <th className="th_s p-1">Client Name</th>
+                  <th className="th_s p-1">State</th>
                   <th className="th_s p-1">Contact Number</th>
-                  <th className="th_s p-1">Area</th>
-                  <th className="th_s p-1">City</th>
-                  <th className="th_s p-1">Pincode</th>
                   <th className="th_s p-1">Zone</th>
-                  <th className="th_s p-1"> Date</th>
-                  <th className="th_s p-1"> Status</th>
-                  <th className="th_s p-1"> Height</th>
-                  <th className="th_s p-1"> Width</th>
-                  <th className="th_s p-1"> Category</th>
+                  <th className="th_s p-1">Pincode</th>
+                  <th className="th_s p-1">City</th>
+                  <th className="th_s p-1">FL Board</th>
+                  <th className="th_s p-1">GSB</th>
+                  <th className="th_s p-1">Inshop</th>
+                  <th className="th_s p-1">Category</th>
+                  <th className="th_s p-1">Hight</th>
+                  <th className="th_s p-1">Width</th>
+                  <th className="th_s p-1">Date</th>
                   <th className="th_s p-1">Action</th>
                 </tr>
               </thead>
-              <tbody className="table">
-                {filteredData?.map((item, index) => {
-                  const selectedVendorId = item?.vendor?.[0];
-                  const vendor = selectedVendorId
-                    ? vendordata?.find((ele) => ele._id === selectedVendorId)
-                    : null;
-                  return (
-                    <tr className="design" key={item._id}>
-                      <td className="td_S p-1">
-                        <input
-                          style={{
-                            width: "15px",
-                            height: "15px",
-                            marginRight: "5px",
-                          }}
-                          type="checkbox"
-                          checked={selectedRecceItems.includes(item._id)}
-                          onChange={() => handleToggleSelect(item._id)}
-                        />
-                      </td>
-                      <td className="td_S p-1">{index + 1}</td>
-                      <td className="td_S p-1">{item.ClientName}</td>
-                      <td className="td_S p-1">{item.ShopName}</td>
-                      {/* <td className="td_S p-1">
-                        {selectedVendor ? selectedVendor?.VendorFirstName : ""}
-                      </td> */}
-                      <td className="td_S p-1">{item.ContactNumber}</td>
-                      <td className="td_S p-1">{item.Area}</td>
-                      <td className="td_S p-1">{item.City}</td>
-                      <td className="td_S p-1">{item.Pincode}</td>
-                      <td className="td_S p-1">{item.Zone}</td>
-                      <td className="td_S p-1">
-                        {item.createdAt
-                          ? new Date(item.createdAt).toISOString().slice(0, 10)
-                          : ""}
-                      </td>
-                      <td className="td_S">{item.Designstatus}</td>
-                      <td className="td_S">
-                        {" "}
-                        {item.reccehight}
-                        {item.recceUnit}
-                      </td>
-                      <td className="td_S">
-                        {item.reccewidth}
-                        {item.recceUnit}
-                      </td>
+              <tbody>
+                {filteredData?.map((recceItem, index) =>
+                  recceItem?.outletName.map((outlet, outletArray) => {
+                    if (rowsDisplayed < rowsPerPage1) {
+                      const pincodePattern = /\b\d{6}\b/;
 
-                      <td className="td_S p-1">
-                        {item.category}
-                        {/* {category ? category?.categoryName : ""} */}
-                      </td>
-                      <td className="td_S p-1">
-                        <span
-                          className="col-md-5 p-1"
-                          variant="info "
-                          onClick={() => {
-                            handleEdit(item);
-                          }}
-                          style={{ cursor: "pointer", color: "skyblue" }}
-                        >
-                          View
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
+                      const address = outlet?.OutletAddress;
+                      const extractedPincode = address?.match(pincodePattern);
+
+                      if (extractedPincode) {
+                        outlet.OutletPincode = extractedPincode[0];
+                      }
+                      if (outlet.RecceStatus.includes("completed")) {
+                        serialNumber++;
+                        rowsDisplayed++;
+                        return (
+                          <tr className="tr_C" key={serialNumber}>
+                            <td className="td_S p-1">{serialNumber}</td>
+                            <td className="td_S p-1">Job{index + 1}</td>
+                            <td className="td_S p-1">{recceItem.BrandName}</td>
+                            <td className="td_S p-1">{outlet.ShopName}</td>
+                            <td className="td_S p-1">{outlet.ClientName}</td>
+                            <td className="td_S p-1">{outlet.State}</td>
+                            <td className="td_S p-1">
+                              {outlet.OutletContactNumber}
+                            </td>
+
+                            <td className="td_S p-1">{outlet.OutletZone}</td>
+                            <td className="td_S p-1">
+                              {extractedPincode ? extractedPincode[0] : ""}
+                            </td>
+                            <td className="td_S p-1">{outlet.OutletCity}</td>
+                            <td className="td_S p-1">{outlet.FLBoard}</td>
+                            <td className="td_S p-1">{outlet.GSB}</td>
+                            <td className="td_S p-1">{outlet.Inshop}</td>
+                            <td className="td_S p-1">{outlet.Category}</td>
+                            <td className="td_S p-1">
+                              {outlet.height}
+                              {outlet.unit}
+                            </td>
+                            <td className="td_S p-1">
+                              {outlet.width}
+                              {outlet.unit}
+                            </td>
+                            <td className="td_S ">
+                              {recceItem.createdAt
+                                ? new Date(recceItem.createdAt)
+                                    .toISOString()
+                                    .slice(0, 10)
+                                : ""}
+                            </td>
+                            <td className="td_S ">
+                              <span
+                                variant="info "
+                                onClick={() => {
+                                  handleEdit(outlet, recceItem);
+                                }}
+                                style={{
+                                  cursor: "pointer",
+                                  color: "skyblue",
+                                }}
+                              >
+                                view
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      }
+                    }
+                    return null;
+                  })
+                )}
               </tbody>
             </table>
           </div>
         </div>
       ) : (
         <div className="row  m-auto containerPadding">
-          <div className="row">
-            <div className="col-md-1">
-              <ArrowCircleLeftIcon
-                onClick={(e) => setSelectedDesignIndex(null)}
-                style={{ color: "#068FFF" }}
-              />{" "}
+          <div>
+            <div className="row">
+              <div className="col-md-1">
+                <ArrowCircleLeftIcon
+                  onClick={(e) => setSelectedDesignIndex(null)}
+                  style={{ color: "#068FFF" }}
+                />{" "}
+              </div>
             </div>
-          </div>
-          <div className="col-md-8">
-            <p>
-              <span className="me-3 clr">Store Name:</span>
-              <span className="me-3 ">{getreccedata.ShopName}</span>
-            </p>
-            <p>
-              <span className="me-3 clr">Hight:</span>
-              <span className="me-3 ">
-                {getreccedata.reccehight}
-                {getreccedata.recceUnit}
-              </span>
-            </p>
-            <p>
-              <span className="me-3 clr">Width:</span>
-              <span className="me-3 ">
-                {getreccedata.reccewidth}
-                {getreccedata.recceUnit}
-              </span>
-            </p>
-            <p>
-              <span className="me-3 clr">Contact Number:</span>
-              <span className="me-3 ">{getreccedata.ContactNumber}</span>
-            </p>
+            <div className="row">
+              <div className="col-md-6">
+                <p>
+                  <span className="cl"> Shop Name:</span>
+                  <span>{getreccedata.ShopName}</span>
+                </p>
+                <p>
+                  <span className="cl"> Partner Code:</span>
+                  <span> {getreccedata.PartnerCode}</span>
+                </p>
+                <p>
+                  <span className="cl"> Category :</span>
+                  <span> {getreccedata.Category}</span>
+                </p>
+                <p>
+                  <span className="cl">Outlet Pincode :</span>
+                  <span> {getreccedata.OutletPincode}</span>
+                </p>
+                <p>
+                  <span className="cl"> Inshop :</span>
+                  <span>
+                    {getreccedata.Inshop === "Y" || "y"
+                      ? getreccedata.Inshop
+                      : "No"}
+                  </span>
+                </p>
+                <p>
+                  <span className="cl"> GSB :</span>
+                  <span>
+                    {getreccedata.GSB === "Y" || "y" ? getreccedata.GSB : "No"}
+                  </span>
+                </p>
+                <p>
+                  <span className="cl"> FLBoard :</span>
+                  <span>
+                    {getreccedata.FLBoard === "Y" ? getreccedata.FLBoard : "No"}
+                  </span>
+                </p>
+                <p>
+                  <span className="cl"> Hight:</span>
+                  <span>
+                    {getreccedata.Height}
+                    {getreccedata.unit}
+                  </span>
+                </p>
+                <p>
+                  <span className="cl"> Width :</span>
+                  <span>
+                    {getreccedata.width}
+                    {getreccedata.unit}
+                  </span>
+                </p>
+                <p>
+                  <span className="cl"> GST Number :</span>
+                  <span>{getreccedata.GSTNumber}</span>
+                </p>
+              </div>
 
-            <p>
-              <span className="me-3 clr">Category :</span>
-              <span className="me-3 ">
-                {/* {selectcategry
-                  ? selectcategry?.categoryName
-                  : "Category not available"} */}
-                {getreccedata.category}
-              </span>
-            </p>
-            <p>
-              <span className="me-3 clr">Zone :</span>
-              <span>{getreccedata.Zone}</span>
-            </p>
-            <p>
-              <span className="me-3 clr">Pincode :</span>
-              <span>{getreccedata.Pincode}</span>
-            </p>
-
-            <p className="col-md-8">
-              <span className="me-3 clr">Address :</span>
-              <span>
-                {getreccedata.Area} {getreccedata.City}
-              </span>
-            </p>
-            <div className="mt-2">
-              <img
-                width={"100px"}
-                height={"50px"}
-                className="me-4"
-                style={{ borderRadius: "10px", border: "1px solid grey" }}
-                alt=""
-                src={`http://api.srimagicprintz.com/designimage/${getreccedata?.reccedesign}`}
-              />
+              <div className="col-md-6   m-auto">
+                <div className="row  mb-3 ">
+                  <div
+                    className="col-md-5 "
+                    style={{
+                      padding: "20px",
+                      border: "1px solid grey",
+                      borderRadius: "20px",
+                    }}
+                  >
+                    <div className="text-center">
+                      <Form.Label>
+                        <p> Add your design</p>
+                        <AddCircleOutlineIcon
+                          className="m-auto"
+                          style={{ color: "blue" }}
+                        />
+                        <Form.Control
+                          type="file"
+                          name="designimages"
+                          multiple
+                          className="col-md-3"
+                          onChange={handleFileChange}
+                          style={{ display: "none" }}
+                        />
+                      </Form.Label>
+                    </div>
+                  </div>
+                  <div className="col-md-1">
+                    <label>
+                      <input type="file" className="hide" />
+                      <img
+                        className="mt-4"
+                        width={"50px"}
+                        height={"50px"}
+                        alt=""
+                        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJIAAAB8CAMAAAC16xlOAAAAk1BMVEX2tjj////5+fn2sR/4+vz44LzZ2dnw8PD2tC786Mv0uEnU1NXZ08zm5ubU1tjdz7v4xWr++O/87931rQD3vVL3wF7+9Ob50pL++/f85cP74bj869L5zof4xnD626r5yn362KLXxKbboS34u0X27+bcmwDx59jp4dbnqzPRmzLqwoLtvWfZsW7Tyr+7vb/GxsfftGm0tGBfAAADoUlEQVR4nM3cW1ejMBQF4GCUBmovAUq5lFplxlFn6sz//3WTQKAFi9oCPXs/6du3aNcmnJAyq45MMpd9liDbpdb4YfVfSc7FpyLGBBdBfD1S4n/hMSo/i65Eir8n0igRXoUUBV99aEcmNu51MiTn+yJlyq5BWvMzSMxPrkDKzrlKjLlXIC3PI4kxq+BC0hqPFMCRGAckOYMmHICkOnzIsKXXnzRwhEjRSKp+JRzp0Cs4pFWERmKuPEHiVBGdpO0dTeK16CJ5t0SJeSdpZtPk8SnvItmTG5JEP+Ju0oToOi1++l2k2WxCk2eHdZGIPrqbWynGI6krfUl+vYxFmtjT6fyS3L+euqEMQJpoz+KSPD6lnidHINlz++3Cuwrjvu+LZHDS1F71u4HzdUX6/aLybM/sfiUwm7/1XVLw1JD+vKrs36fvf6e9Mv/2AKYr4oFJnejfkyIt9vf7/X2vLM6aLZxMzlaBTvGPO0B6i5jLANaTjYiMbdBIG7ZDI+1Y0v8LOWh4wmI0UszOmlJeIcJhHrWhHY+FObWhmTxkcoB2GzJuxKyAGtFMoFYCK2pEI2KlSGeOvEeOyBRpjUXSS7gtVFfyrSLdYZFiRUp7LwSHjJ8qUoh1lUJNwvp6S0WSUHcUV5Oink9eg0bPddnZ24OjRu/RKtIDEmlTkJDqW+8RKNIWiKTKW5OQVt+qvDUJqb5VeWtSiEQKy/kSEsmCJVE7jpIbEs4dRSwNCae+dXkXJJz6FjtDwhme8MSQcOpbl3dBwhmeCMeQgIYnniHhDE/y0JAimOGJG1XbOjDDk6DeaUKpb7GqSSj1LR5qEkp9l2/nFCSU4UlR3iXJQSE5NckDWcT5Xk1CGZ7wsCZJakuVww64BOnK4ECKMPYJxTI6vCeA0ZVlUxoSxtZlsfKuSBj1bV6tLEkY9a3HJjUJY/VdlrchYdR3Wd6GJDFI8oiEManwrWMSxnepQUJ4IKjOSFx2NGYcUtYgIdS3Ke+KtAP4MvFdg4QwPOFJgxQjfHBxg5QikNIGCWJ44jVICPuEuWyQEIYn1TnA6kQqwANB0CLRPxAUM+9jEn19V+Vdk+jruyrvmkRf31V516SUnpS2SPSrbx62SPSveYg2ib6+c9kmkXdl+8ieFVEvdQ/H7+tfXaAenpixyTGJelLx4fgn/dsCfviBRLxrUe5VtEgeLck7QbIcQYYSwrFOkSwv+PLHV0YCBUen0hsk9ey0IWjMYNP8WYn/NPFdfinnNV8AAAAASUVORK5CYII="
+                      />
+                    </label>
+                  </div>
+                  <div className="col-md-1">
+                    <label>
+                      <input type="file" className="hide" />
+                      <img
+                        className="mt-4"
+                        width={"50px"}
+                        height={"50px"}
+                        alt=""
+                        src="https://cdn-icons-png.flaticon.com/512/4208/4208479.png"
+                      />
+                    </label>
+                  </div>
+                </div>{" "}
+                <div className="col-md-5 ">
+                  <Form.Select
+                    value={fabricationneed}
+                    onChange={(e) => setFabricationneed(e.target.value)}
+                  >
+                    <option>Choose..</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </Form.Select>{" "}
+                </div>
+              </div>
             </div>
-            <p>
-              <span className="me-3 clr">Status:</span>
-
-              <span className="me-3 ">
-                {designData ? designData.Designstatus : "Loading..."}
-              </span>
-            </p>
-            <div className="col-md-3 mt-2">
-              <Form.Control
-                type="file"
-                name="designimages"
-                onChange={handleImageUpload}
-                multiple
-                className="col-md-3"
-              />
-            </div>
-            <div className="col-md-3 mt-2">
-              <Form.Label>Status</Form.Label>
-              <Form.Select
-                defaultValue={getreccedata?.designStatus}
-                onChange={(e) => setdesignStatus(e.target.value)}
-              >
-                <option>Choose Status...</option>
-                <option value="Pending">Pending</option>
-                <option value="Processing">Processing</option>
-                <option value="Completed">Completed</option>
-              </Form.Select>
-            </div>
-
             <div className="row mt-3">
-              <Button className="col-md-3" onClick={updateRecceData}>
-                Update Design
+              <Button
+                className="col-md-3"
+                onClick={(event) => handleUpdate(event, getreccedata._id)}
+              >
+                Upload Design
               </Button>
             </div>
           </div>

@@ -42,7 +42,7 @@ const navData = [
   {
     id: 3,
     icon: <BusinessIcon />,
-    text: "ClientsManagement",
+    text: "Clients Management",
     link: "/ClientsManagement",
   },
   {
@@ -55,37 +55,37 @@ const navData = [
   {
     id: 5,
     icon: <SettingsIcon />,
-    text: "Recce",
+    text: "Recee Management",
     link: "/ReceeManagement",
   },
   {
     id: 6,
     icon: <DesignServicesIcon />,
-    text: "Design",
+    text: "Design Management",
     link: "/Design",
   },
   {
     id: 7,
     icon: <PrintIcon />,
-    text: "Printing",
+    text: "Printing Management",
     link: "/Printing",
   },
   {
     id: 8,
     icon: <BuildIcon />,
-    text: "Fabrication",
+    text: "Fabrication ",
     link: "/fabrication",
   },
   {
     id: 9,
     icon: <DirectionsRunIcon />,
-    text: "Installation",
+    text: "Installation ",
     link: "/installation",
   },
   {
     id: 10,
     icon: <PublicIcon />,
-    text: "Marketing",
+    text: "Marketing ",
     link: "/Marketing",
   },
   {
@@ -103,7 +103,7 @@ const navData = [
   {
     id: 13,
     icon: <MonetizationOnIcon />,
-    text: "Billing",
+    text: "Billing Management",
     link: "/Billing",
   },
   {
@@ -173,12 +173,12 @@ const Sidenav1 = () => {
         {navData.map((item) => (
           <li key={item.id}>
             <NavLink
-              className={isActive(item.link) ? "sideitem " : "sideitem"}
+              className={isActive(item.link) ? "sideitem active" : "sideitem "}
               activeClassName="active"
               to={item.link}
             >
               {item.icon}
-              <span className={open ? "linkText" : "linkTextClosed"}>
+              <span className={open ? "linkText " : "linkTextClosed active"}>
                 {item.text}
               </span>
             </NavLink>

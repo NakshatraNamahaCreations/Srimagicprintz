@@ -10,7 +10,9 @@ const Schemaforclient = new mongoose.Schema({
   Pincode: Number,
   Zone: String,
   ClientImage: String,
- 
+}
+,{
+  timestamps:true
 });
 
 module.exports = mongoose.model("clientinfo", Schemaforclient);

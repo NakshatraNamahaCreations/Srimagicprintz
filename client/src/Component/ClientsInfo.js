@@ -34,7 +34,7 @@ export default function ClientInfo() {
     try {
       const config = {
         url: "/Client/clients/addclient",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8000/api",
         headers: { "Content-Type": "multipart/form-data" },
         method: "post",
         data: formData,
@@ -158,7 +158,7 @@ export default function ClientInfo() {
           <Button
             onClick={AddClientsData}
             type="submit"
-            className="col-md-3 mt-4"
+            className="col-md-3 mt-4 c_W"
           >
             Add Client
           </Button>

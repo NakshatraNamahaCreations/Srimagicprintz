@@ -135,7 +135,7 @@ export default store;
 //   const getAllClientsInfo = async () => {
 //     try {
 //       const res = await axios.get(
-//         "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+//         "http://localhost:8000/api/Client/clients/getallclient"
 //       );
 //       if (res.status === 200) {
 //         setAssignJobToClient(res.data.client);

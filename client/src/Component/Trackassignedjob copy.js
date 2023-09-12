@@ -58,13 +58,13 @@ export default function Trackassignedjob() {
   useEffect(() => {
     getAllRecce();
     getAllVendorInfo();
-    filterByStatus();
+    // filterByStatus();
   }, []);
 
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8000/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -395,7 +395,7 @@ export default function Trackassignedjob() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -482,239 +482,271 @@ export default function Trackassignedjob() {
             </Col>
           </div>
           <div className="row ">
-            <table className="t-p">
-              <thead className="t-c">
-                <tr className="tr2">
-                  <th></th>
-                  <th>
-                    <input
-                      className="col-md-1"
-                      placeholder="SI.No"
-                      value={searchSINO}
-                      onChange={(e) => setSearchSINO(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-2">
-                    <input
-                      className="col-md-1"
-                      placeholder="client name"
-                      value={SearchclientName}
-                      onChange={(e) => setSearchclientName(e.target.value)}
-                      style={{ width: "65px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Shop name"
-                      value={searchshopName}
-                      onChange={(e) => setSearchshopName(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  {/* <th>
-                    <input
-                      className="col-md-1"
-                      placeholder="Vendor name"
-                      value={searchVendorName}
-                      onChange={(e) => setSearchVendorName(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th> */}
-                  <th>
-                    <input
-                      className="col-md-1"
-                      placeholder="Contact"
-                      value={searchcontactNumber}
-                      onChange={(e) => setSearchcontactNumber(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Area"
-                      value={searcharea}
-                      onChange={(e) => setSearcharea(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
+          <table>
+                      <thead className="t-c">
+                        <tr className="tr2">
+                          <th className="p-1"></th>
+                          <th className="p-1"></th>
 
-                  <th>
-                    <input
-                      className="col-md-1"
-                      placeholder="City"
-                      value={searchcity}
-                      onChange={(e) => setSearchcity(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
+                          <th className="p-1"></th>
+                          <th className="p-1"></th>
+                          <th className="p-1">
+                            {" "}
+                            <input
+                              className="col-md-1"
+                              placeholder="Shop name"
+                              value={searchshopName}
+                              onChange={(e) =>
+                                setSearchshopName(e.target.value)
+                              }
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+                          <th className="p-1">
+                            <input
+                              className="col-md-1"
+                              placeholder="owner name"
+                              value={SearchclientName}
+                              onChange={(e) =>
+                                setSearchclientName(e.target.value)
+                              }
+                              style={{ width: "55px" }}
+                            />
+                          </th>
 
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Pincode"
-                      value={searchpincode}
-                      onChange={(e) => setSearchpincode(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Zone"
-                      value={searchzone}
-                      onChange={(e) => setSearchzone(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Date"
-                      value={searchdate}
-                      onChange={(e) => setSearchDate(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Status"
-                      value={searchstatus}
-                      onChange={(e) => setSearchStatus(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th>
-                    {/* <input
-                      className="col-md-1"
-                      placeholder="Seach hight"
-                      value={searchHight}
-                      onChange={(e) => setsearchHight(e.target.value)}
-                      style={{ width: "79px" }}
-                    /> */}
-                  </th>
-                  <th>
-                    {/* <input
-                      className="col-md-1"
-                      placeholder=" width"
-                      value={searchwidth}
-                      onChange={(e) => setsearchwidth(e.target.value)}
-                      style={{ width: "79px" }}
-                    /> */}
-                  </th>
-                  <th>
-                    <input
-                      className="col-md-1"
-                      placeholder=" category"
-                      value={SearchCategory}
-                      onChange={(e) => setSearchCategory(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th></th>
-                </tr>
-                <tr>
-                  <th className="th_s ">
-                    <input
-                      type="checkbox"
-                      style={{
-                        width: "15px",
-                        height: "15px",
-                        marginRight: "5px",
-                      }}
-                      checked={selectAll}
-                      onChange={handleSelectAllChange}
-                    />
-                  </th>
-                  <th className="th_s p-1">SI.No.</th>
-                  <th className="th_s ">Client Name</th>{" "}
-                  <th className="th_s p-1">Shop Name</th>
-                  <th className="th_s p-1">Contact Number</th>
-                  <th className="th_s p-1">Area</th>
-                  <th className="th_s p-1">City</th>
-                  <th className="th_s p-1">Pincode</th>
-                  <th className="th_s p-1">Zone</th>
-                  <th className="th_s p-1"> Date</th>
-                  <th className="th_s p-1"> Status</th>
-                  <th className="th_s p-1"> Height</th>
-                  <th className="th_s p-1"> Width</th>
-                  <th className="th_s p-1"> Category</th>
-                  <th className="th_s p-1">Action</th>
-                </tr>
-              </thead>
-              <tbody className="table">
-                {filteredData?.map((item, index) => {
-                  return (
-                    <tr className="design" key={item._id}>
-                      <td className="td_S p-1">
-                        <input
-                          style={{
-                            width: "15px",
-                            height: "15px",
-                            marginRight: "5px",
-                          }}
-                          type="checkbox"
-                          checked={selectedRecceItems.includes(item._id)}
-                          onChange={() => handleToggleSelect(item._id)}
-                        />
-                      </td>
-                      <td className="td_S p-1">{index + 1}</td>
-                      <td className="td_S p-1">{item.ClientName}</td>
-                      <td className="td_S p-1">{item.ShopName}</td>
-                      {/* <td className="td_S p-1">
-                        {selectedVendor ? selectedVendor?.VendorFirstName : ""}
-                      </td> */}
-                      <td className="td_S p-1">{item.ContactNumber}</td>
-                      <td className="td_S p-1">{item.Area}</td>
-                      <td className="td_S p-1">{item.City}</td>
-                      <td className="td_S p-1">{item.Pincode}</td>
-                      <td className="td_S p-1">{item.Zone}</td>
-                      <td className="td_S p-1">
-                        {item.createdAt
-                          ? new Date(item.createdAt).toISOString().slice(0, 10)
-                          : ""}
-                      </td>
-                      <td className="td_S">{item.fabricationstatus}</td>
-                      <td className="td_S">
-                        {" "}
-                        {item.reccehight}
-                        {item.recceUnit}
-                      </td>
-                      <td className="td_S">
-                        {item.reccewidth}
-                        {item.recceUnit}
-                      </td>
+                          <th></th>
+                          <th className="p-1">
+                            <input
+                              className="col-md-1"
+                              placeholder="Contact"
+                              value={searchcontactNumber}
+                              onChange={(e) =>
+                                setSearchcontactNumber(e.target.value)
+                              }
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+                          <th className="p-1">
+                            <input
+                              className="col-md-1"
+                              placeholder=" zone"
+                              value={searchzone}
+                              onChange={(e) => setSearchzone(e.target.value)}
+                              style={{ width: "55px" }}
+                            />
+                          </th>
 
-                      <td className="td_S p-1">
-                        {item.category}
-                        {/* {category ? category?.categoryName : ""} */}
-                      </td>
-                      <td className="td_S p-1">
-                        <span
-                          className="col-md-5 p-1"
-                          variant="info "
-                          onClick={() => {
-                            handleEdit(item);
-                          }}
-                          style={{ cursor: "pointer", color: "skyblue" }}
-                        >
-                          View
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                          <th>
+                            <input
+                              className="col-md-1"
+                              placeholder=" pincode"
+                              value={searchpincode}
+                              onChange={(e) => setSearchpincode(e.target.value)}
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+
+                          <th className="p-1">
+                            <input
+                              className="col-md-1"
+                              placeholder=" city"
+                              value={searchcity}
+                              onChange={(e) => setSearchcity(e.target.value)}
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+                          <th className="p-1"></th>
+
+                          <th className="p-1"></th>
+                          <th className="p-1"> </th>
+                          <th className="p-1">
+                            <input
+                              className="col-md-1"
+                              placeholder=" category"
+                              value={SearchCategory}
+                              onChange={(e) =>
+                                setSearchCategory(e.target.value)
+                              }
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+                          <th className="p-1"></th>
+                          <th className="p-1"></th>
+                          <th className="p-1">
+                            <input
+                              className="col-md-1"
+                              placeholder="Vendor name"
+                              value={searchVendorName}
+                              onChange={(e) =>
+                                setSearchVendorName(e.target.value)
+                              }
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+                          <th className="p-1">
+                            <input
+                              className="col-md-1"
+                              placeholder=" date"
+                              value={searchdate}
+                              onChange={(e) => setSearchDate(e.target.value)}
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+                          <th className="p-1">
+                            {" "}
+                            <input
+                              className="col-md-1"
+                              placeholder=" status"
+                              value={searchdatastatus}
+                              onChange={(e) =>
+                                setSearchdatastatus(e.target.value)
+                              }
+                              style={{ width: "55px" }}
+                            />
+                          </th>
+                        </tr>
+
+                        <tr>
+                          <th className="th_s ">
+                            <input
+                              type="checkbox"
+                              style={{
+                                width: "15px",
+                                height: "15px",
+                                marginRight: "5px",
+                              }}
+                              checked={selectAll}
+                              onChange={handleSelectAllChange}
+                            />
+                          </th>
+                          <th className="th_s ">SI.No</th>
+                          <th className="th_s ">Job.No</th>
+                          <th className="th_s ">Brand </th>
+                          <th className="th_s ">Shop Name</th>
+                          <th className="th_s ">Client Name</th>
+                          <th className="th_s ">State</th>
+                          <th className="th_s ">Contact Number</th>
+                          <th className="th_s ">Zone</th>
+                          <th className="th_s ">Pincode</th>
+                          <th className="th_s ">City</th>
+                          <th className="th_s ">FL Board</th>
+                          <th className="th_s ">GSB</th>
+                          <th className="th_s ">Inshop</th>
+                          <th className="th_s ">Category</th>
+                          <th className="th_s ">Height</th>
+                          <th className="th_s ">Width</th>
+                          <th className="th_s ">Vendor Name</th>
+                          <th className="th_s ">Date</th>
+                          <th className="th_s ">Status</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {recceData?.map((recceItem, index) =>
+                          recceItem?.outletName?.map((outlet, outletArray) => {
+                            console.log(recceItem, "recceItem");
+                            if (rowsDisplayed < rowsPerPage1) {
+                              const selectedVendorId = outlet?.vendor;
+                              const vendor = selectedVendorId
+                                ? vendordata?.find(
+                                    (ele) => ele?._id === selectedVendorId
+                                  )
+                                : null;
+
+                              rowsDisplayed++;
+                              const pincodePattern = /\b\d{6}\b/;
+
+                              const address = outlet?.OutletAddress;
+                              const extractedPincode =
+                                address?.match(pincodePattern);
+
+                              if (extractedPincode) {
+                                outlet.OutletPincode = extractedPincode[0];
+                              }
+
+                              return (
+                                <tr className="tr_C" key={outlet._id}>
+                                  <td className="td_S p-1">
+                                    <input
+                                      style={{
+                                        width: "15px",
+                                        height: "15px",
+                                        marginRight: "5px",
+                                      }}
+                                      type="checkbox"
+                                      checked={selectedRecceItems.includes(
+                                        outlet._id
+                                      )}
+                                      onChange={() =>
+                                        handleToggleSelect(outlet._id)
+                                      }
+                                    />
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outletArray + 1}
+                                  </td>
+                                  <td className="td_S p-1">Job{index + 1}</td>
+                                  <td className="td_S p-1">
+                                    {recceItem.BrandName}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet.ShopName}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet.ClientName}
+                                  </td>
+                                  <td className="td_S p-1">{outlet.State}</td>
+                                  <td className="td_S p-1">
+                                    {outlet.OutletContactNumber}
+                                  </td>
+
+                                  <td className="td_S p-1">
+                                    {outlet.OutletZone}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {extractedPincode
+                                      ? extractedPincode[0]
+                                      : ""}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet.OutletCity}
+                                  </td>
+                                  <td className="td_S p-1">{outlet.FLBoard}</td>
+                                  <td className="td_S p-1">{outlet.GSB}</td>
+                                  <td className="td_S p-1">{outlet.Inshop}</td>
+                                  <td className="td_S p-1">
+                                    {outlet.Category}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet.height}
+                                    {outlet.unit}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet.width}
+                                    {outlet.unit}
+                                  </td>
+
+                                  <td className="td_S p-1">
+                                    {vendor?.VendorFirstName}
+                                  </td>
+                                  <td className="td_S ">
+                                    {recceItem.createdAt
+                                      ? new Date(recceItem.createdAt)
+                                          .toISOString()
+                                          .slice(0, 10)
+                                      : ""}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet.RecceStatus}
+                                  </td>
+                                </tr>
+                              );
+                            }
+                            return null;
+                          })
+                        )}
+                      </tbody>
+                    </table>
           </div>
         </div>
       ) : (
