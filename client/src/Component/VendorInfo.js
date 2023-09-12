@@ -64,8 +64,8 @@ export default function VendorInfo() {
                   onChange={(e) => setSelected(e.target.value)}
                 >
                   <option>Choose..</option>
-                  <option >Vendor</option>
-                  <option >Staff</option>
+                  <option>Vendor</option>
+                  <option>Staff</option>
                 </Form.Select>
               </Col>
               <Col className="mb-3">
