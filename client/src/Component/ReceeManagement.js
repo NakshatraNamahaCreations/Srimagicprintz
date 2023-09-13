@@ -751,11 +751,11 @@ export default function ReceeManagement() {
         }
 
         recceData.outletName.forEach((outlet) => {
-          if (outlet.length === 0) {
+          if (recceData.outletName.length === 0) {
             throw new Error("Please import outlet");
           }
 
-          if (outlet.RecceStatus.includes("completed")) {
+          if (outlet.RecceStatus.includes("Completed")) {
             const rHeightInFeet = convertToFeet(outlet.height, outlet.unit);
             const rWidthInFeet = convertToFeet(outlet.width, outlet.unit);
             extractedData.push({
@@ -908,7 +908,7 @@ export default function ReceeManagement() {
             continue;
           }
 
-          if (outlet.RecceStatus.includes("completed")) {
+          if (outlet.RecceStatus.includes("Completed")) {
             const rHeightInFeet = convertToFeet(outlet.height, outlet.unit);
             const rWidthInFeet = convertToFeet(outlet.width, outlet.unit);
             const media = outlet.Category || "";
@@ -1013,7 +1013,7 @@ export default function ReceeManagement() {
             throw new Error("Please import outlet");
           }
 
-          if (outlet.RecceStatus.includes("completed")) {
+          if (outlet.RecceStatus.includes("Completed")) {
             const rHeightInFeet = convertToFeet(outlet.height, outlet.unit);
             const rWidthInFeet = convertToFeet(outlet.width, outlet.unit);
             extractedData.push({

@@ -148,7 +148,7 @@ export default function JobManagement() {
 
       const config = {
         url: `/api/recce/recce/updatevendorname/${selectedZone}/${vendordata?._id}/${jobType}`,
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://api.srimagicprintz.com",
         method: "post",
         headers: { "Content-Type": "application/json" },
         data: { RecceData: updatedRecceData },
@@ -453,7 +453,7 @@ export default function JobManagement() {
                                 borderRadius: "100%",
                               }}
                               className="m-auto"
-                              src={` http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
+                              src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
                               alt=""
                             />
                           ) : (
