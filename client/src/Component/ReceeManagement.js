@@ -107,12 +107,12 @@ export default function ReceeManagement() {
     getAllCategory();
   }, []);
   useEffect(() => {
-    getLengthofStatus();
+    getLengthOfStatus();
   }, [reccedata]);
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http/localhost:8000/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -126,7 +126,7 @@ export default function ReceeManagement() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http/localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -332,7 +332,7 @@ export default function ReceeManagement() {
           const outletNames = flattenOutletNames(filteredData);
 
           const res = await axios.post(
-            `http://api.srimagicprintz.com/api/recce/recce/addreccesviaexcelesheet/${outlateid}`,
+            `http/localhost:8000/api/recce/recce/addreccesviaexcelesheet/${outlateid}`,
             { outletName: outletNames },
             {
               headers: {
@@ -428,7 +428,7 @@ export default function ReceeManagement() {
       const config = {
         url: `/recce/recce/updatereccedata/${recceId}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http/localhost:8000/api",
         headers: { "Content-Type": "application/json" },
 
         data: formdata,
@@ -521,7 +521,7 @@ export default function ReceeManagement() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
+        "http/localhost:8000/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -553,7 +553,7 @@ export default function ReceeManagement() {
     setSelectAll(!selectAll);
 
     if (!selectAll) {
-      setSelectedRecceItems(displayedData.map((item) => item._id));
+      setSelectedRecceItems(displayedData?.map((item) => item?._id));
     } else {
       setSelectedRecceItems([]);
     }
@@ -646,15 +646,15 @@ export default function ReceeManagement() {
   useEffect(() => {
     const filteredClients = () => {
       if (SearchclientName) {
-        filteredData1.flatMap((ele) =>
-          ele.outletName.flatMap((item) =>
+        filteredData1?.flatMap((ele) =>
+          ele.outletName?.flatMap((item) =>
             item.filter(
               (data) =>
                 !SearchclientName ||
-                (data.clientName &&
-                  data.clientName
+                (data?.clientName &&
+                  data?.clientName
                     .toLowerCase()
-                    .includes(SearchclientName.toLowerCase()))
+                    .includes(SearchclientName?.toLowerCase()))
             )
           )
         );
@@ -677,7 +677,7 @@ export default function ReceeManagement() {
     rowsPerPage,
   ]);
 
-  const getLengthofStatus = () => {
+  const getLengthOfStatus = () => {
     const statusCounts = {
       completed: 0,
       pending: 0,
@@ -685,10 +685,13 @@ export default function ReceeManagement() {
       processing: 0,
     };
 
-    filteredData1?.map((recceItem, index) =>
-      recceItem?.outletName.forEach((outlet, outletArray) => {
+    reccedata?.forEach((recceItem) => {
+      const outlet = recceItem?.outletName; // Access outletName directly
+
+      if (outlet) {
         const vendorId = outlet.vendor;
         const RecceStatus = outlet.RecceStatus;
+
         if (Array.isArray(RecceStatus)) {
           if (RecceStatus.includes("pending")) {
             statusCounts.pending++;
@@ -704,20 +707,20 @@ export default function ReceeManagement() {
             statusCounts.completed++;
           }
           if (
-            RecceStatus.includes("proccesing") &&
+            RecceStatus.includes("processing") &&
             vendorId !== null &&
             vendorId !== undefined
           ) {
             statusCounts.processing++;
           }
         }
-      })
-    );
+      }
+    });
 
     setcompletedStatus(statusCounts.completed);
     setpendingStatus(statusCounts.pending);
     setcancelledStatus(statusCounts.cancelled);
-    setproccesingStatus(statusCounts.processing);
+    setproccesingStatus(statusCounts.processing); // Fixed the typo here
   };
 
   function convertToFeet(value, unit) {
