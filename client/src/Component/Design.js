@@ -647,7 +647,7 @@ export default function Design() {
                       if (extractedPincode) {
                         outlet.OutletPincode = extractedPincode[0];
                       }
-                      if (outlet.RecceStatus.includes("completed")) {
+                      if (outlet.RecceStatus.includes("Completed")) {
                         serialNumber++;
                         rowsDisplayed++;
                         return (

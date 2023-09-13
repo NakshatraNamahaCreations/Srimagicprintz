@@ -106,7 +106,8 @@
 //   const deleteCatagory = async (row) => {
 //     try {
 //       const response = await axios.delete(
-//         ` src={`http://api.srimagicprintz.com/api/Product/subcategory/deletesubcatagory/${row._id}`
+//         `  src={`http://api.srimagicprintz.com
+/api/Product/subcategory/deletesubcatagory/${row._id}`
 //       );
 
 //       if (response.status === 200) {

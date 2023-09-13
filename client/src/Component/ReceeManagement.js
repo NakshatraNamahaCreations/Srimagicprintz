@@ -112,7 +112,7 @@ export default function ReceeManagement() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http/localhost:8000/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -126,7 +126,7 @@ export default function ReceeManagement() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http/localhost:8000/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -332,7 +332,7 @@ export default function ReceeManagement() {
           const outletNames = flattenOutletNames(filteredData);
 
           const res = await axios.post(
-            `http/localhost:8000/api/recce/recce/addreccesviaexcelesheet/${outlateid}`,
+            `http://api.srimagicprintz.com/api/recce/recce/addreccesviaexcelesheet/${outlateid}`,
             { outletName: outletNames },
             {
               headers: {
@@ -428,7 +428,7 @@ export default function ReceeManagement() {
       const config = {
         url: `/recce/recce/updatereccedata/${recceId}`,
         method: "put",
-        baseURL: "http/localhost:8000/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: { "Content-Type": "application/json" },
 
         data: formdata,
@@ -521,7 +521,7 @@ export default function ReceeManagement() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http/localhost:8000/api/Product/category/getcategory"
+        "http://api.srimagicprintz.com/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -686,41 +686,38 @@ export default function ReceeManagement() {
     };
 
     reccedata?.forEach((recceItem) => {
-      const outlet = recceItem?.outletName; // Access outletName directly
+      const outletNameArray = recceItem?.outletName;
 
-      if (outlet) {
-        const vendorId = outlet.vendor;
-        const RecceStatus = outlet.RecceStatus;
-
-        if (Array.isArray(RecceStatus)) {
-          if (RecceStatus.includes("pending")) {
+      if (Array.isArray(outletNameArray)) {
+        outletNameArray.forEach((outlet) => {
+          if (outlet.RecceStatus.includes("Pending")) {
             statusCounts.pending++;
           }
-          if (RecceStatus.includes("cancelled")) {
+          if (outlet.RecceStatus.includes("Cancelled")) {
             statusCounts.cancelled++;
           }
           if (
-            RecceStatus.includes("completed") &&
-            vendorId !== null &&
-            vendorId !== undefined
+            outlet.RecceStatus.includes("Completed") &&
+            outlet.vendor !== null &&
+            outlet.vendor !== undefined
           ) {
             statusCounts.completed++;
           }
           if (
-            RecceStatus.includes("processing") &&
-            vendorId !== null &&
-            vendorId !== undefined
+            outlet.RecceStatus.includes("Proccesing") &&
+            outlet.vendor !== null &&
+            outlet.vendor !== undefined
           ) {
             statusCounts.processing++;
           }
-        }
+        });
       }
     });
 
     setcompletedStatus(statusCounts.completed);
     setpendingStatus(statusCounts.pending);
     setcancelledStatus(statusCounts.cancelled);
-    setproccesingStatus(statusCounts.processing); // Fixed the typo here
+    setproccesingStatus(statusCounts.processing);
   };
 
   function convertToFeet(value, unit) {
@@ -1217,7 +1214,7 @@ export default function ReceeManagement() {
       console.error("Error in processing data:", error);
     }
   };
-
+  console.log(reccedata);
   return (
     <>
       <Header />

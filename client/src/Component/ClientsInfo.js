@@ -155,13 +155,18 @@ export default function ClientInfo() {
               />
             </Form.Group>
           </Row>
-          <Button
-            onClick={AddClientsData}
-            type="submit"
-            className="col-md-3 mt-4 c_W"
-          >
-            Add Client
-          </Button>
+          <Row className="mt-4">
+            <Button
+              onClick={AddClientsData}
+              type="submit"
+              className="col-md-2 m-2 c_W"
+            >
+              Add Client
+            </Button>
+            <Button className="col-md-2 m-2 c_W" href="/ClientsManagement">
+              Cancel
+            </Button>{" "}
+          </Row>
         </Form>
       </div>
     </>

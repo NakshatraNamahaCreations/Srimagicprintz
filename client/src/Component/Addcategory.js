@@ -160,11 +160,22 @@ function Addcategory() {
           </div>
         ) : (
           <>
-            <input
-              defaultValue={editcategorydata?.categoryName}
-              onChange={(e) => setEditCatagoryName(e.target.value)}
-            />
-            <Button onClick={() => editData()}>Update</Button>
+            <div className="col-md-9">
+              <div className="row">
+                <div className="col-md-6">
+                  <Form.Control
+                    defaultValue={editcategorydata?.categoryName}
+                    onChange={(e) => setEditCatagoryName(e.target.value)}
+                  />{" "}
+                </div>
+                <div className="col-md-3">
+                  <Button onClick={() => editData()}>Update</Button>{" "}
+                </div>
+                <div className="col-md-3">
+                  <Button onClick={() => setShowPopup(false)}>Cancel</Button>
+                </div>
+              </div>{" "}
+            </div>
           </>
         )}
         <div className="row mt-5 containerPadding">

@@ -196,21 +196,6 @@ export default function Printing() {
     rowsPerPage,
   ]);
 
-  // const handleEdit = (vendor) => {
-  //   setgetreccedata(vendor);
-  //   setSelectedDesignIndex(true);
-  // };
-
-  // const selectedVendorId = getreccedata?.vendor?.[0];
-  // const selectedVendor = vendordata?.find(
-  //   (vendor) => vendor._id === selectedVendorId
-  // );
-
-  // const selectedcategoryID = getreccedata?.category?.[0];
-  // const selectcategry = CategoryData?.find(
-  //   (ele) => ele?._id === selectedcategoryID
-  // );
-
   const handleExportPDF = () => {
     const pdf = new jsPDF();
     const tableColumn = [
@@ -273,40 +258,12 @@ export default function Printing() {
 
     pdf.save("exported_data.pdf");
   };
-  const handleImageUpload = (event) => {
-    const files = event.target.files;
-    setDesignImages(files);
-  };
-
-  const [printstatus, setPrintStatus] = useState("");
 
   const handleClearDateFilters = () => {
     setFilterStartDate("");
     setFilterEndDate("");
   };
 
-  const filterDate = (data) => {
-    return data?.filter((item) => {
-      const createdAtDate = moment(item.createdAt, "YYYY-MM-DD");
-      const startDate = filterStartDate
-        ? moment(filterStartDate, "YYYY-MM-DD")
-        : null;
-      const endDate = filterEndDate
-        ? moment(filterEndDate, "YYYY-MM-DD")
-        : null;
-
-      if (startDate && !createdAtDate.isSameOrAfter(startDate)) {
-        return false;
-      }
-
-      if (endDate && !createdAtDate.isSameOrBefore(endDate)) {
-        return false;
-      }
-
-      return true;
-    });
-  };
-  const filteredData = filterDate(displayedData);
   const handleToggleSelect = (itemId) => {
     let updatedSelectedRecceItems;
 
@@ -373,44 +330,29 @@ export default function Printing() {
     setFilterEndDate(event.target.value);
   };
 
-  const [designData, setDesignData] = useState([]);
+  const filterDate = (data) => {
+    return data?.filter((item) => {
+      const createdAtDate = moment(item.createdAt, "YYYY-MM-DD");
+      const startDate = filterStartDate
+        ? moment(filterStartDate, "YYYY-MM-DD")
+        : null;
+      const endDate = filterEndDate
+        ? moment(filterEndDate, "YYYY-MM-DD")
+        : null;
 
-  // const handleEdit = (item) => {
-  //   setgetreccedata(item, designData);
-  //   setDesignData(designData);
-
-  // };
-  const updateRecceData = async () => {
-    const formdata = new FormData();
-
-    if ("printupload") {
-      for (const image of designImages) {
-        formdata.append("designimage", image);
+      if (startDate && !createdAtDate.isSameOrAfter(startDate)) {
+        return false;
       }
-    }
 
-    formdata.append("printingStatus", printstatus || PrintData.printingStatus);
-
-    try {
-      const recceId = PrintData._id;
-      const config = {
-        url: `/recce/recce/updatereccedata/${recceId}`,
-        method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
-        headers: { "Content-Type": "multipart/form-data" },
-        data: formdata,
-      };
-
-      const res = await axios(config);
-
-      if (res.status === 200) {
-        alert("Successfully printing updated");
-        window.location.reload();
+      if (endDate && !createdAtDate.isSameOrBefore(endDate)) {
+        return false;
       }
-    } catch (err) {
-      alert("Not able to add", err);
-    }
+
+      return true;
+    });
   };
+  const filteredData = filterDate(displayedData);
+
   const handlesendPrinting = async () => {
     for (const recceId of selectedRecceItems) {
       const recceData = filteredData.find((item) => item._id === recceId);
@@ -438,6 +380,7 @@ export default function Printing() {
       }
     }
   };
+
   let serialNumber = 0;
   let rowsDisplayed = 0;
   const [rowsPerPage1, setRowsPerPage1] = useState(5);
@@ -454,7 +397,7 @@ export default function Printing() {
     setPrintData(selectedSNo);
     setSelectedPrint(true);
   };
-
+  console.log(RecceData, "RecceData");
   return (
     <>
       <Header />
@@ -463,28 +406,27 @@ export default function Printing() {
         <div className="row  m-auto containerPadding">
           <div className="row ">
             <Col className="col-md-1 mb-3">
-              <Form.Group className="row float-right">
-                <Form.Control
-                  as="select"
-                  value={rowsPerPage}
-                  onChange={(e) => {
-                    setRowsPerPage(parseInt(e.target.value));
-                    setCurrentPage(1);
-                  }}
-                >
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={30}>30</option>
-                  <option value={50}>50</option>
-                  <option value={80}>80</option>
-                  <option value={100}>100</option>
-                  <option value={140}>140</option>
-                  <option value={200}>200</option>
-                </Form.Control>
-                <Form.Label>
-                  {displayedData?.length} of: {RecceData?.length}
-                </Form.Label>
-              </Form.Group>
+              <Form.Control
+                as="select"
+                value={rowsPerPage1}
+                onChange={handleRowsPerPageChange}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={30}>30</option>
+                <option value={50}>50</option>
+                <option value={80}>80</option>
+                <option value={100}>100</option>
+                <option value={140}>140</option>
+                <option value={200}>200</option>
+                <option value={300}>300</option>
+                <option value={400}>400</option>
+                <option value={600}>600</option>
+                <option value={700}>700</option>
+                <option value={1000}>1000</option>
+                <option value={1500}>1500</option>
+                <option value={10000}>10000</option>
+              </Form.Control>
             </Col>
             <Col className="col-md-5">
               <div className="row">
@@ -529,28 +471,12 @@ export default function Printing() {
                       <MoreVertIcon />
                     </span>
                   </p>
-                  {selectAction ? (
-                    <div
-                      style={{
-                        position: "absolute",
-                        zIndex: "10px",
-                        top: "18%",
-                      }}
-                    >
-                      <Card className="m-auto p-3" style={{ width: "12rem" }}>
-                        {/* <li onClick={handlesendPrinting}>Delete</li> */}
-
-                        <li className="cureor" onClick={handlesendPrinting}>
-                          Mark as Completed
-                        </li>
-                      </Card>
-                    </div>
-                  ) : null}
                 </>
               ) : null}
             </Col>
           </div>
-          <div className="row ">
+
+          <div className="row">
             <table className="t-p">
               <thead className="t-c">
                 <tr>
@@ -586,7 +512,7 @@ export default function Printing() {
                       if (extractedPincode) {
                         outlet.OutletPincode = extractedPincode[0];
                       }
-                      if (outlet?.RecceStatus.includes("completed")) {
+                      if (outlet.RecceStatus.includes("Completed")) {
                         serialNumber++;
                         rowsDisplayed++;
                         return (
@@ -652,65 +578,84 @@ export default function Printing() {
         </div>
       ) : (
         <div className="row  m-auto containerPadding">
-          <div className="row">
-            <div className="col-md-1">
-              <ArrowCircleLeftIcon
-                onClick={(e) => setSelectedPrint(false)}
-                style={{ color: "#068FFF" }}
-              />{" "}
+          <div>
+            <div className="row">
+              <div className="col-md-1">
+                <ArrowCircleLeftIcon
+                  onClick={(e) => setSelectedPrint(null)}
+                  style={{ color: "#068FFF" }}
+                />{" "}
+              </div>
             </div>
-          </div>
-          <div className="col-md-8">
-            <p>
-              <span className="cl"> Shop Name:</span>
-              <span>{PrintData.ShopName}</span>
-            </p>
-            <p>
-              <span className="cl"> Partner Code:</span>
-              <span> {PrintData.PartnerCode}</span>
-            </p>
-            <p>
-              <span className="cl"> Category :</span>
-              <span> {PrintData.Category}</span>
-            </p>
-            <p>
-              <span className="cl">Outlet Pincode :</span>
-              <span> {PrintData.OutletPincode}</span>
-            </p>
-            <p>
-              <span className="cl"> Inshop :</span>
-              <span>
-                {PrintData.Inshop === "Y" || "y" ? PrintData.Inshop : "No"}
-              </span>
-            </p>
-            <p>
-              <span className="cl"> GSB :</span>
-              <span>{PrintData.GSB === "Y" || "y" ? PrintData.GSB : "No"}</span>
-            </p>
-            <p>
-              <span className="cl"> FLBoard :</span>
-              <span>
-                {PrintData.FLBoard === "Y" ? PrintData.FLBoard : "No"}
-              </span>
-            </p>
-            <p>
-              <span className="cl"> Hight:</span>
-              <span>
-                {PrintData.Height}
-                {PrintData.unit}
-              </span>
-            </p>
-            <p>
-              <span className="cl"> Width :</span>
-              <span>
-                {PrintData.width}
-                {PrintData.unit}
-              </span>
-            </p>
-            <p>
-              <span className="cl"> GST Number :</span>
-              <span>{PrintData.GSTNumber}</span>
-            </p>
+            <div className="row">
+              <div className="col-md-6">
+                <p>
+                  <span className="cl"> Shop Name:</span>
+                  <span>{PrintData.ShopName}</span>
+                </p>
+                <p>
+                  <span className="cl"> Partner Code:</span>
+                  <span> {PrintData.PartnerCode}</span>
+                </p>
+                <p>
+                  <span className="cl"> Category :</span>
+                  <span> {PrintData.Category}</span>
+                </p>
+                <p>
+                  <span className="cl">Outlet Pincode :</span>
+                  <span> {PrintData.OutletPincode}</span>
+                </p>
+                <p>
+                  <span className="cl"> Inshop :</span>
+                  <span>
+                    {PrintData.Inshop === "Y" || "y" ? PrintData.Inshop : "No"}
+                  </span>
+                </p>
+                <p>
+                  <span className="cl"> GSB :</span>
+                  <span>
+                    {PrintData.GSB === "Y" || "y" ? PrintData.GSB : "No"}
+                  </span>
+                </p>
+                <p>
+                  <span className="cl"> FLBoard :</span>
+                  <span>
+                    {PrintData.FLBoard === "Y" ? PrintData.FLBoard : "No"}
+                  </span>
+                </p>
+                <p>
+                  <span className="cl"> Hight:</span>
+                  <span>
+                    {PrintData.Height}
+                    {PrintData.unit}
+                  </span>
+                </p>
+                <p>
+                  <span className="cl"> Width :</span>
+                  <span>
+                    {PrintData.width}
+                    {PrintData.unit}
+                  </span>
+                </p>
+                <p>
+                  <span className="cl"> GST Number :</span>
+                  <span>{PrintData.GSTNumber}</span>
+                </p>
+              </div>
+
+              <div className="col-md-6   m-auto">
+                <div className="row  mb-3 ">
+                  <div
+                    className="col-md-5 "
+                    style={{
+                      padding: "20px",
+                      border: "1px solid grey",
+                      borderRadius: "20px",
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

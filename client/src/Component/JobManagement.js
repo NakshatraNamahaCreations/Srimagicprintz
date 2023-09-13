@@ -132,7 +132,7 @@ export default function JobManagement() {
           outletName: updatedOutletName,
         };
       });
-      
+
       const config = {
         url: `/api/recce/recce/updatevendorname/${selectedZone}/${vendordata?._id}/${jobType}`,
         baseURL: "http://localhost:8000",
@@ -390,8 +390,8 @@ export default function JobManagement() {
                         key={ele.VendorId}
                         className="col-md-4 m-3 "
                         style={{
-                          width: "200px",
-                          height: "250px",
+                          width: "240px",
+                          height: "320px",
                           borderRadius: "10%",
                         }}
                       >
@@ -404,7 +404,8 @@ export default function JobManagement() {
                                 borderRadius: "100%",
                               }}
                               className="m-auto"
-                              src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
+                              src={`http://api.srimagicprintz.com
+/VendorImage/${ele.VendorImage}`}
                               alt=""
                             />
                           ) : (
@@ -425,7 +426,7 @@ export default function JobManagement() {
                             <span style={{ margin: "5px" }}>0</span>
                           </span>
                           <Button
-                            className="c_W"
+                            className="c_W mt-2"
                             onClick={() => AssignJobs(ele, selecteZone)}
                           >
                             Assign job
