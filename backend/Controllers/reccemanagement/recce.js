@@ -214,7 +214,6 @@ class Reccemanagement {
         return res.status(400).json({ error: "Invalid outletid provided" });
       }
 
-      // Extract fields from the request body
       const {
         outletName,
         OutlateFabricationNeed,
