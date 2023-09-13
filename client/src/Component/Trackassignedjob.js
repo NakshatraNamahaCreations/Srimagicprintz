@@ -397,28 +397,27 @@ export default function Trackassignedjob() {
         <div className="row  m-auto containerPadding">
           <div className="row ">
             <Col className="col-md-1 mb-3">
-              <Form.Group className="row float-right">
-                <Form.Control
-                  as="select"
-                  value={rowsPerPage}
-                  onChange={(e) => {
-                    setRowsPerPage(parseInt(e.target.value));
-                    setCurrentPage(1);
-                  }}
-                >
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={30}>30</option>
-                  <option value={50}>50</option>
-                  <option value={80}>80</option>
-                  <option value={100}>100</option>
-                  <option value={140}>140</option>
-                  <option value={200}>200</option>
-                </Form.Control>
-                <Form.Label>
-                  {displayedData?.length} of: {recceData?.length}
-                </Form.Label>
-              </Form.Group>
+              <Form.Control
+                as="select"
+                value={rowsPerPage1}
+                onChange={handleRowsPerPageChange}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={30}>30</option>
+                <option value={50}>50</option>
+                <option value={80}>80</option>
+                <option value={100}>100</option>
+                <option value={140}>140</option>
+                <option value={200}>200</option>
+                <option value={300}>300</option>
+                <option value={400}>400</option>
+                <option value={600}>600</option>
+                <option value={700}>700</option>
+                <option value={1000}>1000</option>
+                <option value={1500}>1500</option>
+                <option value={10000}>10000</option>
+              </Form.Control>
             </Col>
             <Col className="col-md-5">
               <div className="row">
@@ -437,182 +436,65 @@ export default function Trackassignedjob() {
                   />
                 </div>
                 <div className="col-md-2 ">
-                  <Button className="c_W" onClick={handleClearDateFilters}>
-                    Clear
-                  </Button>
+                  <Button onClick={handleClearDateFilters}>Clear</Button>
                 </div>
               </div>
             </Col>
             <Col className="col-md-1">
-              <Button className="c_W" onClick={handleExportPDF}>
-                {" "}
-                Download
-              </Button>
+              <Button onClick={handleExportPDF}> Download</Button>
+            </Col>
+            <Col className="col-md-1">
+              {moreoption ? (
+                <>
+                  <p
+                    className="mroe m-auto"
+                    onClick={() => setselectAction(!selectAction)}
+                    style={{
+                      border: "1px solid white",
+                      width: "38px",
+                      height: "38px",
+                      textAlign: "center",
+                      borderRadius: "100px",
+                      backgroundColor: "#F5F5F5",
+                    }}
+                  >
+                    <span className="text-center">
+                      <MoreVertIcon />
+                    </span>
+                  </p>
+                </>
+              ) : null}
             </Col>
           </div>
-          <div className="row ">
-            <table>
+
+          <div className="row">
+            <table className="t-p">
               <thead className="t-c">
-                <tr className="tr2">
-                  <th className="p-1"></th>
-                  <th className="p-1"></th>
-
-                  <th className="p-1"></th>
-                  <th className="p-1"></th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Shop name"
-                      value={searchshopName}
-                      onChange={(e) => setSearchshopName(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    <input
-                      className="col-md-1"
-                      placeholder="owner name"
-                      value={SearchclientName}
-                      onChange={(e) => setSearchclientName(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-
-                  <th></th>
-                  <th className="p-1">
-                    <input
-                      className="col-md-1"
-                      placeholder="Contact"
-                      value={searchcontactNumber}
-                      onChange={(e) => setSearchcontactNumber(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    <input
-                      className="col-md-1"
-                      placeholder=" zone"
-                      value={searchzone}
-                      onChange={(e) => setSearchzone(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-
-                  <th>
-                    <input
-                      className="col-md-1"
-                      placeholder=" pincode"
-                      value={searchpincode}
-                      onChange={(e) => setSearchpincode(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-
-                  <th className="p-1">
-                    <input
-                      className="col-md-1"
-                      placeholder=" city"
-                      value={searchcity}
-                      onChange={(e) => setSearchcity(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-                  <th className="p-1"></th>
-
-                  <th className="p-1"></th>
-                  <th className="p-1"> </th>
-                  <th className="p-1">
-                    <input
-                      className="col-md-1"
-                      placeholder=" category"
-                      value={SearchCategory}
-                      onChange={(e) => setSearchCategory(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-                  <th className="p-1"></th>
-                  <th className="p-1"></th>
-                  <th className="p-1">
-                    <input
-                      className="col-md-1"
-                      placeholder="Vendor name"
-                      value={searchVendorName}
-                      onChange={(e) => setSearchVendorName(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    <input
-                      className="col-md-1"
-                      placeholder=" date"
-                      value={searchdate}
-                      onChange={(e) => setSearchDate(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder=" status"
-                      value={searchdatastatus}
-                      onChange={(e) => setSearchdatastatus(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-                  <th className="p-1"></th>
-                </tr>
-
                 <tr>
-                  <th className="th_s ">
-                    <input
-                      type="checkbox"
-                      style={{
-                        width: "15px",
-                        height: "15px",
-                        marginRight: "5px",
-                      }}
-                      checked={selectAll}
-                      onChange={handleSelectAllChange}
-                    />
-                  </th>
-                  <th className="th_s ">SI.No</th>
-                  <th className="th_s ">Job.No</th>
-                  <th className="th_s ">Brand </th>
-                  <th className="th_s ">Shop Name</th>
-                  <th className="th_s ">Client Name</th>
-                  <th className="th_s ">State</th>
-                  <th className="th_s ">Contact Number</th>
-                  <th className="th_s ">Zone</th>
-                  <th className="th_s ">Pincode</th>
-                  <th className="th_s ">City</th>
-                  <th className="th_s ">FL Board</th>
-                  <th className="th_s ">GSB</th>
-                  <th className="th_s ">Inshop</th>
-                  <th className="th_s ">Category</th>
-                  <th className="th_s ">Height</th>
-                  <th className="th_s ">Width</th>
-                  <th className="th_s ">Vendor Name</th>
-                  <th className="th_s ">Date</th>
-                  <th className="th_s ">Status</th>
-                  <th className="th_s">Action</th>
+                  <th className="th_s p-1">SI.No</th>
+                  <th className="th_s p-1">Job.No</th>
+                  <th className="th_s p-1">Brand </th>
+                  <th className="th_s p-1">Shop Name</th>
+                  <th className="th_s p-1">Client Name</th>
+                  <th className="th_s p-1">State</th>
+                  <th className="th_s p-1">Contact Number</th>
+                  <th className="th_s p-1">Zone</th>
+                  <th className="th_s p-1">Pincode</th>
+                  <th className="th_s p-1">City</th>
+                  <th className="th_s p-1">FL Board</th>
+                  <th className="th_s p-1">GSB</th>
+                  <th className="th_s p-1">Inshop</th>
+                  <th className="th_s p-1">Category</th>
+                  <th className="th_s p-1">Hight</th>
+                  <th className="th_s p-1">Width</th>
+                  <th className="th_s p-1">Date</th>
+                  <th className="th_s p-1">Action</th>
                 </tr>
               </thead>
-
               <tbody>
-                {recceData?.map((recceItem, index) =>
-                  recceItem?.outletName?.map((outlet, outletArray) => {
-                    console.log(recceItem, "recceItem");
+                {filteredData?.map((recceItem, index) =>
+                  recceItem?.outletName.map((outlet, outletArray) => {
                     if (rowsDisplayed < rowsPerPage1) {
-                      const selectedVendorId = outlet?.vendor;
-                      const vendor = selectedVendorId
-                        ? vendordata?.find(
-                            (ele) => ele?._id === selectedVendorId
-                          )
-                        : null;
-
-                      rowsDisplayed++;
                       const pincodePattern = /\b\d{6}\b/;
 
                       const address = outlet?.OutletAddress;
@@ -622,21 +504,11 @@ export default function Trackassignedjob() {
                         outlet.OutletPincode = extractedPincode[0];
                       }
 
+                      serialNumber++;
+                      rowsDisplayed++;
                       return (
-                        <tr className="tr_C" key={outlet._id}>
-                          <td className="td_S p-1">
-                            <input
-                              style={{
-                                width: "15px",
-                                height: "15px",
-                                marginRight: "5px",
-                              }}
-                              type="checkbox"
-                              checked={selectedRecceItems.includes(outlet._id)}
-                              onChange={() => handleToggleSelect(outlet._id)}
-                            />
-                          </td>
-                          <td className="td_S p-1">{outletArray + 1}</td>
+                        <tr className="tr_C" key={serialNumber}>
+                          <td className="td_S p-1">{serialNumber}</td>
                           <td className="td_S p-1">Job{index + 1}</td>
                           <td className="td_S p-1">{recceItem.BrandName}</td>
                           <td className="td_S p-1">{outlet.ShopName}</td>
@@ -663,10 +535,6 @@ export default function Trackassignedjob() {
                             {outlet.width}
                             {outlet.unit}
                           </td>
-
-                          <td className="td_S p-1">
-                            {vendor?.VendorFirstName}
-                          </td>
                           <td className="td_S ">
                             {recceItem.createdAt
                               ? new Date(recceItem.createdAt)
@@ -674,7 +542,6 @@ export default function Trackassignedjob() {
                                   .slice(0, 10)
                               : ""}
                           </td>
-                          <td className="td_S p-1">{outlet.RecceStatus}</td>
                           <td className="td_S ">
                             <span
                               variant="info "
@@ -692,6 +559,7 @@ export default function Trackassignedjob() {
                         </tr>
                       );
                     }
+
                     return null;
                   })
                 )}

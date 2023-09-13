@@ -331,21 +331,6 @@ export default function Vendor() {
     vendorStatusData[vendorId] = statusCounts;
   });
 
-  // const getAllJob = async () => {
-  //   try {
-  //     const res = await axios.get(
-  //       "http://api.srimagicprintz.com/api/Jobmangement/assignjob/getalljob"
-  //     );
-  //     if (res.status === 200) {
-  //       setJobInfo(res.data.allJobs);
-  //     }
-  //   } catch (err) {
-  //     alert(err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   return (
     <>
       <Header />
@@ -418,8 +403,7 @@ export default function Vendor() {
                               borderRadius: "100%",
                             }}
                             className="m-auto"
-                             src={`http://api.srimagicprintz.com
-/VendorImage/${ele.VendorImage}`}
+                            src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
                             alt=""
                           />
                         ) : (
@@ -653,7 +637,7 @@ export default function Vendor() {
                                     height: "30%",
                                     borderRadius: "100%",
                                   }}
-                                   src={`http://api.srimagicprintz.com
+                                  src={`http://api.srimagicprintz.com
 /VendorImage/${vendorData[selected].VendorImage}`}
                                   alt=""
                                 />
@@ -748,7 +732,7 @@ export default function Vendor() {
                               <img
                                 width={"200px"}
                                 height={"100px"}
-                                 src={`http://api.srimagicprintz.com
+                                src={`http://api.srimagicprintz.com
 /BankInfoImage/${vendorData[selected].BankInfoImage}`}
                                 alt=""
                               />

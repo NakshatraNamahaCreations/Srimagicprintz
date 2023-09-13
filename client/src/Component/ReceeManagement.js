@@ -1214,7 +1214,7 @@ export default function ReceeManagement() {
       console.error("Error in processing data:", error);
     }
   };
-  console.log(reccedata);
+ 
   return (
     <>
       <Header />

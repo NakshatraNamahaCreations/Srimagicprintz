@@ -9,8 +9,9 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import moment from "moment";
 import jsPDF from "jspdf";
-import "jspdf-autotable"; // Import the autotable plugin
+import "jspdf-autotable";
 import CheckIcon from "@mui/icons-material/Check";
+import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 
 export default function Reports() {
   const ApiURL = process.env.REACT_APP_API_URL;
@@ -44,7 +45,7 @@ export default function Reports() {
   const [selectedClientName, setSelectedClientName] = useState(null);
   const [report, setReport] = useState(false);
   const [selectedcategory, setselectedcategory] = useState("");
-
+  const [rowsPerPage1, setRowsPerPage1] = useState(5);
   // const searchReport = () => {
   //   setReport(!report);
   // };
@@ -206,77 +207,77 @@ export default function Reports() {
     searchSINO,
     rowsPerPage,
   ]);
-  const [clientName, setClientName] = useState(false);
+  const [brandName, setbrandName] = useState(false);
 
   const [filter, setFilter] = useState("All");
-  const handleExportPDF = () => {
-    const pdf = new jsPDF();
-    const tableColumn = [
-      "SI.No",
-      "Shop Name",
-      "Vendor Name",
-      "Contact",
-      "Area",
-      "City",
-      "Pincode",
-      "Zone",
-      "Date",
-      "Status",
-      "Hight",
-      "Width",
-      "Category",
-    ];
+  // const handleExportPDF = () => {
+  //   const pdf = new jsPDF();
+  //   const tableColumn = [
+  //     "SI.No",
+  //     "Shop Name",
+  //     "Vendor Name",
+  //     "Contact",
+  //     "Area",
+  //     "City",
+  //     "Pincode",
+  //     "Zone",
+  //     "Date",
+  //     "Status",
+  //     "Hight",
+  //     "Width",
+  //     "Category",
+  //   ];
 
-    const tableData = displayedData.map((item, index) => {
-      const selectedVendorId = item?.vendor?.[0];
-      const selectedVendor = vendordata?.find(
-        (vendor) => vendor?._id === selectedVendorId
-      );
-      const selectedCategoryId = item?.category?.[0];
-      const category = CategoryData?.find(
-        (ele) => ele?._id === selectedCategoryId
-      );
+  //   const tableData = displayedData.map((item, index) => {
+  //     const selectedVendorId = item?.vendor?.[0];
+  //     const selectedVendor = vendordata?.find(
+  //       (vendor) => vendor?._id === selectedVendorId
+  //     );
+  //     const selectedCategoryId = item?.category?.[0];
+  //     const category = CategoryData?.find(
+  //       (ele) => ele?._id === selectedCategoryId
+  //     );
 
-      return [
-        index + 1,
-        item.ShopName,
-        selectedVendor ? selectedVendor.VendorFirstName : "",
-        item.ContactNumber,
-        item.Area,
-        item.City,
-        item.Pincode,
-        item.Zone,
-        item.createdAt
-          ? new Date(item.createdAt).toISOString().slice(0, 10)
-          : "",
-        item.Status,
-        item.height,
-        item.width,
-        category ? category?.categoryName : "",
-      ];
-    });
+  //     return [
+  //       index + 1,
+  //       item.ShopName,
+  //       selectedVendor ? selectedVendor.VendorFirstName : "",
+  //       item.ContactNumber,
+  //       item.Area,
+  //       item.City,
+  //       item.Pincode,
+  //       item.Zone,
+  //       item.createdAt
+  //         ? new Date(item.createdAt).toISOString().slice(0, 10)
+  //         : "",
+  //       item.Status,
+  //       item.height,
+  //       item.width,
+  //       category ? category?.categoryName : "",
+  //     ];
+  //   });
 
-    pdf.autoTable({
-      head: [tableColumn],
-      body: tableData,
-      startY: 20,
-      styles: {
-        fontSize: 6,
-      },
-      columnStyles: {
-        0: { cellWidth: 10 },
-      },
+  //   pdf.autoTable({
+  //     head: [tableColumn],
+  //     body: tableData,
+  //     startY: 20,
+  //     styles: {
+  //       fontSize: 6,
+  //     },
+  //     columnStyles: {
+  //       0: { cellWidth: 10 },
+  //     },
 
-      bodyStyles: { borderColor: "black", borderRight: "1px solid black" },
-    });
+  //     bodyStyles: { borderColor: "black", borderRight: "1px solid black" },
+  //   });
 
-    pdf.save("exported_data.pdf");
-  };
+  //   pdf.save("exported_data.pdf");
+  // };
 
-  const handleClearDateFilters = () => {
-    setFilterStartDate("");
-    setFilterEndDate("");
-  };
+  // const handleClearDateFilters = () => {
+  //   setFilterStartDate("");
+  //   setFilterEndDate("");
+  // };
 
   const filterDate = (data) => {
     return data?.filter((item) => {
@@ -326,37 +327,14 @@ export default function Reports() {
 
     setmoreoption(!selectAll);
   };
-  // async function deleteRecce(recceId) {
-  //   try {
-  //     const response = await axios.delete(
-  //       `${ApiURL}/recce/recce/deletereccedata/${recceId}`
-  //     );
-  //     if (response.status === 200) {
-  //       alert("Recce deleted successfully");
-  //       window.location.reload();
-  //     }
-  //   } catch (error) {
-  //     alert("Error while deleting recce:", error);
-  //   }
-  // }
-
-  // const handleDeleteSelectedRecceItems = async () => {
-  //   if (selectedRecceItems.length === 0) {
-  //     return;
-  //   }
-
-  //   if (window.confirm(`Are you sure you want to delete  clients data ?`)) {
-  //     try {
-  //       for (const recceId of selectedRecceItems) {
-  //         await deleteRecce(recceId);
-  //       }
-
-  //       setSelectedRecceItems([]);
-  //     } catch (error) {
-  //       console.error("Error while deleting recce items:", error);
-  //     }
-  //   }
-  // };
+  let serialNumber;
+  const handleRowsPerPageChange = (e) => {
+    const newRowsPerPage = parseInt(e.target.value);
+    setRowsPerPage1(newRowsPerPage);
+    serialNumber = 0;
+    rowsDisplayed = 0;
+  };
+  let rowsDisplayed = 0;
   const monthNames = [
     "January",
     "February",
@@ -381,18 +359,18 @@ export default function Reports() {
     monthName = monthNames[monthNumber];
   }
 
-  const handleFilterStartDateChange = (event) => {
-    setFilterStartDate(event.target.value);
-  };
+  // const handleFilterStartDateChange = (event) => {
+  //   setFilterStartDate(event.target.value);
+  // };
 
-  const handleFilterEndDateChange = (event) => {
-    setFilterEndDate(event.target.value);
-  };
+  // const handleFilterEndDateChange = (event) => {
+  //   setFilterEndDate(event.target.value);
+  // };
 
-  const handleEdit = (item) => {
-    setgetreccedata(item);
-    setSelectedDesignIndex(true);
-  };
+  // const handleEdit = (item) => {
+  //   setgetreccedata(item);
+  //   setSelectedDesignIndex(true);
+  // };
   const [selectedCheckboxes, setSelectedCheckboxes] = useState([]);
 
   const handleCheckboxChange = (event) => {
@@ -407,8 +385,7 @@ export default function Reports() {
   };
 
   const handleSelectClientName = () => {
-    console.log("Selected Checkboxes:", selectedCheckboxes);
-    setClientName(!clientName);
+    setbrandName(!brandName);
   };
   const handleFilterChange = (event) => {
     const selectedFilter = event.target.value;
@@ -476,23 +453,12 @@ export default function Reports() {
   };
 
   const searchReport = (selectedDate) => {
-    const selectedCheckboxes = [];
-    const selectedCategory = "";
-
     const filteredDataFromFilter1 = filteredData1(selectedDate);
-    const filteredData2 = filteredDataFromFilter1.filter((item) => {
-      let isMatching = true;
 
-      if (selectedCheckboxes.map((ele) => ele.length > 0)) {
-        isMatching = isMatching && selectedCheckboxes.includes(item.ClientName);
-      }
+    const filteredData2 = filteredDataFromFilter1.filter((item) =>
+      selectedCheckboxes.includes(item.BrandName)
+    );
 
-      if (selectedCategory) {
-        isMatching = isMatching && item.category === selectedCategory;
-      }
-
-      return isMatching;
-    });
     setSelectedDesignIndex(!SelecteddesignIndex);
     return setDisplayedData(filteredData2);
   };
@@ -502,110 +468,49 @@ export default function Reports() {
       <Header />
       {SelecteddesignIndex ? (
         <div className="row  m-auto containerPadding">
-          <div className="row ">
-            <Col className="col-md-1 mb-3">
-              <Form.Group className="row float-right">
-                <Form.Control
-                  as="select"
-                  value={rowsPerPage}
-                  onChange={(e) => {
-                    setRowsPerPage(parseInt(e.target.value));
-                    setCurrentPage(1);
-                  }}
-                >
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={30}>30</option>
-                  <option value={50}>50</option>
-                  <option value={80}>80</option>
-                  <option value={100}>100</option>
-                  <option value={140}>140</option>
-                  <option value={200}>200</option>
-                </Form.Control>
-                <Form.Label>
-                  {displayedData?.length} of: {recceData?.length}
-                </Form.Label>
-              </Form.Group>
-            </Col>
-            <Col className="col-md-5">
-              <div className="row">
-                <div className="col-md-5 ">
-                  <Form.Control
-                    type="date"
-                    value={filterStartDate}
-                    onChange={handleFilterStartDateChange}
-                  />
-                </div>
-                <div className="col-md-5 ">
-                  <Form.Control
-                    type="date"
-                    value={filterEndDate}
-                    onChange={handleFilterEndDateChange}
-                  />
-                </div>
-                <div className="col-md-2 ">
-                  <Button onClick={handleClearDateFilters}>Clear</Button>
-                </div>
-              </div>
-            </Col>
-            <Col className="col-md-1">
-              <Button onClick={handleExportPDF}> Download</Button>
-            </Col>
-            {/* <Col className="col-md-1">
-              {moreoption ? (
-                <>
-                  <p
-                    className="mroe "
-                    onClick={() => setselectAction(!selectAction)}
-                    style={{
-                      border: "1px solid white",
-                      width: "38px",
-                      height: "38px",
-                      textAlign: "center",
-                      borderRadius: "100px",
-                      backgroundColor: "#F5F5F5",
-                    }}
-                  >
-                    <span className="text-center">
-                      <MoreVertIcon />
-                    </span>
-                  </p>
-                  {selectAction ? (
-                    <div
-                      style={{
-                        position: "absolute",
-                        zIndex: "10px",
-                        top: "18%",
-                      }}
-                    ></div>
-                  ) : null}
-                </>
-              ) : null}
-            </Col> */}
+          <div className="row mb-3">
+            <div>
+              <ArrowCircleLeftIcon
+                onClick={() => setSelectedDesignIndex(false)}
+                style={{ color: "#068FFF", fontSize: "35px" }}
+              />
+            </div>
           </div>
           <div className="row ">
-            <table className="t-p">
+            <div className="col-md-1 mb-3">
+              <Form.Control
+                as="select"
+                value={rowsPerPage1}
+                onChange={handleRowsPerPageChange}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={30}>30</option>
+                <option value={50}>50</option>
+                <option value={80}>80</option>
+                <option value={100}>100</option>
+                <option value={140}>140</option>
+                <option value={200}>200</option>
+                <option value={300}>300</option>
+                <option value={400}>400</option>
+                <option value={600}>600</option>
+                <option value={700}>700</option>
+                <option value={1000}>1000</option>
+                <option value={1500}>1500</option>
+                <option value={10000}>10000</option>
+              </Form.Control>
+            </div>
+          </div>
+
+          <div className="row ">
+            <table>
               <thead className="t-c">
                 <tr className="tr2">
-                  <th></th>
-                  <th>
-                    <input
-                      className="col-md-1"
-                      placeholder="SI.No"
-                      value={searchSINO}
-                      onChange={(e) => setSearchSINO(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-2">
-                    <input
-                      className="col-md-1"
-                      placeholder="client name"
-                      value={SearchclientName}
-                      onChange={(e) => setSearchclientName(e.target.value)}
-                      style={{ width: "65px" }}
-                    />
-                  </th>
+                  <th className="p-1"></th>
+                  <th className="p-1"></th>
+
+                  <th className="p-1"></th>
+                  <th className="p-1"></th>
                   <th className="p-1">
                     {" "}
                     <input
@@ -613,117 +518,103 @@ export default function Reports() {
                       placeholder="Shop name"
                       value={searchshopName}
                       onChange={(e) => setSearchshopName(e.target.value)}
-                      style={{ width: "79px" }}
+                      style={{ width: "55px" }}
                     />
                   </th>
-                  {/* <th>
+                  <th className="p-1">
                     <input
                       className="col-md-1"
-                      placeholder="Vendor name"
-                      value={searchVendorName}
-                      onChange={(e) => setSearchVendorName(e.target.value)}
-                      style={{ width: "79px" }}
+                      placeholder="owner name"
+                      value={SearchclientName}
+                      onChange={(e) => setSearchclientName(e.target.value)}
+                      style={{ width: "55px" }}
                     />
-                  </th> */}
-                  <th>
+                  </th>
+
+                  <th></th>
+                  <th className="p-1">
                     <input
                       className="col-md-1"
                       placeholder="Contact"
                       value={searchcontactNumber}
                       onChange={(e) => setSearchcontactNumber(e.target.value)}
-                      style={{ width: "79px" }}
+                      style={{ width: "55px" }}
                     />
                   </th>
                   <th className="p-1">
-                    {" "}
                     <input
                       className="col-md-1"
-                      placeholder="Area"
-                      value={searcharea}
-                      onChange={(e) => setSearcharea(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-
-                  <th>
-                    <input
-                      className="col-md-1"
-                      placeholder="City"
-                      value={searchcity}
-                      onChange={(e) => setSearchcity(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Pincode"
-                      value={searchpincode}
-                      onChange={(e) => setSearchpincode(e.target.value)}
-                      style={{ width: "79px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Zone"
+                      placeholder=" zone"
                       value={searchzone}
                       onChange={(e) => setSearchzone(e.target.value)}
-                      style={{ width: "79px" }}
+                      style={{ width: "55px" }}
                     />
                   </th>
-                  <th className="p-1">
-                    {" "}
+
+                  <th>
                     <input
                       className="col-md-1"
-                      placeholder="Date"
-                      value={searchdate}
-                      onChange={(e) => setSearchDate(e.target.value)}
-                      style={{ width: "79px" }}
+                      placeholder=" pincode"
+                      value={searchpincode}
+                      onChange={(e) => setSearchpincode(e.target.value)}
+                      style={{ width: "55px" }}
                     />
                   </th>
+
                   <th className="p-1">
-                    {" "}
                     <input
                       className="col-md-1"
-                      placeholder="Status"
-                      value={searchstatus}
-                      onChange={(e) => setSearchStatus(e.target.value)}
-                      style={{ width: "79px" }}
+                      placeholder=" city"
+                      value={searchcity}
+                      onChange={(e) => setSearchcity(e.target.value)}
+                      style={{ width: "55px" }}
                     />
                   </th>
-                  <th>
-                    {/* <input
-                      className="col-md-1"
-                      placeholder="Seach hight"
-                      value={searchHight}
-                      onChange={(e) => setsearchHight(e.target.value)}
-                      style={{ width: "79px" }}
-                    /> */}
-                  </th>
-                  <th>
-                    {/* <input
-                      className="col-md-1"
-                      placeholder=" width"
-                      value={searchwidth}
-                      onChange={(e) => setsearchwidth(e.target.value)}
-                      style={{ width: "79px" }}
-                    /> */}
-                  </th>
-                  <th>
+                  <th className="p-1"></th>
+
+                  <th className="p-1"></th>
+                  <th className="p-1"> </th>
+                  <th className="p-1">
                     <input
                       className="col-md-1"
                       placeholder=" category"
                       value={SearchCategory}
                       onChange={(e) => setSearchCategory(e.target.value)}
-                      style={{ width: "79px" }}
+                      style={{ width: "55px" }}
                     />
                   </th>
-                  <th></th>
+                  <th className="p-1"></th>
+                  <th className="p-1"></th>
+                  <th className="p-1">
+                    <input
+                      className="col-md-1"
+                      placeholder="Vendor name"
+                      value={searchVendorName}
+                      onChange={(e) => setSearchVendorName(e.target.value)}
+                      style={{ width: "55px" }}
+                    />
+                  </th>
+                  <th className="p-1">
+                    <input
+                      className="col-md-1"
+                      placeholder=" date"
+                      value={searchdate}
+                      onChange={(e) => setSearchDate(e.target.value)}
+                      style={{ width: "55px" }}
+                    />
+                  </th>
+                  <th className="p-1">
+                    {" "}
+                    <input
+                      className="col-md-1"
+                      placeholder=" status"
+                      value={searchdatastatus}
+                      onChange={(e) => setSearchdatastatus(e.target.value)}
+                      style={{ width: "55px" }}
+                    />
+                  </th>
                 </tr>
+
                 <tr>
                   <th className="th_s ">
                     <input
@@ -737,78 +628,108 @@ export default function Reports() {
                       onChange={handleSelectAllChange}
                     />
                   </th>
-                  <th className="th_s p-1">SI.No.</th>
-                  <th className="th_s ">Client Name</th>{" "}
-                  <th className="th_s p-1">Shop Name</th>
-                  <th className="th_s p-1">Contact Number</th>
-                  <th className="th_s p-1">Area</th>
-                  <th className="th_s p-1">City</th>
-                  <th className="th_s p-1">Pincode</th>
-                  <th className="th_s p-1">Zone</th>
-                  <th className="th_s p-1"> Date</th>
-                  <th className="th_s p-1"> Status</th>
-                  <th className="th_s p-1"> Height</th>
-                  <th className="th_s p-1"> Width</th>
-                  <th className="th_s p-1"> Category</th>
-                  <th className="th_s p-1">Action</th>
+                  <th className="th_s ">SI.No</th>
+                  <th className="th_s ">Job.No</th>
+                  <th className="th_s ">Brand </th>
+                  <th className="th_s ">Shop Name</th>
+                  <th className="th_s ">Client Name</th>
+                  <th className="th_s ">State</th>
+                  <th className="th_s ">Contact Number</th>
+                  <th className="th_s ">Zone</th>
+                  <th className="th_s ">Pincode</th>
+                  <th className="th_s ">City</th>
+                  <th className="th_s ">FL Board</th>
+                  <th className="th_s ">GSB</th>
+                  <th className="th_s ">Inshop</th>
+                  <th className="th_s ">Category</th>
+                  <th className="th_s ">Height</th>
+                  <th className="th_s ">Width</th>
+                  <th className="th_s ">Vendor Name</th>
+                  <th className="th_s ">Date</th>
+                  <th className="th_s ">Status</th>
                 </tr>
               </thead>
-              <tbody className="table">
-                {recceData.map((item, index) => {
-                  return (
-                    <tr className="design" key={item._id}>
-                      <td className="td_S p-1">
-                        <input
-                          style={{
-                            width: "15px",
-                            height: "15px",
-                            marginRight: "5px",
-                          }}
-                          type="checkbox"
-                          checked={selectedRecceItems.includes(item._id)}
-                          onChange={() => handleToggleSelect(item._id)}
-                        />
-                      </td>
-                      <td className="td_S p-1">{index + 1}</td>
-                      <td className="td_S p-1">{item.ClientName}</td>
-                      <td className="td_S p-1">{item.ShopName}</td>
-                      <td className="td_S p-1">{item.ContactNumber}</td>
-                      <td className="td_S p-1">{item.Area}</td>
-                      <td className="td_S p-1">{item.City}</td>
-                      <td className="td_S p-1">{item.Pincode}</td>
-                      <td className="td_S p-1">{item.Zone}</td>
-                      <td className="td_S p-1">
-                        {item.createdAt
-                          ? new Date(item.createdAt).toISOString().slice(0, 10)
-                          : ""}
-                      </td>
-                      <td className="td_S">{item.fabricationstatus}</td>
-                      <td className="td_S">
-                        {" "}
-                        {item.reccehight}
-                        {item.recceUnit}
-                      </td>
-                      <td className="td_S">
-                        {item.reccewidth}
-                        {item.recceUnit}
-                      </td>
 
-                      <td className="td_S p-1">{item.category}</td>
-                      <td className="td_S p-1">
-                        <span
-                          className="col-md-5 p-1"
-                          variant="info "
-                          onClick={() => {
-                            handleEdit(item);
-                          }}
-                          style={{ cursor: "pointer", color: "skyblue" }}
-                        >
-                          View
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
+              <tbody>
+                {displayedData?.map((recceItem, index) =>
+                  recceItem?.outletName?.map((outlet, outletArray) => {
+                    if (rowsDisplayed < rowsPerPage1) {
+                      const selectedVendorId = outlet?.vendor;
+                      const vendor = selectedVendorId
+                        ? vendordata?.find(
+                            (ele) => ele?._id === selectedVendorId
+                          )
+                        : null;
+
+                      rowsDisplayed++;
+                      const pincodePattern = /\b\d{6}\b/;
+
+                      const address = outlet?.OutletAddress;
+                      const extractedPincode = address?.match(pincodePattern);
+
+                      if (extractedPincode) {
+                        outlet.OutletPincode = extractedPincode[0];
+                      }
+
+                      return (
+                        <tr className="tr_C" key={outlet._id}>
+                          <td className="td_S p-1">
+                            <input
+                              style={{
+                                width: "15px",
+                                height: "15px",
+                                marginRight: "5px",
+                              }}
+                              type="checkbox"
+                              checked={selectedRecceItems.includes(outlet._id)}
+                              onChange={() => handleToggleSelect(outlet._id)}
+                            />
+                          </td>
+                          <td className="td_S p-1">{outletArray + 1}</td>
+                          <td className="td_S p-1">Job{index + 1}</td>
+                          <td className="td_S p-1">{recceItem.BrandName}</td>
+                          <td className="td_S p-1">{outlet.ShopName}</td>
+                          <td className="td_S p-1">{outlet.ClientName}</td>
+                          <td className="td_S p-1">{outlet.State}</td>
+                          <td className="td_S p-1">
+                            {outlet.OutletContactNumber}
+                          </td>
+
+                          <td className="td_S p-1">{outlet.OutletZone}</td>
+                          <td className="td_S p-1">
+                            {extractedPincode ? extractedPincode[0] : ""}
+                          </td>
+                          <td className="td_S p-1">{outlet.OutletCity}</td>
+                          <td className="td_S p-1">{outlet.FLBoard}</td>
+                          <td className="td_S p-1">{outlet.GSB}</td>
+                          <td className="td_S p-1">{outlet.Inshop}</td>
+                          <td className="td_S p-1">{outlet.Category}</td>
+                          <td className="td_S p-1">
+                            {outlet.height}
+                            {outlet.unit}
+                          </td>
+                          <td className="td_S p-1">
+                            {outlet.width}
+                            {outlet.unit}
+                          </td>
+
+                          <td className="td_S p-1">
+                            {vendor?.VendorFirstName}
+                          </td>
+                          <td className="td_S ">
+                            {recceItem.createdAt
+                              ? new Date(recceItem.createdAt)
+                                  .toISOString()
+                                  .slice(0, 10)
+                              : ""}
+                          </td>
+                          <td className="td_S p-1">{outlet.RecceStatus}</td>
+                        </tr>
+                      );
+                    }
+                    return null;
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -817,20 +738,6 @@ export default function Reports() {
         <div className="row m-auto containerPadding">
           <Form className="col-md-10 m-auto">
             <Row>
-              <Col className="col-md-4 mb-2 m-auto">
-                <Form.Label>Pick a Category</Form.Label>
-                <Form.Select
-                  value={selectedcategory}
-                  onChange={(e) => setselectedcategory(e.target.value)}
-                >
-                  <option value="">Select..</option>
-                  {CategoryData?.map((category) => (
-                    <option key={category._id} value={category.categoryName}>
-                      {category.categoryName}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Col>
               <Col className="col-md-4 mb-2  m-auto">
                 {" "}
                 <>
@@ -839,11 +746,11 @@ export default function Reports() {
                     <Form.Control
                       placeholder="select clients name"
                       value={selectedCheckboxes}
-                      onClick={() => setClientName(!clientName)}
+                      onClick={() => setbrandName(!brandName)}
                       readOnly
                     />
                   </div>
-                  {clientName ? (
+                  {brandName ? (
                     <div
                       style={{
                         position: "absolute",
@@ -871,19 +778,14 @@ export default function Reports() {
                               <Form.Label>
                                 <Form.Check
                                   type="checkbox"
-                                  name="option1"
                                   className="me-3 d-inline"
-                                  value={ele.ClientName}
+                                  value={ele.BrandName}
                                   checked={selectedCheckboxes.includes(
-                                    ele.ClientName
+                                    ele.BrandName
                                   )}
                                   onChange={handleCheckboxChange}
                                 />
-                                <p className="d-inline ">
-                                  {/* {ele.ClientName.charAt(0).toUpperCase() + */}
-                                    {/* ele.ClientName.substr(1)} */}
-                                    {ele.ClientName}
-                                </p>
+                                <p className="d-inline ">{ele.BrandName}</p>
                               </Form.Label>
                             </div>
                           );
@@ -909,7 +811,7 @@ export default function Reports() {
 
             <Row className="mt-5">
               <Button onClick={searchReport} className="col-md-2 m-auto ">
-                Search
+                Report
               </Button>
             </Row>
           </Form>{" "}

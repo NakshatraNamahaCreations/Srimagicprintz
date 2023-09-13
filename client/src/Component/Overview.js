@@ -10,13 +10,20 @@ import Table from "react-bootstrap/Table";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import BusinessIcon from "@mui/icons-material/Business";
 import BarChartIcon from "@mui/icons-material/BarChart";
-// import moment from "moment";
+import moment from "moment";
 import axios from "axios";
 import RunningWithErrorsIcon from "@mui/icons-material/RunningWithErrors";
 import ArrowCircleDownIcon from "@mui/icons-material/ArrowCircleDown";
 import Form from "react-bootstrap/Form";
 
+const StatusColor = {
+  Pending: { color: "#F94C10" },
+  Proccesing: { color: "orange" },
+  Completed: { color: "green" },
+  Cancelled: { color: "red" },
+};
 export default function Overview() {
+  const [RecceData, setRecceData] = useState([]);
   const [totalRecce, setTotalRecce] = useState([]);
   const [totalDesign, setTotalDesign] = useState([]);
   const [totalPrinting, setTotalPrinting] = useState([]);
@@ -24,86 +31,90 @@ export default function Overview() {
   const [totalInstalation, setTotalInstalation] = useState([]);
   const [totalAddClients, setTotalAddClients] = useState([]);
   const [totalVendorData, setTotalVendorData] = useState([]);
-
+  const [rowsPerPage1, setRowsPerPage1] = useState(5);
   const [totalRunningJob, setTotalRunningJob] = useState([]);
-
-  // const [filter, setFilter] = useState("All");
-
-  // const handleFilterClick = (selectedFilter) => {
-  //   setFilter(selectedFilter);
-  // };
-
-  // const filterData = () => {
-  //   const filteredData = totalRecce.filter((item) => {
-  //     // const itemDate = moment(item.createdAt, "MM/DD/YYYY");
-  //     // const now = moment();
-
-  //     switch (filter) {
-  //       case totalRecce:
-  //         return totalRecce;
-  //       case totalDesign:
-  //         return totalDesign;
-  //       case totalPrinting:
-  //         return totalPrinting;
-  //       case totalfabrication:
-  //         return totalfabrication;
-  //       case totalInstalation:
-  //         return totalInstalation;
-
-  //       default:
-  //         return true;
-  //     }
-  //   });
-
-  //   return filteredData;
-  // };
-
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [filterStartDate, setFilterStartDate] = useState("");
+  const [filterEndDate, setFilterEndDate] = useState("");
   let data =
-    totalRecce?.length +
-    totalDesign?.length +
-    totalPrinting?.length +
-    totalfabrication?.length +
-    totalInstalation?.length;
+    totalRecce +
+    totalDesign +
+    totalPrinting +
+    totalfabrication +
+    totalInstalation;
 
   useEffect(() => {
     getAllRecce();
     getAllClientsInfo();
     getAllVendorInfo();
     setTotalRunningJob(data);
-  },);
+  }, []);
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
         "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
-        setTotalRecce(res.data.RecceData);
-      }
-      if (res.status === 200) {
-        const filteredDesignData = res.data.RecceData.filter(
-          (item) => item._id === item.completedRecceId
-        );
-        setTotalDesign(filteredDesignData);
-      }
-      if (res.status === 200) {
-        const filteredPrintingData = res.data.RecceData.filter(
-          (item) => item._id === item.completedDesign
-        );
-        setTotalPrinting(filteredPrintingData);
-      }
-      if (res.status === 200) {
-        const filteredfabricationData = res.data.RecceData.filter(
-          (item) => item._id === item.completedPrinting
+        const recceData = res.data.RecceData || [];
+        setRecceData(recceData);
+        const totalRecceLength = recceData.reduce(
+          (total, recceItem) => total + recceItem.outletName.length,
+          0
         );
 
-        setTotalFabrication(filteredfabricationData);
-      }
-      if (res.status === 200) {
-        const filteredInstalationData = res.data.RecceData.filter(
-          (item) => item._id === item.completedFabrication
-        );
+        const totalDesignLength = recceData.reduce((total, recceItem) => {
+          const outletNames = recceItem.outletName || [];
 
-        setTotalInstalation(filteredInstalationData);
+          const outletNameCount = outletNames.reduce(
+            (outletTotal, outlet) =>
+              outletTotal + (outlet.RecceStatus === "Completed" ? 1 : 0),
+            0
+          );
+
+          return total + outletNameCount;
+        }, 0);
+
+        const totalPrintingLenght = recceData.reduce((total, recceItem) => {
+          const outletNames = recceItem.outletName || [];
+
+          const outletNameCount = outletNames.reduce(
+            (outletTotal, outlet) =>
+              outletTotal + (outlet.RecceStatus === "Completed" ? 1 : 0),
+            0
+          );
+
+          return total + outletNameCount;
+        }, 0);
+
+        const totalFabricationLength = recceData.reduce((total, recceItem) => {
+          const outletNames = recceItem.outletName || [];
+
+          const outletNameCount = outletNames.reduce(
+            (outletTotal, outlet) =>
+              outletTotal + (outlet.OutlateFabricationNeed === "Yes" ? 1 : 0),
+            0
+          );
+
+          return total + outletNameCount;
+        }, 0);
+
+        const totalInstallationLength = recceData.reduce((total, recceItem) => {
+          const outletNames = recceItem.outletName || [];
+
+          const outletNameCount = outletNames.reduce(
+            (outletTotal, outlet) =>
+              outletTotal + (outlet.OutlateFabricationNeed === "Yes" ? 1 : 0),
+            0
+          );
+
+          return total + outletNameCount;
+        }, 0);
+
+        setTotalRecce(totalRecceLength);
+        setTotalDesign(totalDesignLength);
+        setTotalPrinting(totalPrintingLenght);
+        setTotalFabrication(totalFabricationLength);
+        setTotalInstalation(totalInstallationLength);
       }
     } catch (err) {
       alert(err);
@@ -139,26 +150,89 @@ export default function Overview() {
     }
   };
 
+  const handleFilterClick = (category) => {
+    setActiveCategory(category);
+  };
+
+  const filterData = (activeCategory) => {
+    const filteredData = [];
+
+    RecceData?.forEach((recceItem) => {
+      const outletNameArray = recceItem?.outletName;
+
+      if (Array.isArray(outletNameArray)) {
+        outletNameArray.forEach((outlet) => {
+          let shouldInclude = false;
+
+          switch (activeCategory) {
+            case "totalRecce":
+              shouldInclude = true;
+              break;
+            case "totalDesign":
+              shouldInclude = outlet?.RecceStatus?.includes("Completed");
+              break;
+            case "totalPrinting":
+              shouldInclude = outlet?.RecceStatus?.includes("Completed");
+              break;
+            case "totalfabrication":
+              shouldInclude = outlet?.OutlateFabricationNeed?.includes("Yes");
+              break;
+            case "totalInstalation":
+              shouldInclude = outlet?.OutlateFabricationNeed?.includes("Yes");
+              break;
+            default:
+              shouldInclude = true;
+              break;
+          }
+
+          if (shouldInclude) {
+            filteredData.push(outlet);
+          }
+        });
+      }
+    });
+
+    return filteredData;
+  };
+
+  const filteredData = filterData(activeCategory);
+  let rowsDisplayed = 0;
+
+  const handleRowsPerPageChange = (e) => {
+    const newRowsPerPage = parseInt(e.target.value);
+    setRowsPerPage1(newRowsPerPage);
+
+    rowsDisplayed = 0;
+  };
+
+  const handleClearDateFilters = () => {
+    setFilterStartDate("");
+    setFilterEndDate("");
+  };
+  const handleFilterEndDateChange = (event) => {
+    setFilterEndDate(event.target.value);
+  };
+  const handleFilterStartDateChange = (event) => {
+    setFilterStartDate(event.target.value);
+  };
+
+  const [data1, setdata1] = useState(0);
+  useEffect(() => {
+    setdata1(rowsDisplayed);
+  }, [rowsPerPage1]);
   return (
     <>
       <Header />
       <div className="row mt-3 m-auto containerPadding">
         <div className="row m-auto">
           <Card
-            className={`col-md-3 m-2 c_zoom ${"active1"}`}
-            style={{ height: "225px",  }}
+            className={`col-md-3 m-2 c_zoom ${
+              activeCategory === "totalRecce" ? "active1" : ""
+            }`}
+            style={{ height: "225px" }}
+            onClick={() => handleFilterClick("totalRecce")}
           >
-            <div className="row ">
-              <div className="float-end">
-                <ArrowCircleDownIcon
-                // style={{ color: "white", fontSize: "25px" }}
-                />
-              </div>
-            </div>
-            <div
-              // onClick={() => handleFilterClick(totalRecce)}
-              className={`row m-auto ${"active"}`}
-            >
+            <div className={`row m-auto ${"active1"}`}>
               <div className="col-md-6 m-auto">
                 <CategoryIcon style={{ fontSize: "50px", color: "black" }} />
               </div>
@@ -168,7 +242,7 @@ export default function Overview() {
                   style={{ fontSize: "35px", color: "black" }}
                   className="row"
                 >
-                  {totalRecce?.length}
+                  {totalRecce}
                 </h4>
                 <p style={{ color: "black" }} className="row">
                   Total Recce Jobs
@@ -177,20 +251,13 @@ export default function Overview() {
             </div>
           </Card>
           <Card
-            className={`col-md-3 m-2 c_zoom ${"active1"}`}
-            style={{ height: "225px",  }}
+            className={`col-md-3 m-2 c_zoom ${
+              activeCategory === "totalDesign" ? "active1" : ""
+            }`}
+            style={{ height: "225px" }}
+            onClick={() => handleFilterClick("totalDesign")}
           >
-            <div className="row ">
-              <div className="float-end">
-                <ArrowCircleDownIcon
-                // style={{ color: "white", fontSize: "25px" }}
-                />
-              </div>
-            </div>
-            <div
-              // onClick={() => handleFilterClick("Monthly")}
-              className={`row m-auto ${"active"}`}
-            >
+            <div className={`row m-auto ${"active1"}`}>
               <div className="col-md-6 m-auto">
                 <DesignServicesIcon
                   style={{ fontSize: "50px", color: "black" }}
@@ -201,30 +268,22 @@ export default function Overview() {
                   style={{ fontSize: "35px", color: "black" }}
                   className="row"
                 >
-                  {totalDesign?.length}
+                  {totalDesign}
                 </h4>
                 <p style={{ color: "black" }} className="row">
-                  {" "}
                   Total Design Jobs
                 </p>
               </div>
             </div>
           </Card>
           <Card
-            className={`col-md-3 m-2 c_zoom ${"active1"}`}
-            style={{ height: "225px", }}
+            className={`col-md-3 m-2 c_zoom ${
+              activeCategory === "totalPrinting" ? "active1" : ""
+            }`}
+            style={{ height: "225px" }}
+            onClick={() => handleFilterClick("totalPrinting")}
           >
-            <div className="row ">
-              <div className="float-end">
-                <ArrowCircleDownIcon
-                // style={{ color: "white", fontSize: "25px" }}
-                />
-              </div>
-            </div>
-            <div
-              // onClick={() => handleFilterClick(totalPrinting)}
-              className={`row m-auto ${"active"}`}
-            >
+            <div className={`row m-auto ${"active"}`}>
               <div className="col-md-6 m-auto">
                 <PrintIcon style={{ fontSize: "50px", color: "black" }} />
               </div>
@@ -233,7 +292,7 @@ export default function Overview() {
                   style={{ fontSize: "35px", color: "black" }}
                   className="row"
                 >
-                  {totalPrinting?.length}
+                  {totalPrinting}
                 </h4>
                 <p style={{ color: "black" }} className="row">
                   {" "}
@@ -243,20 +302,13 @@ export default function Overview() {
             </div>
           </Card>
           <Card
-            className={`col-md-3 m-2 c_zoom ${"active1"}`}
-            style={{ height: "225px",}}
+            className={`col-md-3 m-2 c_zoom ${
+              activeCategory === "totalRecce" ? "active1" : ""
+            }`}
+            style={{ height: "225px" }}
+            onClick={() => handleFilterClick("totalfabrication")}
           >
-            <div className="row ">
-              <div className="float-end">
-                <ArrowCircleDownIcon
-                // style={{ color: "white", fontSize: "25px" }}
-                />
-              </div>
-            </div>
-            <div
-              // onClick={() => handleFilterClick(totalfabrication)}
-              className={`row m-auto ${"active"}`}
-            >
+            <div className={`row m-auto ${"active"}`}>
               <div className="col-md-6 m-auto">
                 <BuildIcon style={{ fontSize: "50px", color: "black" }} />
               </div>
@@ -265,7 +317,7 @@ export default function Overview() {
                   style={{ fontSize: "35px", color: "black" }}
                   className="row"
                 >
-                  {totalfabrication?.length}
+                  {totalfabrication}
                 </h4>
                 <p style={{ color: "black" }} className="row">
                   {" "}
@@ -276,15 +328,8 @@ export default function Overview() {
           </Card>
           <Card
             className={`col-md-3 m-2 c_zoom ${"active1"}`}
-            style={{ height: "225px", }}
+            style={{ height: "225px" }}
           >
-            <div className="row ">
-              <div className="float-end">
-                <ArrowCircleDownIcon
-                // style={{ color: "white", fontSize: "25px" }}
-                />
-              </div>
-            </div>
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
                 <BusinessIcon style={{ fontSize: "50px", color: "black" }} />
@@ -305,15 +350,8 @@ export default function Overview() {
           </Card>
           <Card
             className={`col-md-3 m-2 c_zoom ${"active1"}`}
-            style={{ height: "225px", }}
+            style={{ height: "225px" }}
           >
-            <div className="row ">
-              <div className="float-end">
-                <ArrowCircleDownIcon
-                // style={{ color: "white", fontSize: "25px" }}
-                />
-              </div>
-            </div>
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
                 <BarChartIcon style={{ fontSize: "50px", color: "black" }} />
@@ -334,15 +372,8 @@ export default function Overview() {
           </Card>
           <Card
             className={`col-md-3 m-2 c_zoom ${"active1"}`}
-            style={{ height: "225px", }}
+            style={{ height: "225px" }}
           >
-            <div className="row ">
-              <div className="float-end">
-                <ArrowCircleDownIcon
-                // style={{ color: "white", fontSize: "25px" }}
-                />
-              </div>
-            </div>
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
                 <AssignmentIcon style={{ fontSize: "50px", color: "black" }} />
@@ -352,7 +383,7 @@ export default function Overview() {
                   style={{ fontSize: "35px", color: "black" }}
                   className="row"
                 >
-                  {totalInstalation?.length}
+                  {totalInstalation}
                 </h4>
                 <p style={{ color: "black" }} className="row">
                   Total Installation{" "}
@@ -362,15 +393,8 @@ export default function Overview() {
           </Card>
           <Card
             className={`col-md-3 m-2 c_zoom ${"active1"}`}
-            style={{ height: "225px",  }}
+            style={{ height: "225px" }}
           >
-            <div className="row ">
-              <div className="float-end">
-                <ArrowCircleDownIcon
-                // style={{ color: "white", fontSize: "25px" }}
-                />
-              </div>
-            </div>
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
                 <RunningWithErrorsIcon
@@ -398,60 +422,93 @@ export default function Overview() {
               <div className="col-md-5 ">
                 <Form.Control
                   type="date"
-                  // value={filterStartDate}
-                  // onChange={handleFilterStartDateChange}
+                  value={filterStartDate}
+                  onChange={handleFilterStartDateChange}
                 />
               </div>
               <div className="col-md-5 ">
                 <Form.Control
                   type="date"
-                  // value={filterEndDate}
-                  // onChange={handleFilterEndDateChange}
+                  value={filterEndDate}
+                  onChange={handleFilterEndDateChange}
                 />
               </div>
               <div className="col-md-2 ">
-                <Button
-                //  onClick={handleClearDateFilters}
-                >
-                  Clear
-                </Button>
+                <Button onClick={handleClearDateFilters}>Clear</Button>
               </div>
             </div>
           </div>
-          <Table bordered>
+          <div className="col-md-4 ">
+            <div className="row">
+              <div className="col-md-2">
+                <Form.Control
+                  className="col-md-2"
+                  as="select"
+                  value={rowsPerPage1}
+                  onChange={handleRowsPerPageChange}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={30}>30</option>
+                  <option value={50}>50</option>
+                  <option value={80}>80</option>
+                  <option value={100}>100</option>
+                  <option value={140}>140</option>
+                  <option value={200}>200</option>
+                  <option value={300}>300</option>
+                  <option value={400}>400</option>
+                  <option value={600}>600</option>
+                  <option value={700}>700</option>
+                  <option value={1000}>1000</option>
+                  <option value={1500}>1500</option>
+                  <option value={10000}>10000</option>
+                </Form.Control>
+              </div>
+              <div className="col-md-3 ">
+                <span>{data1}</span> of <span>{filteredData?.length}</span>
+              </div>
+            </div>
+          </div>
+          <table>
             <thead>
               <tr>
-                <th>SI No.</th>
-                <th>Assigned Jobs</th>
-                <th>Completed Jobs</th>
-                <th>Date</th>
+                <th className="th_s ">SI.No.</th>
+                <th className="th_s "> Outlate</th>
+                <th className="th_s ">Assigned</th>
+                <th className="th_s ">Status</th>
+                <th className="th_s ">Date</th>
               </tr>
-            </thead>{" "}
-            <tbody>
-              {/* {filterData().map((item, index) => {
-                const selectedVendorId = item?.vendor?.[0];
-                const vendor = selectedVendorId
-                  ? totalVendorData?.find((ele) => ele._id === selectedVendorId)
-                  : null;
+            </thead>
 
-                if (vendor !== null) {
+            <tbody>
+              {filteredData?.map((item, index) => {
+                const textColor = StatusColor[item.RecceStatus]?.color || "";
+
+                if (rowsDisplayed < rowsPerPage1) {
+                  rowsDisplayed++;
                   return (
-                    <tr key={item._id}>
-                      <td className="td_S ">{index + 1}</td>
-                      <td className="td_S ">{vendor?.VendorFirstName}</td>
-                      <td className="td_S ">
+                    <tr className="tr_C" key={item._id}>
+                      <td className="td_S p-1">{index + 1}</td>
+
+                      <td className="td_S p-1">{item.ShopName}</td>
+                      <td className="td_S p-1">{item.ShopName}</td>
+                      <td className="td_S p-1" style={{ color: textColor }}>
+                        {item.RecceStatus}
+                      </td>
+
+                      <td className="td_S p-1">
                         {item.createdAt
                           ? new Date(item.createdAt).toISOString().slice(0, 10)
                           : ""}
                       </td>
                     </tr>
                   );
+                } else {
+                  return null;
                 }
-
-                return null;
-              })} */}
+              })}
             </tbody>
-          </Table>
+          </table>
         </div>
       </div>{" "}
     </>

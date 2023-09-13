@@ -267,6 +267,7 @@ class Reccemanagement {
         InstallationRate,
         InstallationCost,
         transportationRate,
+        createdAt: new Date(),
         ...outlet,
       }));
 
