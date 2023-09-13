@@ -403,7 +403,7 @@ export default function Vendor() {
                               borderRadius: "100%",
                             }}
                             className="m-auto"
-                            src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
+                          src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
                             alt=""
                           />
                         ) : (
@@ -637,7 +637,7 @@ export default function Vendor() {
                                     height: "30%",
                                     borderRadius: "100%",
                                   }}
-                                  src={`http://api.srimagicprintz.com
+                                src={`http://api.srimagicprintz.com
 /VendorImage/${vendorData[selected].VendorImage}`}
                                   alt=""
                                 />
@@ -732,7 +732,7 @@ export default function Vendor() {
                               <img
                                 width={"200px"}
                                 height={"100px"}
-                                src={`http://api.srimagicprintz.com
+                              src={`http://api.srimagicprintz.com
 /BankInfoImage/${vendorData[selected].BankInfoImage}`}
                                 alt=""
                               />

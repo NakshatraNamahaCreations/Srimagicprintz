@@ -264,64 +264,6 @@ export default function Printing() {
     setFilterEndDate("");
   };
 
-  const handleToggleSelect = (itemId) => {
-    let updatedSelectedRecceItems;
-
-    if (selectedRecceItems.includes(itemId)) {
-      updatedSelectedRecceItems = selectedRecceItems.filter(
-        (id) => id !== itemId
-      );
-    } else {
-      updatedSelectedRecceItems = [...selectedRecceItems, itemId];
-    }
-
-    setSelectedRecceItems(updatedSelectedRecceItems);
-    setmoreoption(updatedSelectedRecceItems.length > 0);
-  };
-
-  const handleSelectAllChange = () => {
-    setSelectAll(!selectAll);
-
-    if (!selectAll) {
-      setSelectedRecceItems(displayedData.map((item) => item._id));
-    } else {
-      setSelectedRecceItems([]);
-    }
-
-    setmoreoption(!selectAll);
-  };
-  async function deleteRecce(recceId) {
-    try {
-      const response = await axios.delete(
-        `${ApiURL}/recce/recce/deletereccedata/${recceId}`
-      );
-      if (response.status === 200) {
-        alert("Recce deleted successfully");
-        window.location.reload();
-      }
-    } catch (error) {
-      alert("Error while deleting recce:", error);
-    }
-  }
-
-  const handleDeleteSelectedRecceItems = async () => {
-    if (selectedRecceItems.length === 0) {
-      return;
-    }
-
-    if (window.confirm(`Are you sure you want to delete  clients data ?`)) {
-      try {
-        for (const recceId of selectedRecceItems) {
-          await deleteRecce(recceId);
-        }
-
-        setSelectedRecceItems([]);
-      } catch (error) {
-        console.error("Error while deleting recce items:", error);
-      }
-    }
-  };
-
   const handleFilterStartDateChange = (event) => {
     setFilterStartDate(event.target.value);
   };
@@ -353,34 +295,6 @@ export default function Printing() {
   };
   const filteredData = filterDate(displayedData);
 
-  const handlesendPrinting = async () => {
-    for (const recceId of selectedRecceItems) {
-      const recceData = filteredData.find((item) => item._id === recceId);
-
-      if (
-        recceData.printingStatus === "Completed" &&
-        recceData.printupload !== null
-      ) {
-        try {
-          const response = await axios.post(
-            `http://api.srimagicprintz.com/api/recce/recce/getcompltedprint/${recceData._id}`
-          );
-
-          if (response.status === 200) {
-            alert(`Successfully sent recce to design`);
-            window.location.href = "/fabrication";
-          } else {
-            alert(`Failed to send printing to fabrication`);
-          }
-        } catch (err) {
-          alert(`Please Complete printing or fill all data`);
-        }
-      } else {
-        alert(`Printing  not completed yet`);
-      }
-    }
-  };
-
   let serialNumber = 0;
   let rowsDisplayed = 0;
   const [rowsPerPage1, setRowsPerPage1] = useState(5);
@@ -397,7 +311,34 @@ export default function Printing() {
     setPrintData(selectedSNo);
     setSelectedPrint(true);
   };
-  console.log(RecceData, "RecceData");
+  const handleUpdate = async () => {
+    const formdata = new FormData();
+
+    try {
+      const config = {
+        url: `/recce/recce/updatereccedata/${PrintData._id}`,
+        method: "put",
+        baseURL: "http://api.srimagicprintz.com/api",
+        headers: { "Content-Type": "multipart/form-data" },
+        data: formdata,
+      };
+
+      const res = await axios(config);
+
+      if (res.status === 200) {
+        alert("Successfully updated outlet");
+        window.location.reload();
+      } else {
+        console.error("Received non-200 status code:", res.status);
+      }
+    } catch (err) {
+      console.error("Error:", err.response ? err.response.data : err.message);
+      alert(
+        "Not able to update: " +
+          (err.response ? err.response.data.message : err.message)
+      );
+    }
+  };
   return (
     <>
       <Header />
@@ -587,6 +528,7 @@ export default function Printing() {
                 />{" "}
               </div>
             </div>
+
             <div className="row">
               <div className="col-md-6">
                 <p>
@@ -642,19 +584,42 @@ export default function Printing() {
                   <span>{PrintData.GSTNumber}</span>
                 </p>
               </div>
+              <div>
+                <span className="cl">Design :</span>
+                <img
+                  width={"100px"}
+                  height={"50px"}
+                  className="me-4"
+                  style={{
+                    border: "1px solid grey",
+                    borderRadius: "10px",
+                  }}
+                  alt=""
+                  src="https://lh5.googleusercontent.com/p/AF1QipNhw3RlHgDeOCF8nNOHjDT282CkSu4RcY-MrhFJ=w390-h262-n-k-no"
+                />
+                <img
+                  width={"40px"}
+                  height={"30px"}
+                  className="me-4"
+                  alt=""
+                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJIAAAB8CAMAAAC16xlOAAAAk1BMVEX2tjj////5+fn2sR/4+vz44LzZ2dnw8PD2tC786Mv0uEnU1NXZ08zm5ubU1tjdz7v4xWr++O/87931rQD3vVL3wF7+9Ob50pL++/f85cP74bj869L5zof4xnD626r5yn362KLXxKbboS34u0X27+bcmwDx59jp4dbnqzPRmzLqwoLtvWfZsW7Tyr+7vb/GxsfftGm0tGBfAAADoUlEQVR4nM3cW1ejMBQF4GCUBmovAUq5lFplxlFn6sz//3WTQKAFi9oCPXs/6du3aNcmnJAyq45MMpd9liDbpdb4YfVfSc7FpyLGBBdBfD1S4n/hMSo/i65Eir8n0igRXoUUBV99aEcmNu51MiTn+yJlyq5BWvMzSMxPrkDKzrlKjLlXIC3PI4kxq+BC0hqPFMCRGAckOYMmHICkOnzIsKXXnzRwhEjRSKp+JRzp0Cs4pFWERmKuPEHiVBGdpO0dTeK16CJ5t0SJeSdpZtPk8SnvItmTG5JEP+Ju0oToOi1++l2k2WxCk2eHdZGIPrqbWynGI6krfUl+vYxFmtjT6fyS3L+euqEMQJpoz+KSPD6lnidHINlz++3Cuwrjvu+LZHDS1F71u4HzdUX6/aLybM/sfiUwm7/1XVLw1JD+vKrs36fvf6e9Mv/2AKYr4oFJnejfkyIt9vf7/X2vLM6aLZxMzlaBTvGPO0B6i5jLANaTjYiMbdBIG7ZDI+1Y0v8LOWh4wmI0UszOmlJeIcJhHrWhHY+FObWhmTxkcoB2GzJuxKyAGtFMoFYCK2pEI2KlSGeOvEeOyBRpjUXSS7gtVFfyrSLdYZFiRUp7LwSHjJ8qUoh1lUJNwvp6S0WSUHcUV5Oink9eg0bPddnZ24OjRu/RKtIDEmlTkJDqW+8RKNIWiKTKW5OQVt+qvDUJqb5VeWtSiEQKy/kSEsmCJVE7jpIbEs4dRSwNCae+dXkXJJz6FjtDwhme8MSQcOpbl3dBwhmeCMeQgIYnniHhDE/y0JAimOGJG1XbOjDDk6DeaUKpb7GqSSj1LR5qEkp9l2/nFCSU4UlR3iXJQSE5NckDWcT5Xk1CGZ7wsCZJakuVww64BOnK4ECKMPYJxTI6vCeA0ZVlUxoSxtZlsfKuSBj1bV6tLEkY9a3HJjUJY/VdlrchYdR3Wd6GJDFI8oiEManwrWMSxnepQUJ4IKjOSFx2NGYcUtYgIdS3Ke+KtAP4MvFdg4QwPOFJgxQjfHBxg5QikNIGCWJ44jVICPuEuWyQEIYn1TnA6kQqwANB0CLRPxAUM+9jEn19V+Vdk+jruyrvmkRf31V516SUnpS2SPSrbx62SPSveYg2ib6+c9kmkXdl+8ieFVEvdQ/H7+tfXaAenpixyTGJelLx4fgn/dsCfviBRLxrUe5VtEgeLck7QbIcQYYSwrFOkSwv+PLHV0YCBUen0hsk9ey0IWjMYNP8WYn/NPFdfinnNV8AAAAASUVORK5CYII="
+                />
 
-              <div className="col-md-6   m-auto">
-                <div className="row  mb-3 ">
-                  <div
-                    className="col-md-5 "
-                    style={{
-                      padding: "20px",
-                      border: "1px solid grey",
-                      borderRadius: "20px",
-                    }}
-                  ></div>
-                </div>
+                <img
+                  width={"50px"}
+                  height={"50px"}
+                  alt=""
+                  src="https://cdn-icons-png.flaticon.com/512/4208/4208479.png"
+                />
               </div>
+            </div>
+            <div className="row mt-3">
+              <Button
+                className="col-md-2"
+                onClick={(event) => handleUpdate(event, PrintData._id)}
+              >
+                Update Print Data
+              </Button>
             </div>
           </div>
         </div>

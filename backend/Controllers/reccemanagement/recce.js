@@ -102,6 +102,101 @@ class Reccemanagement {
     }
   }
 
+  async DeletRecce(req, res) {
+    const recceId = req.params.reccedeleteid;
+
+    try {
+      const data = await RecceModel.deleteOne({ _id: recceId });
+
+      if (data) {
+        return res.status(200).json({ message: "Recce Deleted Succesfully" });
+      }
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Error while deleting recce" });
+    }
+  }
+
+  async SendRecceToDesign(req, res) {
+    const CompleteId = req.params.completedid;
+    try {
+      let completeRecce = await RecceModel.findById(CompleteId);
+      if (completeRecce) {
+        savedCompletedRecceId = CompleteId;
+        completeRecce.completedRecceId = CompleteId;
+        await completeRecce.save();
+
+        return res.status(200).json({ completedRecce: completeRecce });
+      }
+    } catch (err) {
+      return res.status(500).json({ err: "server error" });
+    }
+  }
+
+  async SendDesignToPrinting(req, res) {
+    const desigid = req.params.designcompletedid;
+    try {
+      let completedesign = await RecceModel.findById(desigid);
+      if (completedesign) {
+        savecompletedDesignId = desigid;
+        completedesign.completedDesign = desigid;
+        await completedesign.save();
+
+        return res.status(200).json({ completedRecce: completedesign });
+      }
+    } catch (err) {
+      return res.status(500).json({ err: "server error" });
+    }
+  }
+
+  async SendPrintToFabrication(req, res) {
+    const printid = req.params.completedprintid;
+    try {
+      let completedprint = await RecceModel.findById(printid);
+      if (completedprint) {
+        savecompletedPrintId = printid;
+        completedprint.completedPrinting = printid;
+        await completedprint.save();
+
+        return res.status(200).json({ completedRecce: completedprint });
+      }
+    } catch (err) {
+      return res.status(500).json({ err: "server error" });
+    }
+  }
+
+  async SendPrintToInstallation(req, res) {
+    const fabrication = req.params.completedfabricationid;
+    try {
+      let completedfabrication = await RecceModel.findById(fabrication);
+      if (completedfabrication) {
+        savecompletedFabricationId = fabrication;
+        completedfabrication.completedFabrication = fabrication;
+        await completedfabrication.save();
+
+        return res.status(200).json({ completedRecce: completedfabrication });
+      }
+    } catch (err) {
+      return res.status(500).json({ err: "server error" });
+    }
+  }
+
+  async SendPrintToJobTrack(req, res) {
+    const instalation = req.params.getinstalationid;
+    try {
+      let completedinstalation = await RecceModel.findById(instalation);
+      if (completedinstalation) {
+        savecompletedinstalationId = instalation;
+        completedinstalation.completedInstallation = instalation;
+        await completedinstalation.save();
+
+        return res.status(200).json({ completedRecce: completedinstalation });
+      }
+    } catch (err) {
+      return res.status(500).json({ err: "server error" });
+    }
+  }
+
   async getAllRecce(req, res) {
     try {
       const RecceData = await RecceModel.find({});
@@ -120,6 +215,7 @@ class Reccemanagement {
       }
 
       const {
+        category,
         outletName,
         OutlateFabricationNeed,
         fabricationupload,
@@ -149,6 +245,7 @@ class Reccemanagement {
       const outletNameArrayWithIDs = outletName.map((outlet) => ({
         _id: new ObjectId(),
         OutlateFabricationNeed,
+        category,
         fabricationupload,
         Designstatus: "Pending",
         printingStatus: "Pending",
@@ -232,100 +329,6 @@ class Reccemanagement {
       return res.status(500).json({ message: "Error updating document" });
     }
   }
-  async DeletRecce(req, res) {
-    const recceId = req.params.reccedeleteid;
-
-    try {
-      const data = await RecceModel.deleteOne({ _id: recceId });
-
-      if (data) {
-        return res.status(200).json({ message: "Recce Deleted Succesfully" });
-      }
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: "Error while deleting recce" });
-    }
-  }
-
-  // async SendRecceToDesign(req, res) {
-  //   const CompleteId = req.params.completedid;
-  //   try {
-  //     let completeRecce = await RecceModel.findById(CompleteId);
-  //     if (completeRecce) {
-  //       savedCompletedRecceId = CompleteId;
-  //       completeRecce.completedRecceId = CompleteId;
-  //       await completeRecce.save();
-
-  //       return res.status(200).json({ completedRecce: completeRecce });
-  //     }
-  //   } catch (err) {
-  //     return res.status(500).json({ err: "server error" });
-  //   }
-  // }
-
-  // async SendDesignToPrinting(req, res) {
-  //   const desigid = req.params.designcompletedid;
-  //   try {
-  //     let completedesign = await RecceModel.findById(desigid);
-  //     if (completedesign) {
-  //       savecompletedDesignId = desigid;
-  //       completedesign.completedDesign = desigid;
-  //       await completedesign.save();
-
-  //       return res.status(200).json({ completedRecce: completedesign });
-  //     }
-  //   } catch (err) {
-  //     return res.status(500).json({ err: "server error" });
-  //   }
-  // }
-
-  // async SendPrintToFabrication(req, res) {
-  //   const printid = req.params.completedprintid;
-  //   try {
-  //     let completedprint = await RecceModel.findById(printid);
-  //     if (completedprint) {
-  //       savecompletedPrintId = printid;
-  //       completedprint.completedPrinting = printid;
-  //       await completedprint.save();
-
-  //       return res.status(200).json({ completedRecce: completedprint });
-  //     }
-  //   } catch (err) {
-  //     return res.status(500).json({ err: "server error" });
-  //   }
-  // }
-
-  // async SendPrintToInstallation(req, res) {
-  //   const fabrication = req.params.completedfabricationid;
-  //   try {
-  //     let completedfabrication = await RecceModel.findById(fabrication);
-  //     if (completedfabrication) {
-  //       savecompletedFabricationId = fabrication;
-  //       completedfabrication.completedFabrication = fabrication;
-  //       await completedfabrication.save();
-
-  //       return res.status(200).json({ completedRecce: completedfabrication });
-  //     }
-  //   } catch (err) {
-  //     return res.status(500).json({ err: "server error" });
-  //   }
-  // }
-
-  // async SendPrintToJobTrack(req, res) {
-  //   const instalation = req.params.getinstalationid;
-  //   try {
-  //     let completedinstalation = await RecceModel.findById(instalation);
-  //     if (completedinstalation) {
-  //       savecompletedinstalationId = instalation;
-  //       completedinstalation.completedInstallation = instalation;
-  //       await completedinstalation.save();
-
-  //       return res.status(200).json({ completedRecce: completedinstalation });
-  //     }
-  //   } catch (err) {
-  //     return res.status(500).json({ err: "server error" });
-  //   }
-  // }
 }
 
 module.exports = new Reccemanagement();

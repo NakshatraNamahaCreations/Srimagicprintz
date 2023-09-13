@@ -97,10 +97,6 @@ export default function ReceeManagement() {
   const [cancelledStatus, setcancelledStatus] = useState([]);
   const [proccesingStatus, setproccesingStatus] = useState([]);
 
-  console.log(completedStatus);
-  console.log(pendingStatus);
-  console.log(cancelledStatus);
-  console.log(proccesingStatus);
   useEffect(() => {
     getAllRecce();
     getAllVendorInfo();
@@ -1042,36 +1038,7 @@ export default function ReceeManagement() {
             });
           }
         });
-        const totalProductionCost = extractedData.reduce((sum, item) => {
-          return sum + (item["Production Cost"] || 0);
-        }, 0);
 
-        const totalInstallationCost = extractedData.reduce((sum, item) => {
-          return sum + (item["Installation Cost"] || 0);
-        }, 0);
-
-        const totalTransportationCost = extractedData.reduce((sum, item) => {
-          return sum + (item["transportation cost"] || 0);
-        }, 0);
-
-        const grossAmount =
-          totalProductionCost + totalInstallationCost + totalTransportationCost;
-
-        const gst18 = (grossAmount * 0.18).toFixed(2);
-
-        const rof = calculateRof(
-          totalProductionCost,
-          totalInstallationCost,
-          totalTransportationCost
-        );
-
-        function calculateRof(
-          totalProductionCost,
-          totalInstallationCost,
-          totalTransportationCost
-        ) {
-          return 0;
-        }
         const firstRow = extractedData.length + 1;
         const secondRow = firstRow + 1;
         const thirdRow = secondRow + 1;
@@ -1995,7 +1962,6 @@ export default function ReceeManagement() {
                       <tbody>
                         {filteredData1?.map((recceItem, index) =>
                           recceItem?.outletName?.map((outlet, outletArray) => {
-                            console.log(recceItem, "recceItem");
                             if (rowsDisplayed < rowsPerPage1) {
                               const selectedVendorId = outlet?.vendor;
                               const vendor = selectedVendorId
