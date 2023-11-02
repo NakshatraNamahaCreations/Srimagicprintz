@@ -33,6 +33,7 @@ class JobManagement {
       return res.status(500).json({ error: "server error" });
     }
   }
+  
 }
 
 const RecceController = new JobManagement();

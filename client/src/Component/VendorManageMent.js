@@ -11,7 +11,8 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import axios from "axios";
 // import { ColorRing } from "react-loader-spinner";
-
+import AddIcon from "@mui/icons-material/Add";
+import CheckIcon from "@mui/icons-material/Check";
 export default function Vendor() {
   const [filter, setFilter] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -42,22 +43,25 @@ export default function Vendor() {
   const [editVendorAdress, setEditVendorAdress] = useState("");
   const [editVendorData, setEditVendorData] = useState(null);
   const [recceData, setRecceData] = useState([]);
-  const [jobdata, setJobInfo] = useState([]);
+  const [showGroup, setShowGroup] = useState(false);
+
+  const handleGroupClose = () => setShowGroup(false);
+  const handleGroupShow = () => setShowGroup(true);
+  const [selectedvendors, setSelectedVendors] = useState([]);
+  const [selectedCheckboxes, setSelectedCheckboxes] = useState([]);
+  const [vendorName, setvendorName] = useState(false);
 
   useEffect(() => {
     getAllVendorInfo();
-    // getAllJob();
+   
     getAllRecce();
   }, []);
 
-  // useEffect(() => {
-  //   getLengthofStatus();
-  // }, [recceData]);
 
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -77,7 +81,7 @@ export default function Vendor() {
   const handleShow = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -115,7 +119,7 @@ export default function Vendor() {
       const config = {
         url: "/Vendor/vendorInfo/linkbankinfo",
         method: "post",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
@@ -246,7 +250,7 @@ export default function Vendor() {
       const vendorid = editVendorData._id;
       const config = {
         url: `/Vendor/vendorInfo/updatevendordata/${vendorid}`,
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         method: "put",
         Header: { "Content-type": "application/json" },
         data: formData,
@@ -265,7 +269,7 @@ export default function Vendor() {
   const deleteVendorData = async (row) => {
     try {
       const response = await axios.delete(
-        `http://api.srimagicprintz.com/api/Vendor/vendorInfo/deletevendordata/${row._id}`
+        `http://localhost:8001/api/Vendor/vendorInfo/deletevendordata/${row._id}`
       );
 
       if (response.status === 200) {
@@ -293,7 +297,7 @@ export default function Vendor() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -330,6 +334,48 @@ export default function Vendor() {
 
     vendorStatusData[vendorId] = statusCounts;
   });
+
+  const handleAddGroup = async () => {
+    try {
+      const config = {
+        url: "/createroup",
+        baseURL: "http://localhost:8001/api",
+        method: "post",
+        headers: { "Content-Type": "application/json" },
+        data: { InstallationGroup: selectedVendorObjects },
+      };
+      const response = await axios(config);
+      if (response.status === 200) {
+        alert("created group succesfull");
+        window.location.reload();
+      }
+    } catch (Err) {
+      console.log(Err);
+    }
+  };
+
+  const [selectedVendorObjects, setSelectedVendorObjects] = useState([]);
+
+  const handleCheckboxChange = (event, vendorObject) => {
+    const updatedObjects = event.target.checked
+      ? [...selectedVendorObjects, vendorObject]
+      : selectedVendorObjects.filter((obj) => obj._id === vendorObject._id);
+
+    setSelectedVendorObjects(updatedObjects);
+  };
+
+  const handleSelectClientName = () => {
+    const selectedVendorObjects = vendorData.filter((vendor) =>
+      selectedCheckboxes.includes(vendor._id)
+    );
+
+    setSelectedVendors(selectedVendorObjects);
+    setvendorName(!vendorName);
+  };
+
+  let SelectedVendorName = selectedVendorObjects?.map(
+    (Ele) => Ele.VendorFirstName
+  );
 
   return (
     <>
@@ -375,6 +421,16 @@ export default function Vendor() {
                         <Button className="col-md-2 m-1 c_W" href="/VendorInfo">
                           Add Vendor
                         </Button>
+                        <Button
+                          className="col-md-2 m-1 c_W"
+                          onClick={handleGroupShow}
+                        >
+                          {" "}
+                          <span className="m-auto">
+                            <AddIcon />
+                          </span>
+                          <span className="m-auto"> Add Group</span>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -403,19 +459,16 @@ export default function Vendor() {
                               borderRadius: "100%",
                             }}
                             className="m-auto"
-                          src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
+                            src={`http://localhost:8001/VendorImage/${ele.VendorImage}`}
                             alt=""
                           />
                         ) : (
                           <span>No Image Available</span>
                         )}
-                        <p className="m-0">
-                          <span className="me-2">Employee Type:</span>
-                          <span> {ele.SelectedType}</span>
-                        </p>
+
                         <span>
-                          {ele.VendorFirstName.charAt(0).toUpperCase() +
-                            ele.VendorFirstName.substr(1)}{" "}
+                          {ele.VendorFirstName?.charAt(0)?.toUpperCase() +
+                            ele.VendorFirstName?.substr(1)}{" "}
                           {ele.VendorLastName}
                         </span>
 
@@ -434,6 +487,10 @@ export default function Vendor() {
                         <p className="m-0">
                           <span className="me-2">Employee Id:</span>
                           <span>{ele?.VendorId}</span>{" "}
+                        </p>
+                        <p className="m-0">
+                          <span className="me-2">Employee Type:</span>
+                          <span> {ele.SelectedType}</span>
                         </p>
                       </div>
                     </Card>
@@ -637,8 +694,7 @@ export default function Vendor() {
                                     height: "30%",
                                     borderRadius: "100%",
                                   }}
-                                src={`http://api.srimagicprintz.com
-/VendorImage/${vendorData[selected].VendorImage}`}
+                                  src={`http://localhost:8001/VendorImage/${vendorData[selected].VendorImage}`}
                                   alt=""
                                 />
                               ) : null}
@@ -671,13 +727,13 @@ export default function Vendor() {
                             <p>
                               <span className="cl">Name:</span>
                               <span>
-                                {vendorData[selected].VendorFirstName.charAt(
+                                {vendorData[selected]?.VendorFirstName?.charAt(
                                   0
-                                ).toUpperCase() +
-                                  vendorData[selected].VendorFirstName.substr(
+                                )?.toUpperCase() +
+                                  vendorData[selected]?.VendorFirstName?.substr(
                                     1
                                   )}{" "}
-                                {vendorData[selected].VendorLastName}
+                                {vendorData[selected]?.VendorLastName}
                               </span>
                             </p>
                             <p>
@@ -732,8 +788,7 @@ export default function Vendor() {
                               <img
                                 width={"200px"}
                                 height={"100px"}
-                              src={`http://api.srimagicprintz.com
-/BankInfoImage/${vendorData[selected].BankInfoImage}`}
+                                src={`http://localhost:8001/BankInfoImage/${vendorData[selected].BankInfoImage}`}
                                 alt=""
                               />
                             ) : null}
@@ -881,6 +936,87 @@ export default function Vendor() {
           </>
         )}
       </div>
+      <Modal show={showGroup} onHide={handleGroupClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Select Vendor</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Col>
+            <Form.Group
+              md="5"
+              className="mb-3"
+              controlId="exampleForm.ControlInput1"
+            >
+              {" "}
+              <>
+                <Form.Label>Select Clients name</Form.Label>
+                <div>
+                  <Form.Control
+                    placeholder="select clients name"
+                    value={!vendorName ? SelectedVendorName : null}
+                    onClick={() => setvendorName(!vendorName)}
+                    readOnly
+                  />
+                </div>
+
+                {vendorName ? (
+                  <div
+                    style={{
+                      position: "absolute",
+                      width: "14.2rem",
+                    }}
+                    className="col-md-2 m-auto shadow-sm p-3 mb-5 bg-white rounded"
+                  >
+                    <div>
+                      <div className="row">
+                        <p
+                          className="cureor"
+                          onClick={handleSelectClientName}
+                          style={{ borderBottom: "1px solid grey" }}
+                        >
+                          <CheckIcon />
+                          Apply selection
+                        </p>
+                      </div>
+                      {vendorData?.map((ele, index) => {
+                        return (
+                          <div
+                            className="row m-auto"
+                            key={index}
+                            style={{ zIndex: "100" }}
+                          >
+                            <Form.Label>
+                              <Form.Check
+                                type="checkbox"
+                                className="me-3 d-inline"
+                                value={ele?.VendorFirstName}
+                                checked={selectedVendorObjects.includes(ele)}
+                                onChange={(event) => {
+                                  handleCheckboxChange(event, ele);
+                                }}
+                              />
+
+                              <p className="d-inline">{ele?.VendorFirstName}</p>
+                            </Form.Label>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : null}
+              </>
+            </Form.Group>
+          </Col>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleGroupClose}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleAddGroup}>
+            Save Group
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }

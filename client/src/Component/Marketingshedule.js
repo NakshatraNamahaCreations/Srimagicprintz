@@ -8,12 +8,12 @@ function Marketingshedule() {
   const [EditSheduled, setEditSheduled] = useState({});
   useEffect(() => {
     getAllClientsInfo();
-  });
+  },[]);
 
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/marketingClient/marketingcliend/getmarketingclient"
+        "http://localhost:8001/api/marketingClient/marketingcliend/getmarketingclient"
       );
       if (res.status === 200) {
         setSheduleData(res.data.mclient);

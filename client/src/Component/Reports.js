@@ -27,7 +27,7 @@ export default function Reports() {
   const [searchVendorName, setSearchVendorName] = useState("");
   const [searchSINO, setSearchSINO] = useState("");
 
-  const [displayedData, setDisplayedData] = useState();
+  const [displayedData, setDisplayedData] = useState([]);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [SearchCategory, setSearchCategory] = useState("");
@@ -46,18 +46,32 @@ export default function Reports() {
   const [report, setReport] = useState(false);
   const [selectedcategory, setselectedcategory] = useState("");
   const [rowsPerPage1, setRowsPerPage1] = useState(5);
+  const [selectedBrandNames, setSelectedBrandNames] = useState("");
   // const searchReport = () => {
   //   setReport(!report);
   // };
+  const [ClientInfo, setClientInfo] = useState([]);
   useEffect(() => {
     getAllRecce();
+    getAllClientsInfo();
     getAllCategory();
   }, []);
-
+  const getAllClientsInfo = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:8001/api/Client/clients/getallclient"
+      );
+      if (res.status === 200) {
+        setClientInfo(res.data);
+      }
+    } catch (err) {
+      alert(err, "err");
+    }
+  };
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
+        "http://localhost:8001/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -71,7 +85,7 @@ export default function Reports() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -210,74 +224,6 @@ export default function Reports() {
   const [brandName, setbrandName] = useState(false);
 
   const [filter, setFilter] = useState("All");
-  // const handleExportPDF = () => {
-  //   const pdf = new jsPDF();
-  //   const tableColumn = [
-  //     "SI.No",
-  //     "Shop Name",
-  //     "Vendor Name",
-  //     "Contact",
-  //     "Area",
-  //     "City",
-  //     "Pincode",
-  //     "Zone",
-  //     "Date",
-  //     "Status",
-  //     "Hight",
-  //     "Width",
-  //     "Category",
-  //   ];
-
-  //   const tableData = displayedData.map((item, index) => {
-  //     const selectedVendorId = item?.vendor?.[0];
-  //     const selectedVendor = vendordata?.find(
-  //       (vendor) => vendor?._id === selectedVendorId
-  //     );
-  //     const selectedCategoryId = item?.category?.[0];
-  //     const category = CategoryData?.find(
-  //       (ele) => ele?._id === selectedCategoryId
-  //     );
-
-  //     return [
-  //       index + 1,
-  //       item.ShopName,
-  //       selectedVendor ? selectedVendor.VendorFirstName : "",
-  //       item.ContactNumber,
-  //       item.Area,
-  //       item.City,
-  //       item.Pincode,
-  //       item.Zone,
-  //       item.createdAt
-  //         ? new Date(item.createdAt).toISOString().slice(0, 10)
-  //         : "",
-  //       item.Status,
-  //       item.height,
-  //       item.width,
-  //       category ? category?.categoryName : "",
-  //     ];
-  //   });
-
-  //   pdf.autoTable({
-  //     head: [tableColumn],
-  //     body: tableData,
-  //     startY: 20,
-  //     styles: {
-  //       fontSize: 6,
-  //     },
-  //     columnStyles: {
-  //       0: { cellWidth: 10 },
-  //     },
-
-  //     bodyStyles: { borderColor: "black", borderRight: "1px solid black" },
-  //   });
-
-  //   pdf.save("exported_data.pdf");
-  // };
-
-  // const handleClearDateFilters = () => {
-  //   setFilterStartDate("");
-  //   setFilterEndDate("");
-  // };
 
   const filterDate = (data) => {
     return data?.filter((item) => {
@@ -359,18 +305,6 @@ export default function Reports() {
     monthName = monthNames[monthNumber];
   }
 
-  // const handleFilterStartDateChange = (event) => {
-  //   setFilterStartDate(event.target.value);
-  // };
-
-  // const handleFilterEndDateChange = (event) => {
-  //   setFilterEndDate(event.target.value);
-  // };
-
-  // const handleEdit = (item) => {
-  //   setgetreccedata(item);
-  //   setSelectedDesignIndex(true);
-  // };
   const [selectedCheckboxes, setSelectedCheckboxes] = useState([]);
 
   const handleCheckboxChange = (event) => {
@@ -384,9 +318,9 @@ export default function Reports() {
     }
   };
 
-  const handleSelectClientName = () => {
-    setbrandName(!brandName);
-  };
+  // const handleSelectClientName = () => {
+  //   setbrandName(!brandName);
+  // };
   const handleFilterChange = (event) => {
     const selectedFilter = event.target.value;
     setFilter(selectedFilter);
@@ -451,16 +385,45 @@ export default function Reports() {
         return recceData;
     }
   };
-
+  console.log(selectedCheckboxes, "selectedCheckboxes");
   const searchReport = (selectedDate) => {
-    const filteredDataFromFilter1 = filteredData1(selectedDate);
+    const selectedIds = selectedCheckboxes.map((ele) => {
+      const parts = ele.split("_");
+      return parts[1];
+    });
 
-    const filteredData2 = filteredDataFromFilter1.filter((item) =>
-      selectedCheckboxes.includes(item.BrandName)
+    const filteredDataByDate = filteredData1(selectedDate);
+
+    // Filter recceData based on selectedIds
+    const filteredRecceData = filteredDataByDate.filter((item) =>
+      selectedIds.some((id) => id === item._id)
     );
 
     setSelectedDesignIndex(!SelecteddesignIndex);
-    return setDisplayedData(filteredData2);
+    setDisplayedData(filteredRecceData);
+  };
+
+  const handleSelectClientName1 = () => {
+    const selectedBrandNames = selectedCheckboxes.map((value) => {
+      const [brandName] = value.split("_");
+      const desiredClient = ClientInfo?.client?.find(
+        (client) => client._id === brandName
+      );
+
+      return desiredClient?.clientsBrand || brandName;
+    });
+
+    setSelectedBrandNames(selectedBrandNames.join(", "));
+    setbrandName(!brandName);
+  };
+  const handleCheckboxChange1 = (event, brandName, recceItemId) => {
+    const updatedCheckboxes = event.target.checked
+      ? [...selectedCheckboxes, `${brandName}_${recceItemId}`]
+      : selectedCheckboxes.filter(
+          (checkbox) => !checkbox.includes(`${brandName}_${recceItemId}`)
+        );
+
+    setSelectedCheckboxes(updatedCheckboxes);
   };
 
   return (
@@ -654,13 +617,23 @@ export default function Reports() {
                 {displayedData?.map((recceItem, index) =>
                   recceItem?.outletName?.map((outlet, outletArray) => {
                     if (rowsDisplayed < rowsPerPage1) {
-                      const selectedVendorId = outlet?.vendor;
-                      const vendor = selectedVendorId
-                        ? vendordata?.find(
-                            (ele) => ele?._id === selectedVendorId
-                          )
-                        : null;
-
+                      // const selectedVendorId = outlet?.vendor;
+                      // const vendor = selectedVendorId
+                      //   ? vendordata?.find(
+                      //       (ele) => ele?._id === selectedVendorId
+                      //     )
+                      //   : null;
+                      let JobNob = 0;
+                      const desiredClient = ClientInfo?.client?.find(
+                        (client) => client._id === recceItem.BrandName
+                      );
+                      recceData?.forEach((recceItem, recceIndex) => {
+                        recceItem?.outletName?.forEach((item) => {
+                          if (outlet._id === item._id) {
+                            JobNob = recceIndex + 1;
+                          }
+                        });
+                      });
                       rowsDisplayed++;
                       const pincodePattern = /\b\d{6}\b/;
 
@@ -686,8 +659,10 @@ export default function Reports() {
                             />
                           </td>
                           <td className="td_S p-1">{outletArray + 1}</td>
-                          <td className="td_S p-1">Job{index + 1}</td>
-                          <td className="td_S p-1">{recceItem.BrandName}</td>
+                          <td className="td_S p-1">Job{JobNob}</td>
+                          <td className="td_S p-1">
+                            {desiredClient?.clientsBrand}
+                          </td>
                           <td className="td_S p-1">{outlet.ShopName}</td>
                           <td className="td_S p-1">{outlet.ClientName}</td>
                           <td className="td_S p-1">{outlet.State}</td>
@@ -713,9 +688,9 @@ export default function Reports() {
                             {outlet.unit}
                           </td>
 
-                          <td className="td_S p-1">
+                          {/* <td className="td_S p-1">
                             {vendor?.VendorFirstName}
-                          </td>
+                          </td> */}
                           <td className="td_S ">
                             {recceItem.createdAt
                               ? new Date(recceItem.createdAt)
@@ -738,18 +713,19 @@ export default function Reports() {
         <div className="row m-auto containerPadding">
           <Form className="col-md-10 m-auto">
             <Row>
-              <Col className="col-md-4 mb-2  m-auto">
+              <Col className="col-md-4 mb-2 m-auto">
                 {" "}
                 <>
                   <Form.Label>Select Clients name</Form.Label>
                   <div>
                     <Form.Control
                       placeholder="select clients name"
-                      value={selectedCheckboxes}
+                      value={selectedBrandNames}
                       onClick={() => setbrandName(!brandName)}
                       readOnly
                     />
                   </div>
+
                   {brandName ? (
                     <div
                       style={{
@@ -762,30 +738,46 @@ export default function Reports() {
                         <div className="row">
                           <p
                             className="cureor"
-                            onClick={handleSelectClientName}
+                            onClick={handleSelectClientName1}
                             style={{ borderBottom: "1px solid grey" }}
                           >
                             <CheckIcon />
                             Apply selection
                           </p>
                         </div>
-                        {recceData?.map((ele) => {
+                        {recceData?.map((ele, index) => {
+                          const desiredClient = ClientInfo?.client?.find(
+                            (client) => client._id === ele.BrandName
+                          );
+
                           return (
                             <div
                               className="row m-auto"
+                              key={index}
                               style={{ zIndex: "100" }}
                             >
                               <Form.Label>
                                 <Form.Check
                                   type="checkbox"
                                   className="me-3 d-inline"
-                                  value={ele.BrandName}
+                                  value={`${ele.BrandName}_${index}`}
                                   checked={selectedCheckboxes.includes(
-                                    ele.BrandName
+                                    `${ele.BrandName}_${ele._id}`
                                   )}
-                                  onChange={handleCheckboxChange}
+                                  onChange={(event) => {
+                                    handleCheckboxChange1(
+                                      event,
+                                      ele.BrandName,
+
+                                      ele._id
+                                    );
+                                  }}
                                 />
-                                <p className="d-inline ">{ele.BrandName}</p>
+
+                                <p className="d-inline">
+                                  <span className="me-3"> Job {index + 1}</span>
+                                  {desiredClient?.clientsBrand}
+                                </p>
                               </Form.Label>
                             </div>
                           );

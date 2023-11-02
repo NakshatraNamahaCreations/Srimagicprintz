@@ -15,12 +15,14 @@ import axios from "axios";
 import RunningWithErrorsIcon from "@mui/icons-material/RunningWithErrors";
 import ArrowCircleDownIcon from "@mui/icons-material/ArrowCircleDown";
 import Form from "react-bootstrap/Form";
+import TuneIcon from "@mui/icons-material/Tune";
+import { selectClasses } from "@mui/material";
 
 const StatusColor = {
-  Pending: { color: "#F94C10" },
-  Proccesing: { color: "orange" },
-  Completed: { color: "green" },
-  Cancelled: { color: "red" },
+  Pending: { backgroundColor: "#F4E869" },
+  Proccesing: { backgroundColor: "#F1C27B" },
+  Completed: { backgroundColor: "#B0D9B1" },
+  Cancelled: { backgroundColor: "#E06469" },
 };
 export default function Overview() {
   const [RecceData, setRecceData] = useState([]);
@@ -32,27 +34,33 @@ export default function Overview() {
   const [totalAddClients, setTotalAddClients] = useState([]);
   const [totalVendorData, setTotalVendorData] = useState([]);
   const [rowsPerPage1, setRowsPerPage1] = useState(5);
-  const [totalRunningJob, setTotalRunningJob] = useState([]);
+  const [totalRunningJob, setTotalRunningJob] = useState(null);
   const [activeCategory, setActiveCategory] = useState("All");
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
+
+  const [selctedStatus, setSelectedStatus] = useState("--Select All--");
+
   let data =
-    totalRecce +
-    totalDesign +
-    totalPrinting +
-    totalfabrication +
-    totalInstalation;
+    Number(totalRecce) +
+    Number(totalDesign) +
+    Number(totalPrinting) +
+    Number(totalfabrication) +
+    Number(totalInstalation);
 
   useEffect(() => {
     getAllRecce();
     getAllClientsInfo();
     getAllVendorInfo();
-    setTotalRunningJob(data);
   }, []);
+
+  useEffect(() => {
+    setTotalRunningJob(data);
+  }, [data]);
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         const recceData = res.data.RecceData || [];
@@ -124,7 +132,7 @@ export default function Overview() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -140,7 +148,7 @@ export default function Overview() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://localhost:8001/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setTotalAddClients(res.data.client);
@@ -220,6 +228,43 @@ export default function Overview() {
   useEffect(() => {
     setdata1(rowsDisplayed);
   }, [rowsPerPage1]);
+  const filterDateswise = (data) => {
+    return data?.filter((item) => {
+      const createdAtDate = moment(item.createdAt, "YYYY-MM-DD");
+      const startDate = filterStartDate
+        ? moment(filterStartDate, "YYYY-MM-DD")
+        : null;
+      const endDate = filterEndDate
+        ? moment(filterEndDate, "YYYY-MM-DD")
+        : null;
+
+      if (startDate && !createdAtDate.isSameOrAfter(startDate)) {
+        return false;
+      }
+
+      if (endDate && !createdAtDate.isSameOrBefore(endDate)) {
+        return false;
+      }
+
+      return true;
+    });
+  };
+
+  const filteredDteData = filterDateswise(filteredData);
+
+  const [filteredData1, setFilteredData1] = useState([]);
+  useEffect(() => {
+    const filteredDataByStatus =
+      selctedStatus === "--Select All--" &&
+      selctedStatus !== "Completed" &&
+      selctedStatus !== "Proccesing" &&
+      selctedStatus !== "Cancelled"
+        ? filteredDteData
+        : filteredDteData.filter((item) => item.RecceStatus === selctedStatus);
+
+    setFilteredData1(filteredDataByStatus);
+  }, [filteredData1]);
+
   return (
     <>
       <Header />
@@ -234,17 +279,16 @@ export default function Overview() {
           >
             <div className={`row m-auto ${"active1"}`}>
               <div className="col-md-6 m-auto">
-                <CategoryIcon style={{ fontSize: "50px", color: "black" }} />
+                <CategoryIcon
+                  className={`iconfnt ${"active1" ? "" : "clrw"}`}
+                />
               </div>
 
               <div className="col-md-6 m-auto">
-                <h4
-                  style={{ fontSize: "35px", color: "black" }}
-                  className="row"
-                >
+                <h4 className={`row  fnt35 ${"active1" ? "" : "clrw"}`}>
                   {totalRecce}
                 </h4>
-                <p style={{ color: "black" }} className="row">
+                <p className={`row  ${"active1" ? "" : "clrw"}`}>
                   Total Recce Jobs
                 </p>
               </div>
@@ -260,22 +304,20 @@ export default function Overview() {
             <div className={`row m-auto ${"active1"}`}>
               <div className="col-md-6 m-auto">
                 <DesignServicesIcon
-                  style={{ fontSize: "50px", color: "black" }}
+                  className={`iconfnt ${"active1" ? "" : "clrw"}`}
                 />
               </div>
               <div className="col-md-6 m-auto">
-                <h4
-                  style={{ fontSize: "35px", color: "black" }}
-                  className="row"
-                >
+                <h4 className={`row  fnt35 ${"active1" ? "" : "clrw"}`}>
                   {totalDesign}
                 </h4>
-                <p style={{ color: "black" }} className="row">
+                <p className={`row  ${"active1" ? "" : "clrw"}`}>
                   Total Design Jobs
                 </p>
               </div>
             </div>
           </Card>
+
           <Card
             className={`col-md-3 m-2 c_zoom ${
               activeCategory === "totalPrinting" ? "active1" : ""
@@ -283,65 +325,60 @@ export default function Overview() {
             style={{ height: "225px" }}
             onClick={() => handleFilterClick("totalPrinting")}
           >
-            <div className={`row m-auto ${"active"}`}>
+            <div className={`row m-auto ${"active1"}`}>
               <div className="col-md-6 m-auto">
-                <PrintIcon style={{ fontSize: "50px", color: "black" }} />
+                <PrintIcon className={`iconfnt ${"active1" ? "" : "clrw"}`} />
               </div>
+
               <div className="col-md-6 m-auto">
-                <h4
-                  style={{ fontSize: "35px", color: "black" }}
-                  className="row"
-                >
+                <h4 className={`row  fnt35 ${"active1" ? "" : "clrw"}`}>
                   {totalPrinting}
                 </h4>
-                <p style={{ color: "black" }} className="row">
-                  {" "}
+                <p className={`row  ${"active1" ? "" : "clrw"}`}>
                   Total Printing Jobs
                 </p>
               </div>
             </div>
           </Card>
+
           <Card
             className={`col-md-3 m-2 c_zoom ${
-              activeCategory === "totalRecce" ? "active1" : ""
+              activeCategory === "totalfabrication" ? "active1" : ""
             }`}
             style={{ height: "225px" }}
             onClick={() => handleFilterClick("totalfabrication")}
           >
-            <div className={`row m-auto ${"active"}`}>
+            <div className={`row m-auto ${"active1"}`}>
               <div className="col-md-6 m-auto">
-                <BuildIcon style={{ fontSize: "50px", color: "black" }} />
+                <BuildIcon className={`iconfnt ${"active1" ? "" : "clrw"}`} />
               </div>
+
               <div className="col-md-6 m-auto">
-                <h4
-                  style={{ fontSize: "35px", color: "black" }}
-                  className="row"
-                >
+                <h4 className={`row  fnt35 ${"active1" ? "" : "clrw"}`}>
                   {totalfabrication}
                 </h4>
-                <p style={{ color: "black" }} className="row">
-                  {" "}
+                <p className={`row  ${"active1" ? "" : "clrw"}`}>
                   Total Fabrication Jobs
                 </p>
               </div>
             </div>
           </Card>
+
           <Card
             className={`col-md-3 m-2 c_zoom ${"active1"}`}
             style={{ height: "225px" }}
           >
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
-                <BusinessIcon style={{ fontSize: "50px", color: "black" }} />
+                <BusinessIcon
+                  className={`iconfnt ${"active1" ? "" : "clrw"}`}
+                />
               </div>
               <div className="col-md-6 m-auto">
-                <h4
-                  style={{ fontSize: "35px", color: "black" }}
-                  className="row"
-                >
+                <h4 className={`row  fnt35 ${"active1" ? "" : "clrw"}`}>
                   {totalAddClients?.length}
                 </h4>
-                <p style={{ color: "black" }} className="row">
+                <p className={`row  ${"active1" ? "" : "clrw"}`}>
                   {" "}
                   Total Number of Clients
                 </p>
@@ -354,16 +391,15 @@ export default function Overview() {
           >
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
-                <BarChartIcon style={{ fontSize: "50px", color: "black" }} />
+                <BarChartIcon
+                  className={`iconfnt ${"active1" ? "" : "clrw"}`}
+                />
               </div>
               <div className="col-md-6 m-auto">
-                <h4
-                  style={{ fontSize: "35px", color: "black" }}
-                  className="row"
-                >
+                <h4 className={`row  fnt35 ${"active1" ? "" : "clrw"}`}>
                   {totalVendorData?.length}
                 </h4>
-                <p style={{ color: "black" }} className="row">
+                <p className={`row  ${"active1" ? "" : "clrw"}`}>
                   {" "}
                   Total Number Of Venders
                 </p>
@@ -376,16 +412,15 @@ export default function Overview() {
           >
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
-                <AssignmentIcon style={{ fontSize: "50px", color: "black" }} />
+                <AssignmentIcon
+                  className={`iconfnt ${"active1" ? "" : "clrw"}`}
+                />
               </div>
               <div className="col-md-6 m-auto">
-                <h4
-                  style={{ fontSize: "35px", color: "black" }}
-                  className="row"
-                >
+                <h4 className={`row  fnt35 ${"active1" ? "" : "clrw"}`}>
                   {totalInstalation}
                 </h4>
-                <p style={{ color: "black" }} className="row">
+                <p className={`row  ${"active1" ? "" : "clrw"}`}>
                   Total Installation{" "}
                 </p>
               </div>
@@ -398,17 +433,14 @@ export default function Overview() {
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
                 <RunningWithErrorsIcon
-                  style={{ fontSize: "50px", color: "black" }}
+                  className={`iconfnt ${"active1" ? "" : "clrw"}`}
                 />
               </div>
               <div className="col-md-6 m-auto">
-                <h4
-                  style={{ fontSize: "35px", color: "black" }}
-                  className="row"
-                >
+                <h4 className={`row  fnt35 ${"active1" ? "" : "clrw"}`}>
                   {totalRunningJob}
                 </h4>
-                <p style={{ color: "black" }} className="row">
+                <p className={`row  ${"active1" ? "" : "clrw"}`}>
                   {" "}
                   Total Running Jobs
                 </p>
@@ -416,33 +448,15 @@ export default function Overview() {
             </div>
           </Card>
         </div>
-        <div className="row mt-3 m-auto">
-          <div className="col-md-5 float-end mb-3">
-            <div className="row">
-              <div className="col-md-5 ">
+        <div className="row mt-5 m-auto">
+          <div className="col-md-8">
+            <div className="row ">
+              <div className="col-md-3 ">
+                <div className="col-md-8  mb-2">
+                  <span>{data1}</span> of <span>{filteredData?.length}</span>
+                </div>
                 <Form.Control
-                  type="date"
-                  value={filterStartDate}
-                  onChange={handleFilterStartDateChange}
-                />
-              </div>
-              <div className="col-md-5 ">
-                <Form.Control
-                  type="date"
-                  value={filterEndDate}
-                  onChange={handleFilterEndDateChange}
-                />
-              </div>
-              <div className="col-md-2 ">
-                <Button onClick={handleClearDateFilters}>Clear</Button>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-4 ">
-            <div className="row">
-              <div className="col-md-2">
-                <Form.Control
-                  className="col-md-2"
+                  className="col-md-10"
                   as="select"
                   value={rowsPerPage1}
                   onChange={handleRowsPerPageChange}
@@ -464,38 +478,112 @@ export default function Overview() {
                   <option value={10000}>10000</option>
                 </Form.Control>
               </div>
-              <div className="col-md-3 ">
-                <span>{data1}</span> of <span>{filteredData?.length}</span>
+
+              <div className="col-md-6 float-end">
+                <div className="row">
+                  <label className="col-md-5   mb-2">Start Date:</label>
+                  <label className="col-md-6  mb-2">End Date:</label>
+                  <div className="col-md-5 ">
+                    <Form.Control
+                      type="date"
+                      value={filterStartDate}
+                      onChange={handleFilterStartDateChange}
+                    />
+                  </div>
+                  <div className="col-md-5 ">
+                    <Form.Control
+                      type="date"
+                      value={filterEndDate}
+                      onChange={handleFilterEndDateChange}
+                    />
+                  </div>
+                  <div className="col-md-2 ">
+                    <Button onClick={handleClearDateFilters}>Clear</Button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+          <div className="col-md-3 mt-4">
+            <div className="row">
+              <Form.Select
+                className="row "
+                value={selctedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+              >
+                <option>--Select All--</option>
+                <option value="Completed" className="cureor">
+                  Completed
+                </option>
+                <option value="Proccesing" className="cureor">
+                  Proccesing
+                </option>
+                <option value="Pending" className="cureor">
+                  Pending
+                </option>
+                <option value="Cancelled" className="cureor">
+                  Cancelled
+                </option>
+              </Form.Select>
+            </div>
+          </div>
+        </div>
+        <div className="row mt-3 m-auto">
           <table>
             <thead>
               <tr>
-                <th className="th_s ">SI.No.</th>
-                <th className="th_s "> Outlate</th>
-                <th className="th_s ">Assigned</th>
-                <th className="th_s ">Status</th>
-                <th className="th_s ">Date</th>
+                <th className="th_s p-1 ">SI.No.</th>
+                <th className="th_s p-1 "> Job No.</th>
+                <th className="th_s p-1 "> Client Name</th>
+                <th className="th_s p-1 "> Outlet</th>
+                <th className="th_s p-1 ">Assigned to </th>
+                <th className="th_s p-1 ">Status</th>
+                <th className="th_s p-1 ">Date</th>
               </tr>
             </thead>
 
             <tbody>
-              {filteredData?.map((item, index) => {
-                const textColor = StatusColor[item.RecceStatus]?.color || "";
+              {filteredData1?.map((item, index) => {
+                const textColor =
+                  StatusColor[item.RecceStatus]?.backgroundColor || "";
+                let JobNob = 0;
+                let brandName = "";
+                let VendersName;
+
+                totalVendorData?.forEach((ele) => {
+                  if (ele?._id === item?.vendor) {
+                    VendersName = ele?.VendorFirstName;
+                  }
+                });
+
+                let desiredClient;
+                RecceData?.forEach((recceItem, recceIndex) => {
+                  recceItem?.outletName?.forEach((outlet) => {
+                    desiredClient = totalAddClients?.client?.find(
+                      (client) => client._id === recceItem.BrandId
+                    );
+
+                    if (outlet._id === item._id) {
+                      brandName = recceItem?.BrandName;
+                      JobNob = recceIndex + 1;
+                    }
+                  });
+                });
 
                 if (rowsDisplayed < rowsPerPage1) {
                   rowsDisplayed++;
                   return (
-                    <tr className="tr_C" key={item._id}>
+                    <tr
+                      className="tr_C p-1"
+                      style={{ backgroundColor: textColor }}
+                      key={item._id}
+                    >
                       <td className="td_S p-1">{index + 1}</td>
-
+                      <td className="td_S p-1">Job {JobNob}</td>
+                      <td className="td_S p-1">{brandName}</td>{" "}
                       <td className="td_S p-1">{item.ShopName}</td>
-                      <td className="td_S p-1">{item.ShopName}</td>
-                      <td className="td_S p-1" style={{ color: textColor }}>
-                        {item.RecceStatus}
-                      </td>
-
+                      <td className="td_S p-1">{VendersName}</td>
+                      <td className="td_S p-1">{item.RecceStatus}</td>
                       <td className="td_S p-1">
                         {item.createdAt
                           ? new Date(item.createdAt).toISOString().slice(0, 10)
@@ -503,14 +591,12 @@ export default function Overview() {
                       </td>
                     </tr>
                   );
-                } else {
-                  return null;
                 }
               })}
             </tbody>
           </table>
         </div>
-      </div>{" "}
+      </div>
     </>
   );
 }

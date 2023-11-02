@@ -1,7 +1,43 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat&family=Poppins:wght@100;200;300&display=swap");
+
 .icons {
   font-size: 40px;
 }
+.fs_7 {
+  font-size: 10px !important;
+}
+.poppinfnt {
+  font-family: "Poppins", "Montserrat";
+  font-size: 14px;
+}
+.c1 {
+  background-color: #fff306;
+}
+.c2 {
+  background-color: #06ffde;
+}
+.c3 {
+  background-color: #344197;
+  color: white;
+}
+.c4 {
+  background-color: #d86bcf;
+  color: white;
+}
 
+.c5 {
+  color: white;
+  background-color: #1d7305;
+}
+.logos {
+  border-radius: 100%;
+  /* height: 25px;
+  width: 25px; */
+}
+
+.bold {
+  font-weight: bold;
+}
 li,
 .dropdown-item,
 a {
@@ -82,6 +118,7 @@ a {
 .active1:hover {
   background-color: rgb(181, 45, 45);
 }
+
 .menuBtn {
   align-self: center;
   align-self: flex-start;
@@ -366,7 +403,9 @@ span.sc-bZcisz.sc-ikRtCJ.kUGFrh.fNqTxb {
   color: white;
   text-align: center;
 }
-
+.inputRadius {
+  border-radius: 100px;
+}
 .data-table-extensions > .data-table-extensions-filter {
   display: none;
 }
@@ -403,15 +442,16 @@ table td {
 .th_s {
   border: 1px solid black;
 }
+
 .th_s {
   font-size: 15px;
 }
 .tr_C:hover {
-  background-color: #88de8547;
+  background-color: #27c6c647;
 }
-.tr_C:nth-child(even) {
+/* .tr_C:nth-child(even) {
   background-color: #ccc !important;
-}
+} */
 .tr2 th {
   border: 1px solid black;
 }
@@ -420,7 +460,20 @@ table td {
   background-color: white;
   transition: background-color 0.3s ease;
 }
-
+.fnt35 {
+  font-size: 35px;
+  /* color: black; */
+}
 .mroe:hover {
   background-color: #d8d9da;
+}
+.clrw {
+  color: white;
+}
+.fntc {
+  color: black;
+}
+.iconfnt {
+  font-size: 56px !important;
+  /* color: black; */
 }

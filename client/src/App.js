@@ -21,7 +21,7 @@ import RecceFile from "./Component/RecceFile";
 import { Login } from "./Component/Login";
 import { Signup } from "./Component/Signup";
 import Notification from "./Component/Notification";
-import Billingquote from "./Component/Billingquote";
+// import Billingquote from "./Component/Billingquote";
 import BillingEstimate from "./Component/BillingEstimate";
 import Estiamtecalculation from "./Component/Estimatecalculation";
 import Invoice from "./Component/Invoice";
@@ -30,16 +30,42 @@ import MarketingAddClient from "./Component/MarketingAddClient";
 import MarketingInfo from "./Component/MarketingInfo";
 import Estimate from "./Component/Estimate";
 import Addcategory from "./Component/Addcategory";
-// import Subcategory from "./Component/Subcategory";
+import Subcategory from "./Component/Subcategory";
 import VendorInfo from "./Component/VendorInfo";
 import ClientInfo from "./Component/ClientsInfo";
 import ReceeManagementApi from "./Component/Recceapi";
-
-
+import { useGlobalNotification } from "./Component/NotificationContext";
+import { useEffect } from "react";
 export default function App() {
   const location = useLocation();
   const excludeRoutes = ["/RecceFile", "/", "/Signup"];
   const shouldRenderSidenav = !excludeRoutes.includes(location.pathname);
+
+  const { notifications, playNotificationSound } = useGlobalNotification();
+  const hasNotificationsForCurrentDate = null;
+  const createdAtDate = null;
+  useEffect(
+    (hasNotificationsForCurrentDate, createdAtDate) => {
+      const currentDate = new Date();
+      hasNotificationsForCurrentDate = notifications.map((notification) => {
+        createdAtDate = new Date(notification.updatedAt);
+        return (
+          createdAtDate.getFullYear() === currentDate.getFullYear() &&
+          createdAtDate.getMonth() === currentDate.getMonth() &&
+          createdAtDate.getDate() === currentDate.getDate() &&
+          createdAtDate.getHours() === currentDate.getHours() &&
+          createdAtDate.getMinutes() === currentDate.getMinutes() &&
+          createdAtDate.getSeconds() === currentDate.getSeconds()
+        );
+      });
+
+      if (hasNotificationsForCurrentDate) {
+        playNotificationSound();
+      }
+    },
+    [hasNotificationsForCurrentDate, createdAtDate, playNotificationSound]
+  );
+
   return (
     <>
       <div className="App">
@@ -64,7 +90,7 @@ export default function App() {
             <Route path="/ReceeManagement" element={<ReceeManagement />} />
             <Route path="/Recceapi" element={<ReceeManagementApi />} />
             <Route path="/Design" element={<Design />} />
-         
+
             <Route path="/Printing" element={<Printing />} />
             <Route path="/fabrication" element={<Fabrication />} />
             <Route path="/installation" element={<Installation />} />
@@ -78,14 +104,15 @@ export default function App() {
             <Route path="/Trackassignedjob" element={<Trackassignedjob />} />
             <Route path="/Reports" element={<Reports />} />
             <Route path="/Billing" element={<Billing />} />
-            <Route path="/Billingquote" element={<Billingquote />} />
+            {/* <Route path="/Billingquote" element={<Billingquote />} /> */}
             <Route path="/Estimate" element={<Estimate />} />
             <Route path="/Addcategory" element={<Addcategory />} />
-            {/* <Route path="/Subcategory" element={<Subcategory />} /> */}
-            <Route
+            <Route path="/Subcategory" element={<Subcategory />} />
+
+            {/* <Route
               path="/Estiamtecalculation"
               element={<Estiamtecalculation />}
-            />
+            /> */}
             <Route path="/BillingEstimate" element={<BillingEstimate />} />
             <Route path="/invoice" element={<Invoice />} />
             <Route path="/Setting" element={<Setting />} />

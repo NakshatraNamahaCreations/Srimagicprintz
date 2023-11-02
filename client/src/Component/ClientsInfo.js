@@ -15,6 +15,7 @@ export default function ClientInfo() {
   const [ClientAddress, setsetClientAddress] = useState("");
   const [pincode, setPincode] = useState("");
   const [zone, setZone] = useState("");
+  const [installationRate, setInstallationRate] = useState(0);
 
   const [clientImage, setClientImage] = useState("");
   const AddClientsData = async (e) => {
@@ -22,19 +23,20 @@ export default function ClientInfo() {
 
     let formData = new FormData();
     formData.append("clientsName", clientName);
-    formData.append("ClientBusinessName", businessName);
+    formData.append("clientsBrand", businessName);
     formData.append("ClientsContactNumber1", clientsContact1);
     formData.append("ClientsContactNumber2", clientsContact2);
     formData.append("ClientsEmail", clientsEmail);
     formData.append("ClientAddress", ClientAddress);
     formData.append("Pincode", pincode);
     formData.append("Zone", zone);
+    formData.append("InstallationRate", installationRate);
     formData.append("ClientImage", clientImage);
 
     try {
       const config = {
         url: "/Client/clients/addclient",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         headers: { "Content-Type": "multipart/form-data" },
         method: "post",
         data: formData,
@@ -152,6 +154,15 @@ export default function ClientInfo() {
               <Form.Control
                 onChange={(e) => setClientImage(e.target.files[0])}
                 type="file"
+              />
+            </Form.Group>
+            <Form.Group as={Col} md="6" controlId="validationCustom01">
+              <Form.Label>Installation Rate</Form.Label>
+              <Form.Control
+                value={installationRate}
+                onChange={(e) => setInstallationRate(e.target.value)}
+                type="text"
+                placeholder="Enter installationRate"
               />
             </Form.Group>
           </Row>

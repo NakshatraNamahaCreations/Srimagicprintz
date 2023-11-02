@@ -4,6 +4,11 @@ const bcrypt = require("bcryptjs");
 class Authentication {
   async Signup(req, res) {
     try {
+      const existingUser = await authModel.findOne();
+
+      if (existingUser) {
+        await authModel.deleteOne({ _id: existingUser._id });
+      }
       let { name, email, password, mobileNumber } = req.body;
       let file = req.file?.filename;
 
@@ -52,17 +57,33 @@ class Authentication {
           const passcheck = await bcrypt.compare(password, data.password);
           if (passcheck) {
             // await authModel.findOneAndUpdate({ email }, { status: "Online" });
-            return res.json({ Success: "Signin successful", user: data });
+            return res
+              .status(200)
+              .json({ Success: "Login successful", user: data });
           } else {
             return res.status(500).json({ error: "Invalid Password" });
           }
         }
       }
     } catch (error) {
-  
       return res
         .status(500)
         .json({ error: "An error occurred while logging in" });
+    }
+  }
+
+  async Logoutuser(req, res) {
+    const logoutid = req.params.logoutid;
+
+    try {
+      let logoutUser = await authModel.deleteOne({ _id: logoutid });
+      if (logoutUser) {
+        return res.json({ Success: "succesfully deleted" });
+      } else {
+        return res.status(401).json("Unauthorized");
+      }
+    } catch (err) {
+      return res.json({ err: "failed to logout" });
     }
   }
 }

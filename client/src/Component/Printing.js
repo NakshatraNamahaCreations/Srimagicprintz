@@ -50,15 +50,30 @@ export default function Printing() {
   const [moreoption, setmoreoption] = useState(false);
   const [selectedRecceItems, setSelectedRecceItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-
+  const [selectedRecceItems1, setSelectedRecceItems1] = useState([]);
+  const [ClientInfo, setClientInfo] = useState([]);
+  const [RecceId, setRecceId] = useState(null);
+  const [selectrecceStatus, setSelectRecceStatus] = useState(null);
   useEffect(() => {
     getAllRecce();
+    getAllClientsInfo();
   }, []);
-
+  const getAllClientsInfo = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:8001/api/Client/clients/getallclient"
+      );
+      if (res.status === 200) {
+        setClientInfo(res.data);
+      }
+    } catch (err) {
+      alert(err, "err");
+    }
+  };
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -311,25 +326,63 @@ export default function Printing() {
     setPrintData(selectedSNo);
     setSelectedPrint(true);
   };
-  const handleUpdate = async () => {
-    const formdata = new FormData();
 
+  const handleOutletSelectAllChange = () => {
+    setSelectAll(!selectAll);
+
+    if (!selectAll) {
+      const allOutletIds = filteredData.flatMap((item) =>
+        item?.outletName.map((outlet) => outlet._id)
+      );
+      setSelectedRecceItems1(allOutletIds);
+    } else {
+      setSelectedRecceItems1([]);
+    }
+
+    // setmoreoption1(!selectAll);
+  };
+  const handleOutletToggleSelect = (reccid, outletId) => {
+    let updatedSelectedRecceItems;
+
+    if (selectedRecceItems1.includes(outletId)) {
+      updatedSelectedRecceItems = selectedRecceItems1.filter(
+        (id) => id !== outletId
+      );
+    } else {
+      updatedSelectedRecceItems = [...selectedRecceItems1, outletId];
+    }
+
+    setSelectedRecceItems1(updatedSelectedRecceItems);
+
+    setRecceId(reccid);
+  };
+
+  const handleUpdate = async (RecceId, selectedRecceItems1) => {
     try {
-      const config = {
-        url: `/recce/recce/updatereccedata/${PrintData._id}`,
-        method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
-        headers: { "Content-Type": "multipart/form-data" },
-        data: formdata,
-      };
+      for (const outletid of selectedRecceItems1) {
+        const formdata = new FormData();
 
-      const res = await axios(config);
+        if (selectrecceStatus !== undefined && selectrecceStatus !== null) {
+          formdata.append("printingStatus", selectrecceStatus);
+        }
 
-      if (res.status === 200) {
-        alert("Successfully updated outlet");
-        window.location.reload();
-      } else {
-        console.error("Received non-200 status code:", res.status);
+        const config = {
+          url: `/recce/recce/updatereccedata/${RecceId}/${outletid}`,
+          method: "put",
+          baseURL: "http://localhost:8001/api",
+          headers: { "Content-Type": "multipart/form-data" },
+          data: formdata,
+        };
+
+        const res = await axios(config);
+
+        if (res.status === 200) {
+          alert("Successfully updated outlet");
+          console.log(res.data);
+          window.location.reload();
+        } else {
+          console.error("Received non-200 status code:", res.status);
+        }
       }
     } catch (err) {
       console.error("Error:", err.response ? err.response.data : err.message);
@@ -339,81 +392,99 @@ export default function Printing() {
       );
     }
   };
+
   return (
     <>
       <Header />
 
       {!selectedPrint ? (
         <div className="row  m-auto containerPadding">
-          <div className="row ">
-            <Col className="col-md-1 mb-3">
-              <Form.Control
-                as="select"
-                value={rowsPerPage1}
-                onChange={handleRowsPerPageChange}
-              >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={30}>30</option>
-                <option value={50}>50</option>
-                <option value={80}>80</option>
-                <option value={100}>100</option>
-                <option value={140}>140</option>
-                <option value={200}>200</option>
-                <option value={300}>300</option>
-                <option value={400}>400</option>
-                <option value={600}>600</option>
-                <option value={700}>700</option>
-                <option value={1000}>1000</option>
-                <option value={1500}>1500</option>
-                <option value={10000}>10000</option>
-              </Form.Control>
-            </Col>
-            <Col className="col-md-5">
-              <div className="row">
-                <div className="col-md-5 ">
-                  <Form.Control
-                    type="date"
-                    value={filterStartDate}
-                    onChange={handleFilterStartDateChange}
-                  />
-                </div>
-                <div className="col-md-5 ">
-                  <Form.Control
-                    type="date"
-                    value={filterEndDate}
-                    onChange={handleFilterEndDateChange}
-                  />
-                </div>
-                <div className="col-md-2 ">
-                  <Button onClick={handleClearDateFilters}>Clear</Button>
-                </div>
+          <div className="row mt-2 mb-4">
+            <div className="col-md-7">
+              <div className="row ">
+                <Col className="col-md-2">
+                  <Form.Label>
+                    {displayedData?.length} of: {RecceData?.length}
+                  </Form.Label>
+                  <Form.Group className="row float-right">
+                    <Form.Control
+                      as="select"
+                      value={rowsPerPage}
+                      onChange={(e) => {
+                        setRowsPerPage(parseInt(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <option value={5}>5</option>
+                      <option value={10}>10</option>
+                      <option value={30}>30</option>
+                      <option value={50}>50</option>
+                      <option value={80}>80</option>
+                      <option value={100}>100</option>
+                      <option value={140}>140</option>
+                      <option value={200}>200</option>
+                    </Form.Control>
+                  </Form.Group>
+                </Col>
+
+                <Col className="col-md-10">
+                  <label className="col-md-5   mb-2">Start Date:</label>
+                  <label className="col-md-6  mb-2">End Date:</label>
+                  <div className="row">
+                    <div className="col-md-5 ">
+                      <Form.Control
+                        type="date"
+                        value={filterStartDate}
+                        onChange={handleFilterStartDateChange}
+                      />
+                    </div>
+                    <div className="col-md-5 ">
+                      <Form.Control
+                        type="date"
+                        value={filterEndDate}
+                        onChange={handleFilterEndDateChange}
+                      />
+                    </div>
+                    <div className="col-md-2 ">
+                      <Button onClick={handleClearDateFilters}>Clear</Button>
+                    </div>
+                  </div>
+                </Col>
               </div>
-            </Col>
-            <Col className="col-md-1">
-              <Button onClick={handleExportPDF}> Download</Button>
-            </Col>
-            <Col className="col-md-1">
-              {moreoption ? (
-                <>
-                  <p
-                    className="mroe m-auto"
-                    onClick={() => setselectAction(!selectAction)}
-                    style={{
-                      border: "1px solid white",
-                      width: "38px",
-                      height: "38px",
-                      textAlign: "center",
-                      borderRadius: "100px",
-                      backgroundColor: "#F5F5F5",
+            </div>
+
+            <Col className="col-md-5">
+              <label className="mb-2">Status</label>
+              <div className="row">
+                <div className="col-md-5">
+                  <Form.Select
+                    as="select"
+                    value={selectrecceStatus}
+                    onChange={(e) => {
+                      const selectedValue = e.target.value;
+                      if (selectedValue !== "Choose...") {
+                        setSelectRecceStatus(selectedValue);
+                      }
                     }}
                   >
-                    <span className="text-center">
-                      <MoreVertIcon />
-                    </span>
-                  </p>
-                </>
-              ) : null}
+                    <option>Choose...</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Proccesing">Proccesing</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </Form.Select>
+                </div>
+                <div className="col-md-2 me-2">
+                  <Button
+                    onClick={() => handleUpdate(RecceId, selectedRecceItems1)}
+                  >
+                    Save
+                  </Button>
+                </div>
+                <Col className="col-md-1">
+                  <Button onClick={handleExportPDF}> Download</Button>
+                </Col>
+              </div>
             </Col>
           </div>
 
@@ -421,6 +492,18 @@ export default function Printing() {
             <table className="t-p">
               <thead className="t-c">
                 <tr>
+                  <th className="th_s ">
+                    <input
+                      type="checkbox"
+                      style={{
+                        width: "15px",
+                        height: "15px",
+                        marginRight: "5px",
+                      }}
+                      checked={selectAll}
+                      onChange={handleOutletSelectAllChange}
+                    />
+                  </th>
                   <th className="th_s p-1">SI.No</th>
                   <th className="th_s p-1">Job.No</th>
                   <th className="th_s p-1">Brand </th>
@@ -447,6 +530,18 @@ export default function Printing() {
                     if (rowsDisplayed < rowsPerPage1) {
                       const pincodePattern = /\b\d{6}\b/;
 
+                      let JobNob = 0;
+                      // const desiredClient = ClientInfo?.client?.find(
+                      //   (client) => client._id === recceItem.BrandName
+                      // );
+
+                      filteredData?.forEach((recceItem, recceIndex) => {
+                        recceItem?.outletName?.forEach((item) => {
+                          if (outlet._id === item._id) {
+                            JobNob = recceIndex + 1;
+                          }
+                        });
+                      });
                       const address = outlet?.OutletAddress;
                       const extractedPincode = address?.match(pincodePattern);
 
@@ -458,8 +553,27 @@ export default function Printing() {
                         rowsDisplayed++;
                         return (
                           <tr className="tr_C" key={serialNumber}>
+                            <td className="td_S p-1">
+                              <input
+                                style={{
+                                  width: "15px",
+                                  height: "15px",
+                                  marginRight: "5px",
+                                }}
+                                type="checkbox"
+                                checked={selectedRecceItems1.includes(
+                                  outlet._id
+                                )}
+                                onChange={() =>
+                                  handleOutletToggleSelect(
+                                    recceItem._id,
+                                    outlet._id
+                                  )
+                                }
+                              />
+                            </td>
                             <td className="td_S p-1">{serialNumber}</td>
-                            <td className="td_S p-1">Job{index + 1}</td>
+                            <td className="td_S p-1">Job{JobNob}</td>
                             <td className="td_S p-1">{recceItem.BrandName}</td>
                             <td className="td_S p-1">{outlet.ShopName}</td>
                             <td className="td_S p-1">{outlet.ClientName}</td>
@@ -485,7 +599,7 @@ export default function Printing() {
                               {outlet.width}
                               {outlet.unit}
                             </td>
-                            <td className="td_S ">
+                            <td className="td_S p-2 text-nowrap text-center">
                               {recceItem.createdAt
                                 ? new Date(recceItem.createdAt)
                                     .toISOString()
@@ -584,7 +698,7 @@ export default function Printing() {
                   <span>{PrintData.GSTNumber}</span>
                 </p>
               </div>
-              <div>
+              {/* <div>
                 <span className="cl">Design :</span>
                 <img
                   width={"100px"}
@@ -611,16 +725,16 @@ export default function Printing() {
                   alt=""
                   src="https://cdn-icons-png.flaticon.com/512/4208/4208479.png"
                 />
-              </div>
+              </div> */}
             </div>
-            <div className="row mt-3">
+            {/* <div className="row mt-3">
               <Button
                 className="col-md-2"
                 onClick={(event) => handleUpdate(event, PrintData._id)}
               >
                 Update Print Data
               </Button>
-            </div>
+            </div> */}
           </div>
         </div>
       )}

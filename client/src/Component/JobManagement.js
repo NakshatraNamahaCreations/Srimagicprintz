@@ -10,26 +10,27 @@ import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import "react-toastify/dist/ReactToastify.css";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import axios from "axios";
-
+import CheckIcon from "@mui/icons-material/Check";
 export default function JobManagement() {
-  const [selectedClientId, setSelectedClientId] = useState(null);
+  // const [selectedClientId, setSelectedClientId] = useState(null);
   const [vendorData, setVendorData] = useState([]);
 
   const [selecteZone, setSelectedZone] = useState("");
-  const [client, setclient] = useState([]);
+  const [selectedCity, setselectedCity] = useState("");
+  // const [client, setclient] = useState([]);
   const [RecceIndex, setRecceIndex] = useState(null);
   const [jobType, setJobType] = useState();
-  const [recceAssignedClientName, setRecceAssignedClientName] = useState("");
-  const [recceAssignedClientNumber, setRecceAssignedClientNumber] =
-    useState("");
-  const [recceAssignedClientZone, setRecceAssignedClientZone] = useState("");
-  const [recceAssignedClientPincode, setRecceAssignedClientPincode] =
-    useState("");
-  const [outlets1, setoutlets1] = useState([]);
+  // const [recceAssignedClientName, setRecceAssignedClientName] = useState("");
+  // const [recceAssignedClientNumber, setRecceAssignedClientNumber] =
+  useState("");
+  // const [recceAssignedClientZone, setRecceAssignedClientZone] = useState("");
+  // const [recceAssignedClientPincode, setRecceAssignedClientPincode] =
+  //   useState("");
+  // const [outlets1, setoutlets1] = useState([]);
   const [AssignJob, setAssignJob] = useState(false);
   const [selected, setSelected] = useState(null);
-
-  const [addPrint, setAddPrint] = useState(false);
+  const [assign, setAssign] = useState([]);
+  const [ClientInfo, setClientInfo] = useState([]);
   const [RecceData, setRecceData] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [Quantity, setQuantity] = useState("");
@@ -39,17 +40,29 @@ export default function JobManagement() {
   const [selectedIndexDesign, setSelectedIndexDesign] = useState(false);
   const [selectedIndexFabrication, setselectedIndexFabrication] =
     useState(false);
-
+  const [selectedCheckboxes, setSelectedCheckboxes] = useState([]);
   const [PrintData, setPrintData] = useState(null);
-
+  const [selectedBrandNames, setSelectedBrandNames] = useState("");
+  const [brandName, setbrandName] = useState(false);
+  const [rowsPerPage1, setRowsPerPage1] = useState(5);
+  const [selectedRecce, setselectedRecce] = useState(false);
+  const [SelectedData, setSelectedData] = useState({});
+  const [selectedRecceItems, setSelectedRecceItems] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedOutletIds, setSelectedOutletIds] = useState([]);
+  const [seletedInstalation, setSeletedInstalation] = useState(false);
+  let serialNumber = 0;
+  let rowsDisplayed = 0;
+  const [InstaLationGroups, setInstaLationGroup] = useState();
   useEffect(() => {
     getAllRecce();
     getAllCategory();
+    getAllInstalation();
   }, []);
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        " http://api.srimagicprintz.com/api/Product/category/getcategory"
+        " http://localhost:8001/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -61,27 +74,27 @@ export default function JobManagement() {
       console.error("Error fetching category data:", error);
     }
   };
-  const handleClientNameChange = (selectedClientId) => {
-    const selectedClient = RecceData.find(
-      (ele) => ele._id === selectedClientId
-    );
+  // const handleClientNameChange = (selectedClientId) => {
+  //   const selectedClient = RecceData.find(
+  //     (ele) => ele._id === selectedClientId
+  //   );
 
-    setoutlets1(selectedClient.outletName);
-    setclient(selectedClient);
+  //   setoutlets1(selectedClient.outletName);
+  //   setclient(selectedClient);
 
-    if (selectedClient) {
-      setSelectedClientId(selectedClientId);
-      setRecceAssignedClientName(selectedClient?.BrandName);
-      setRecceAssignedClientNumber(selectedClient?.ContactNumber);
-      setRecceAssignedClientPincode(selectedClient?.Pincode);
-      setRecceAssignedClientZone(selectedClient?.Zone);
-    }
-  };
+  //   if (selectedClient) {
+  //     setSelectedClientId(selectedClientId);
+  //     setRecceAssignedClientName(selectedClient?.BrandName);
+  //     setRecceAssignedClientNumber(selectedClient?.ContactNumber);
+  //     setRecceAssignedClientPincode(selectedClient?.Pincode);
+  //     setRecceAssignedClientZone(selectedClient?.Zone);
+  //   }
+  // };
 
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -93,12 +106,13 @@ export default function JobManagement() {
 
   useEffect(() => {
     getAllVendorInfo();
+    getAllClientsInfo();
   }, []);
 
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -112,67 +126,70 @@ export default function JobManagement() {
     }
   };
 
-  const handleAddPrint = (vendordata) => {
-    setAddPrint(!addPrint);
-  };
-
-  const AssignJobs = async (vendordata, selectedZone) => {
+  const AssignJobs = async (
+    selectedRecceItems,
+    vendordata,
+    selectedCity,
+    selecteZone
+  ) => {
     try {
-      if (!selectedZone) {
+      if (!assign) {
         alert("Please select a zone.");
         return;
       }
 
-      const updatedRecceData = RecceData.map((item) => {
-        const outletNameArray = item?.outletName || [];
+      if (!Array.isArray(selectedRecceItems)) {
+        alert("selectedRecceItems is not iterable");
+        return;
+      }
 
-        function updateVendorByZone(data, zone) {
-          return data.map((outletItem) => {
-            if (outletItem && outletItem.OutletZone === zone) {
-              outletItem.vendor = vendordata._id;
+      const updatedRecceData = [];
+
+      for (const recceId of selectedRecceItems) {
+        const filteredData = RecceData.map((ele) =>
+          ele.outletName.filter((item) => {
+            if (
+              recceId === item._id &&
+              item.OutletZone === selecteZone &&
+              item.OutletCity === selectedCity
+            ) {
+              item.vendor = vendordata._id;
             }
-            return outletItem;
-          });
-        }
-
-        const updatedOutletName = updateVendorByZone(
-          outletNameArray,
-          selectedZone
+            return item;
+          })
         );
 
-        return {
-          ...item,
-          outletName: updatedOutletName,
+        updatedRecceData.push(...filteredData);
+
+        const config = {
+          url: `/api/recce/recce/outletupdate/${recceId}/${vendordata?._id}`,
+          baseURL: "http://localhost:8001",
+          method: "put",
+          headers: { "Content-Type": "application/json" },
+          data: { RecceData: updatedRecceData },
         };
-      });
 
-      const config = {
-        url: `/api/recce/recce/updatevendorname/${selectedZone}/${vendordata?._id}/${jobType}`,
-        baseURL: "http://api.srimagicprintz.com",
-        method: "post",
-        headers: { "Content-Type": "application/json" },
-        data: { RecceData: updatedRecceData },
-      };
+        const res = await axios(config);
 
-      const res = await axios(config);
-
-      if (res.status === 200) {
-        alert(`${jobType} assigned to: ${vendordata.VendorFirstName}`);
-      } else {
-        alert(`Failed to assign ${jobType} to: ${vendordata.VendorFirstName}`);
+        if (res.status === 200) {
+          alert(`${jobType} assigned to: ${vendordata.VendorFirstName}`);
+        } else {
+          alert(
+            `Failed to assign ${jobType} to: ${vendordata.VendorFirstName}`
+          );
+        }
       }
 
       alert("Successfully linked vendors to recce items");
+
       window.location.reload();
     } catch (err) {
       console.error("Error:", err);
+
       alert("Failed to assign recce. Error: " + err.message);
     }
   };
 
-  let serialNumber = 0;
-  let rowsDisplayed = 0;
-  const [rowsPerPage1, setRowsPerPage1] = useState(5);
   const handleRowsPerPageChange = (e) => {
     const newRowsPerPage = parseInt(e.target.value);
     setRowsPerPage1(newRowsPerPage);
@@ -187,6 +204,19 @@ export default function JobManagement() {
     setPrintData(item);
     setRecceIndex(recceItem._id);
     setselectedIndexPrint(true);
+  };
+
+  const getAllClientsInfo = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:8001/api/Client/clients/getallclient"
+      );
+      if (res.status === 200) {
+        setClientInfo(res.data);
+      }
+    } catch (err) {
+      alert(err, "err");
+    }
   };
   // Now you can use the recceIndex and
 
@@ -234,7 +264,7 @@ export default function JobManagement() {
       const config = {
         url: `/recce/recce/updatereccedata/${RecceIndex}/${PrintData._id}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -255,7 +285,194 @@ export default function JobManagement() {
       );
     }
   };
+
   const downloadAsPdf = () => {};
+
+  const handleSelectClientName = () => {
+    const selectedBrandNames = selectedCheckboxes.map((value) => {
+      const [brandName] = value.split("_");
+      const desiredClient = ClientInfo?.client?.find(
+        (client) => client._id === brandName
+      );
+
+      return desiredClient?.clientsBrand || brandName;
+    });
+
+    setSelectedBrandNames(selectedBrandNames.join(", "));
+    setbrandName(!brandName);
+  };
+
+  const handleCheckboxChange = (event, brandName, index, recceItemId) => {
+    const updatedCheckboxes = event.target.checked
+      ? [...selectedCheckboxes, `${brandName}_${index}_${recceItemId}`]
+      : selectedCheckboxes.filter(
+          (checkbox) =>
+            !checkbox.includes(`${brandName}_${index}_${recceItemId}`)
+        );
+
+    setSelectedCheckboxes(updatedCheckboxes);
+  };
+
+  const handleSelectOutlet = (index, id) => {
+    if (jobType === "Recce" || jobType === "Installation") {
+      const selectedIds = selectedCheckboxes.map((checkbox) => {
+        const parts = checkbox.split("_");
+        return parts[2];
+      });
+
+      setSelectedData({
+        jobType: jobType,
+        selectedBrandNames: {
+          index: index,
+          selectedIds: selectedIds,
+        },
+        selectedCity: selectedCity,
+        selecteZone: selecteZone,
+      });
+
+      setSelected(true);
+    } else {
+      alert("Please Select Job Type");
+    }
+  };
+
+  const handleSelectAllChange = () => {
+    setSelectAll(!selectAll);
+
+    if (!selectAll) {
+      const allOutletIds = RecceData.flatMap((item) =>
+        item?.outletName.map((outlet) => outlet._id)
+      );
+      setSelectedRecceItems(allOutletIds);
+    } else {
+      setSelectedRecceItems([]);
+    }
+  };
+
+  const handleSelectVendor = () => {
+    const selectedIds = [];
+
+    for (const itemId of selectedRecceItems) {
+      selectedIds.push(itemId);
+    }
+
+    setAssign(selectedIds);
+
+    setselectedRecce(true);
+  };
+
+  const handleSelectVendorfoInstallation = () => {
+    const selectedIds = [];
+
+    for (const itemId of selectedRecceItems) {
+      selectedIds.push(itemId);
+    }
+
+    setAssign(selectedIds);
+
+    setSeletedInstalation(true);
+  };
+
+  const handleToggleSelect = (item, outletId) => {
+    let updatedSelectedRecceItems;
+
+    if (selectedRecceItems.includes(outletId)) {
+      updatedSelectedRecceItems = selectedRecceItems.filter(
+        (id) => id !== outletId
+      );
+    } else {
+      updatedSelectedRecceItems = [...selectedRecceItems, outletId];
+    }
+
+    setSelectedRecceItems(updatedSelectedRecceItems);
+
+    if (item && item.outletName) {
+      const selectedOutlet = item.outletName.find(
+        (outlet) => outlet._id === outletId
+      );
+
+      if (selectedOutlet) {
+        AssignJobs(selectedOutlet, selectedOutlet.OutletZone);
+      }
+    }
+  };
+  const getAllInstalation = async () => {
+    try {
+      let res = await axios.get("http://localhost:8001/api/getgroup");
+      if (res.status === 200) {
+        let instalationData = res?.data?.instalation?.flatMap((ele) => ele);
+        setInstaLationGroup(instalationData);
+        // InstalationGroup
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const AssignInstallation = async (
+    selectedRecceItems,
+    instalationgroups,
+    selecteZone,
+    selectedCity
+  ) => {
+    console.log(instalationgroups, "instalationgroups");
+    try {
+      if (!assign) {
+        alert("Please select a zone.");
+        return;
+      }
+
+      if (!Array.isArray(selectedRecceItems)) {
+        alert("selectedRecceItems is not iterable");
+        return;
+      }
+
+      const updatedRecceData = [];
+
+      for (const recceId of selectedRecceItems) {
+        const filteredData = RecceData.map((ele) =>
+          ele.outletName.filter((item) => {
+            if (
+              recceId === item._id &&
+              item.OutletZone === selecteZone &&
+              item.OutletCity === selectedCity
+            ) {
+              item.InstalationGroup = instalationgroups;
+            }
+            return item;
+          })
+        );
+
+        updatedRecceData.push(...filteredData);
+
+        const config = {
+          url: `/api/recce/recce/updateinstaltion/${recceId}/${instalationgroups}`,
+          baseURL: "http://localhost:8001",
+          method: "put",
+          headers: { "Content-Type": "application/json" },
+          data: { RecceData: updatedRecceData },
+        };
+
+        const res = await axios(config);
+
+        if (res.status === 200) {
+          alert(`${jobType} assigned to: ${instalationgroups.VendorFirstName}`);
+        } else {
+          alert(
+            `Failed to assign ${jobType} to: ${instalationgroups.VendorFirstName}`
+          );
+        }
+      }
+      alert("Successfully linked vendors to recce items");
+
+      window.location.reload();
+    } catch (err) {
+      console.error("Error:", err);
+
+      alert("Failed to assign recce. Error: " + err.message);
+    }
+  };
+
   return (
     <>
       <Header />
@@ -304,30 +521,31 @@ export default function JobManagement() {
                   </Form>
                 </>
               ) : (
-                <Form>
-                  <Row>
-                    <Col>
-                      <Form.Group
-                        md="5"
-                        className="mb-3"
-                        controlId="exampleForm.ControlInput1"
-                      >
-                        <Form.Label>Types of Job</Form.Label>
-                        <Form.Select
-                          value={jobType}
-                          onChange={(e) => setJobType(e.target.value)}
-                          type="text"
+                <>
+                  <Form>
+                    <Row>
+                      <Col>
+                        <Form.Group
+                          md="5"
+                          className="mb-3"
+                          controlId="exampleForm.ControlInput1"
                         >
-                          <option>Choose...</option>
-                          <option>Recce</option>
-                          <option>Design</option>
-                          <option>Printing</option>
-                          <option>Fabrication</option>
-                          <option>Installation</option>
-                        </Form.Select>
-                      </Form.Group>
-                    </Col>
-                    <Col>
+                          <Form.Label>Types of Job</Form.Label>
+                          <Form.Select
+                            value={jobType}
+                            onChange={(e) => setJobType(e.target.value)}
+                            type="text"
+                          >
+                            <option>Choose...</option>
+                            <option>Recce</option>
+                            <option>Design</option>
+                            <option>Printing</option>
+                            <option>Fabrication</option>
+                            <option>Installation</option>
+                          </Form.Select>
+                        </Form.Group>
+                      </Col>
+                      {/* <Col>
                       <Form.Group
                         md="5"
                         className="mb-3"
@@ -343,150 +561,485 @@ export default function JobManagement() {
                         >
                           <option>Choose..</option>
 
-                          {RecceData.map((client) => (
-                            <option key={client._id} value={client._id}>
-                              {client.BrandName}
-                            </option>
-                          ))}
+                          {RecceData.map((item) => {
+                            const desiredClient = ClientInfo?.client?.find(
+                              (client) => client._id === item.BrandName
+                            );
+
+                            if (processedBrandIds.has(desiredClient?._id)) {
+                              return null;
+                            }
+
+                            processedBrandIds.add(desiredClient?._id);
+
+                            return (
+                              <option
+                                key={desiredClient?._id}
+                                value={desiredClient?._id}
+                              >
+                                {desiredClient?.clientsBrand}
+                              </option>
+                            );
+                          })}
                         </Form.Select>
                       </Form.Group>
-                    </Col>
+                    </Col> */}
 
-                    <Col>
-                      <Form.Group
-                        md="5"
-                        className="mb-3"
-                        controlId="exampleForm.ControlInput1"
-                      >
-                        <Form.Label>Contact Number</Form.Label>
-                        <Form.Control
-                          value={recceAssignedClientNumber}
-                          type="text"
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col>
-                      <Form.Group
-                        md="5"
-                        className="mb-3"
-                        controlId="exampleForm.ControlInput1"
-                      >
-                        <Form.Label>Select Outlate Zone</Form.Label>
-
-                        <Form.Select
-                          value={selecteZone}
-                          onChange={(e) => {
-                            const newSelectedZone = e.target.value;
-                            setSelectedZone(newSelectedZone);
-                          }}
+                      <Col>
+                        <Form.Group
+                          md="5"
+                          className="mb-3"
+                          controlId="exampleForm.ControlInput1"
                         >
-                          <option>Choose..</option>
-                          <option value="west">west</option>
-                          <option value="south">south</option>
-                          <option value="north">north</option>
-                          <option value="east">east</option>
-                        </Form.Select>
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col>
-                      <Form.Group md="5" className="mb-3">
-                        <Form.Label>Pincode</Form.Label>
-                        <Form.Control
-                          value={recceAssignedClientPincode}
-                          type="text"
-                          placeholder="Pincode"
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col>
-                      <Form.Group md="5" className="mb-3">
-                        <Form.Label>Zone</Form.Label>
-                        <Form.Control
-                          value={recceAssignedClientZone}
-                          type="text"
-                        />
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                  <Row className="row m-auto">
-                    <Button
-                      onClick={() => setSelected(true)}
-                      className="col-md-2 c_W"
-                    >
-                      Select Vendor
-                    </Button>
-                  </Row>
-                </Form>
+                          {" "}
+                          <>
+                            <Form.Label>Select Clients name</Form.Label>
+                            <div>
+                              <Form.Control
+                                placeholder="select clients name"
+                                value={selectedBrandNames}
+                                onClick={() => setbrandName(!brandName)}
+                                readOnly
+                              />
+                            </div>
+
+                            {brandName ? (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  width: "14.2rem",
+                                }}
+                                className="col-md-2 m-auto shadow-sm p-3 mb-5 bg-white rounded"
+                              >
+                                <div>
+                                  <div className="row">
+                                    <p
+                                      className="cureor"
+                                      onClick={handleSelectClientName}
+                                      style={{ borderBottom: "1px solid grey" }}
+                                    >
+                                      <CheckIcon />
+                                      Apply selection
+                                    </p>
+                                  </div>
+                                  {RecceData?.map((ele, index) => {
+                                    // const desiredClient =
+                                    //   ClientInfo?.client?.find(
+                                    //     (client) => client._id === ele.BrandName
+                                    //   );
+
+                                    return (
+                                      <div
+                                        className="row m-auto"
+                                        key={index}
+                                        style={{ zIndex: "100" }}
+                                      >
+                                        <Form.Label>
+                                          <Form.Check
+                                            type="checkbox"
+                                            className="me-3 d-inline"
+                                            value={`${ele.BrandName}_${index}`}
+                                            checked={selectedCheckboxes.includes(
+                                              `${ele.BrandName}_${index}_${ele._id}`
+                                            )}
+                                            onChange={(event) => {
+                                              handleCheckboxChange(
+                                                event,
+                                                ele.BrandName,
+                                                index,
+                                                ele._id
+                                              );
+                                              setSelectedOutletIds(ele._id);
+                                            }}
+                                          />
+
+                                          <p className="d-inline">
+                                            <span className="me-3">
+                                              {" "}
+                                              Job {index + 1}
+                                            </span>
+                                            {ele.BrandName}
+                                          </p>
+                                        </Form.Label>
+                                      </div>
+                                    );
+                                  })}
+                                </div>{" "}
+                              </div>
+                            ) : null}
+                          </>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col>
+                        <Form.Group
+                          md="5"
+                          className="mb-3"
+                          controlId="exampleForm.ControlInput1"
+                        >
+                          <Form.Label>Select City</Form.Label>
+
+                          <Form.Select
+                            value={selectedCity}
+                            onChange={(e) => {
+                              const selectedValue = e.target.value;
+                              if (selectedValue !== "Choose...") {
+                                setselectedCity(selectedValue);
+                              }
+                            }}
+                          >
+                            <option>Choose...</option>
+                            {RecceData?.map((recceItem, index) =>
+                              recceItem?.outletName?.map(
+                                (outlet, outletArray) => (
+                                  <>
+                                    <option value={outlet?.OutletCity}>
+                                      {outlet?.OutletCity?.toLowerCase()}
+                                    </option>
+                                  </>
+                                )
+                              )
+                            )}
+                          </Form.Select>
+                        </Form.Group>
+                      </Col>
+                      <Col>
+                        <Form.Group
+                          md="5"
+                          className="mb-3"
+                          controlId="exampleForm.ControlInput1"
+                        >
+                          <Form.Label>Select Outlate Zone</Form.Label>
+
+                          <Form.Select
+                            value={selecteZone}
+                            onChange={(e) => {
+                              const newSelectedZone = e.target.value;
+                              setSelectedZone(newSelectedZone);
+                            }}
+                          >
+                            <option>Choose..</option>
+                            <option value="west">west</option>
+                            <option value="south">south</option>
+                            <option value="north">north</option>
+                            <option value="east">east</option>
+                          </Form.Select>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Row className="row m-auto">
+                      <Button
+                        onClick={() => handleSelectOutlet(selectedOutletIds)}
+                        className="col-md-2 c_W"
+                      >
+                        Select Outlet
+                      </Button>
+                    </Row>
+                  </Form>
+                </>
               )}
             </>
           ) : jobType === "Recce" ? (
             <>
               <ToastContainer type="success" />
-
-              <>
-                <div className="col-md-1">
-                  <ArrowCircleLeftIcon
-                    onClick={() => setSelected(false)}
-                    style={{ color: "#068FFF", fontSize: "35px" }}
-                  />
-                </div>
-                <div className="row mt-3 m-auto containerPadding">
-                  {vendorData ? (
-                    vendorData.map((ele, index) => (
-                      <Card
-                        key={ele.VendorId}
-                        className="col-md-4 m-3 "
-                        style={{
-                          width: "240px",
-                          height: "320px",
-                          borderRadius: "10%",
-                        }}
+              {!selectedRecce ? (
+                <>
+                  <div className="row">
+                    <div className="col-md-3">
+                      <ArrowCircleLeftIcon
+                        onClick={() => setSelected(false)}
+                        style={{ color: "#068FFF", fontSize: "35px" }}
+                      />
+                    </div>
+                  </div>
+                  <div className="row">
+                    <Col className="col-md-1 mb-3 m-auto">
+                      <Form.Control
+                        as="select"
+                        value={rowsPerPage1}
+                        onChange={handleRowsPerPageChange}
                       >
-                        <div className="row text-center m-auto">
-                          {ele.VendorImage ? (
-                            <img
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={30}>30</option>
+                        <option value={50}>50</option>
+                        <option value={80}>80</option>
+                        <option value={100}>100</option>
+                        <option value={140}>140</option>
+                        <option value={200}>200</option>
+                        <option value={300}>300</option>
+                        <option value={400}>400</option>
+                        <option value={600}>600</option>
+                        <option value={700}>700</option>
+                        <option value={1000}>1000</option>
+                        <option value={1500}>1500</option>
+                        <option value={10000}>10000</option>
+                      </Form.Control>
+                    </Col>
+                    <div className="col-md-11 mb-3  m-auto">
+                      <Button
+                        onClick={handleSelectVendor}
+                        className="row  m-auto c_W"
+                      >
+                        Select Vendor
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <table className="t-p">
+                      <thead className="t-c">
+                        <tr>
+                          <th className="th_s ">
+                            <input
+                              type="checkbox"
                               style={{
-                                width: "70%",
-                                height: "50%",
-                                borderRadius: "100%",
+                                width: "15px",
+                                height: "15px",
+                                marginRight: "5px",
                               }}
-                              className="m-auto"
-                              src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
-                              alt=""
+                              checked={selectAll}
+                              onChange={handleSelectAllChange}
                             />
-                          ) : (
-                            <span>No Image Available</span>
-                          )}
-                          <span>
-                            {ele.VendorFirstName.charAt(0).toUpperCase() +
-                              ele.VendorFirstName.substr(1)}
-                            {ele.VendorLastName}
-                          </span>
-                          <span>{ele.VendorId}</span>
-                          <span style={{ color: "orange" }}>
-                            Job Assigned
-                            <span style={{ margin: "5px" }}>0</span>
-                          </span>
-                          <span style={{ color: "green" }}>
-                            Job Completed
-                            <span style={{ margin: "5px" }}>0</span>
-                          </span>
-                          <Button
-                            className="c_W mt-2"
-                            onClick={() => AssignJobs(ele, selecteZone)}
-                          >
-                            Assign job
-                          </Button>
-                        </div>
-                      </Card>
-                    ))
-                  ) : (
-                    <div>Loading or no data available</div>
-                  )}
-                </div>
-              </>
+                          </th>
+                          <th className="th_s p-1">SI.No</th>
+                          <th className="th_s p-1">Job.No</th>
+                          <th className="th_s p-1">Brand </th>
+                          <th className="th_s p-1">Shop Name</th>
+                          <th className="th_s p-1">Client Name</th>
+                          <th className="th_s p-1">State</th>
+                          <th className="th_s p-1">Contact Number</th>
+                          <th className="th_s p-1">Zone</th>
+                          <th className="th_s p-1">Pincode</th>
+                          <th className="th_s p-1">City</th>
+                          <th className="th_s p-1">FL Board</th>
+                          <th className="th_s p-1">GSB</th>
+                          <th className="th_s p-1">Inshop</th>
+                          <th className="th_s p-1">Category</th>
+                          <th className="th_s p-1">Hight</th>
+                          <th className="th_s p-1">Width</th>
+                          <th className="th_s p-1">Date</th>
+                          <th className="th_s p-1">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {RecceData?.map((recceItem, index) =>
+                          recceItem?.outletName.map((outlet, outletArray) => {
+                            // const desiredClient = ClientInfo?.client?.find(
+                            //   (client) => client._id === recceItem.BrandName
+                            // );
+                            let JobNob = 0;
+                            RecceData?.forEach((recceItem, recceIndex) => {
+                              recceItem?.outletName?.forEach((item) => {
+                                if (outlet._id === item._id) {
+                                  JobNob = recceIndex + 1;
+                                }
+                              });
+                            });
+                            const selectedIds =
+                              SelectedData?.selectedBrandNames?.selectedIds;
+
+                            const recceItemId = recceItem._id;
+
+                            const isRecceItemIdSelected =
+                              selectedIds?.includes(recceItemId);
+
+                            if (rowsDisplayed < rowsPerPage1) {
+                              const pincodePattern = /\b\d{6}\b/;
+
+                              const address = outlet?.OutletAddress;
+                              const extractedPincode =
+                                address?.match(pincodePattern);
+
+                              if (extractedPincode) {
+                                outlet.OutletPincode = extractedPincode[0];
+                              }
+
+                              const isCityMatched =
+                                outlet?.OutletCity?.toLowerCase() ===
+                                SelectedData.selectedCity?.toLowerCase();
+
+                              const isZoneMatched =
+                                isCityMatched &&
+                                outlet?.OutletZone?.toLowerCase() ===
+                                  SelectedData?.selecteZone?.toLowerCase();
+
+                              if (
+                                isCityMatched &&
+                                isZoneMatched &&
+                                isRecceItemIdSelected
+                              ) {
+                                rowsDisplayed++;
+                                serialNumber++;
+                                return (
+                                  <tr className="tr_C" key={outlet._id}>
+                                    <td className="td_S p-1">
+                                      <input
+                                        style={{
+                                          width: "15px",
+                                          height: "15px",
+                                          marginRight: "5px",
+                                        }}
+                                        type="checkbox"
+                                        checked={selectedRecceItems.includes(
+                                          outlet._id
+                                        )}
+                                        onChange={() =>
+                                          handleToggleSelect(
+                                            recceItem.BrandId,
+                                            outlet._id
+                                          )
+                                        }
+                                      />
+                                    </td>
+                                    <td className="td_S p-1">{serialNumber}</td>
+                                    <td className="td_S p-1">Job{JobNob}</td>
+                                    <td className="td_S p-1">
+                                      {recceItem?.BrandName}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet.ShopName}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet.ClientName}
+                                    </td>
+                                    <td className="td_S p-1">{outlet.State}</td>
+                                    <td className="td_S p-1">
+                                      {outlet.OutletContactNumber}
+                                    </td>
+
+                                    <td className="td_S p-1">
+                                      {outlet.OutletZone}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {extractedPincode
+                                        ? extractedPincode[0]
+                                        : ""}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet.OutletCity}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet.FLBoard}
+                                    </td>
+                                    <td className="td_S p-1">{outlet.GSB}</td>
+                                    <td className="td_S p-1">
+                                      {outlet.Inshop}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet.Category}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet.height}
+                                      {outlet.unit}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet.width}
+                                      {outlet.unit}
+                                    </td>
+                                    <td className="td_S ">
+                                      {recceItem.createdAt
+                                        ? new Date(recceItem.createdAt)
+                                            .toISOString()
+                                            .slice(0, 10)
+                                        : ""}
+                                    </td>
+                                    <td className="td_S ">
+                                      <span
+                                        variant="info "
+                                        onClick={() => {
+                                          handleEdit(outlet);
+                                        }}
+                                        style={{
+                                          cursor: "pointer",
+                                          color: "skyblue",
+                                        }}
+                                      >
+                                        view
+                                      </span>
+                                    </td>
+                                  </tr>
+                                );
+                              }
+                            }
+                            return null;
+                          })
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="col-md-1">
+                    <ArrowCircleLeftIcon
+                      onClick={() => setSelected(false)}
+                      style={{ color: "#068FFF", fontSize: "35px" }}
+                    />
+                  </div>
+                  <div className="row mt-3 m-auto containerPadding">
+                    {vendorData ? (
+                      vendorData.map((ele, index) => (
+                        <Card
+                          key={ele.VendorId}
+                          className="col-md-4 m-3 "
+                          style={{
+                            width: "240px",
+                            height: "320px",
+                            borderRadius: "10%",
+                          }}
+                        >
+                          <div className="row text-center m-auto">
+                            {ele.VendorImage ? (
+                              <img
+                                style={{
+                                  width: "70%",
+                                  height: "50%",
+                                  borderRadius: "100%",
+                                }}
+                                className="m-auto"
+                                src={`http://localhost:8001/VendorImage/${ele.VendorImage}`}
+                                alt=""
+                              />
+                            ) : (
+                              <span>No Image Available</span>
+                            )}
+                            <span>
+                              {ele.VendorFirstName?.charAt(0)?.toUpperCase() +
+                                ele.VendorFirstName?.substr(1)}
+                              {ele.VendorLastName}
+                            </span>
+                            <span>{ele.VendorId}</span>
+                            <span style={{ color: "orange" }}>
+                              Job Assigned
+                              <span style={{ margin: "5px" }}>0</span>
+                            </span>
+                            <span style={{ color: "green" }}>
+                              Job Completed
+                              <span style={{ margin: "5px" }}>0</span>
+                            </span>
+                            <Button
+                              className="c_W mt-2"
+                              onClick={() => {
+                                AssignJobs(
+                                  selectedRecceItems,
+                                  ele,
+                                  selectedCity,
+                                  selecteZone
+                                );
+                              }}
+                            >
+                              Assign job
+                            </Button>
+                          </div>
+                        </Card>
+                      ))
+                    ) : (
+                      <div>Loading or no data available</div>
+                    )}
+                  </div>
+                </>
+              )}
             </>
           ) : jobType === "Design" ? (
             <>
@@ -553,6 +1106,18 @@ export default function JobManagement() {
                       <tbody>
                         {RecceData?.map((recceItem, index) =>
                           recceItem?.outletName.map((outlet, outletArray) => {
+                            // const desiredClient = ClientInfo?.client?.find(
+                            //   (client) => client._id === recceItem.BrandName
+                            // );
+
+                            let JobNob = 0;
+                            RecceData?.forEach((recceItem, recceIndex) => {
+                              recceItem?.outletName?.forEach((item) => {
+                                if (outlet._id === item._id) {
+                                  JobNob = recceIndex + 1;
+                                }
+                              });
+                            });
                             if (rowsDisplayed < rowsPerPage1) {
                               const pincodePattern = /\b\d{6}\b/;
 
@@ -569,9 +1134,9 @@ export default function JobManagement() {
                                 return (
                                   <tr className="tr_C" key={outlet._id}>
                                     <td className="td_S p-1">{serialNumber}</td>
-                                    <td className="td_S p-1">Job{index + 1}</td>
+                                    <td className="td_S p-1">Job{JobNob}</td>
                                     <td className="td_S p-1">
-                                      {recceItem.BrandName}
+                                      {recceItem?.BrandName}
                                     </td>
                                     <td className="td_S p-1">
                                       {outlet.ShopName}
@@ -737,45 +1302,285 @@ export default function JobManagement() {
           ) : null || jobType === "Installation" ? (
             <>
               <ToastContainer type="success" />
-
-              <>
-                <div className="col-md-1" onClick={() => setSelected(null)}>
-                  <ArrowCircleLeftIcon
-                    style={{ color: "#068FFF", fontSize: "35px" }}
-                  />
-                </div>
-
-                <div className="row mt-3 m-auto containerPadding">
-                  {vendorData ? (
-                    vendorData.map((ele, index) => (
-                      <Card
-                        key={ele.VendorId}
-                        className="col-md-4 m-3 p-2"
-                        style={{
-                          width: "200px",
-                          height: "250px",
-                          borderRadius: "10%",
-                        }}
+              {!seletedInstalation ? (
+                <>
+                  <div className="row">
+                    <div className="col-md-3">
+                      <ArrowCircleLeftIcon
+                        onClick={() => setSelected(false)}
+                        style={{ color: "#068FFF", fontSize: "35px" }}
+                      />
+                    </div>
+                  </div>
+                  <div className="row">
+                    <Col className="col-md-1 mb-3 m-auto">
+                      <Form.Control
+                        as="select"
+                        value={rowsPerPage1}
+                        onChange={handleRowsPerPageChange}
                       >
-                        <div className="row text-center m-auto">
-                          <h4>Group{index + 1}</h4>
-                          <h4>{jobType}</h4>
-                        </div>
-                        <div className="row m-auto">
-                          <Button
-                            className="c_W"
-                            onClick={() => AssignJobs(ele)}
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={30}>30</option>
+                        <option value={50}>50</option>
+                        <option value={80}>80</option>
+                        <option value={100}>100</option>
+                        <option value={140}>140</option>
+                        <option value={200}>200</option>
+                        <option value={300}>300</option>
+                        <option value={400}>400</option>
+                        <option value={600}>600</option>
+                        <option value={700}>700</option>
+                        <option value={1000}>1000</option>
+                        <option value={1500}>1500</option>
+                        <option value={10000}>10000</option>
+                      </Form.Control>
+                    </Col>
+                    <div className="col-md-11 mb-3  m-auto">
+                      <Button
+                        onClick={handleSelectVendorfoInstallation}
+                        className="row  m-auto c_W"
+                      >
+                        Select Vendor
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <table className="t-p">
+                      <thead className="t-c">
+                        <tr>
+                          <th className="th_s ">
+                            <input
+                              type="checkbox"
+                              style={{
+                                width: "15px",
+                                height: "15px",
+                                marginRight: "5px",
+                              }}
+                              checked={selectAll}
+                              onChange={handleSelectAllChange}
+                            />
+                          </th>
+                          <th className="th_s p-1">SI.No</th>
+                          <th className="th_s p-1">Job.No</th>
+                          <th className="th_s p-1">Brand </th>
+                          <th className="th_s p-1">Shop Name</th>
+                          <th className="th_s p-1">Client Name</th>
+                          <th className="th_s p-1">State</th>
+                          <th className="th_s p-1">Contact Number</th>
+                          <th className="th_s p-1">Zone</th>
+                          <th className="th_s p-1">Pincode</th>
+                          <th className="th_s p-1">City</th>
+                          <th className="th_s p-1">FL Board</th>
+                          <th className="th_s p-1">GSB</th>
+                          <th className="th_s p-1">Inshop</th>
+                          <th className="th_s p-1">Category</th>
+                          <th className="th_s p-1">Hight</th>
+                          <th className="th_s p-1">Width</th>
+                          <th className="th_s p-1">Date</th>
+                          <th className="th_s p-1">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {RecceData?.map((recceItem, index) =>
+                          recceItem?.outletName.map((outlet, outletArray) => {
+                            // const desiredClient = ClientInfo?.client?.find(
+                            //   (client) => client._id === recceItem.BrandName
+                            // );
+                            let JobNob = 0;
+                            RecceData?.forEach((recceItem, recceIndex) => {
+                              recceItem?.outletName?.forEach((item) => {
+                                if (outlet._id === item._id) {
+                                  JobNob = recceIndex + 1;
+                                }
+                              });
+                            });
+                            const selectedIds =
+                              SelectedData?.selectedBrandNames?.selectedIds;
+
+                            const recceItemId = recceItem._id;
+
+                            const isRecceItemIdSelected =
+                              selectedIds?.includes(recceItemId);
+
+                            if (rowsDisplayed < rowsPerPage1) {
+                              const pincodePattern = /\b\d{6}\b/;
+
+                              const address = outlet?.OutletAddress;
+                              const extractedPincode =
+                                address?.match(pincodePattern);
+
+                              if (extractedPincode) {
+                                outlet.OutletPincode = extractedPincode[0];
+                              }
+
+                              const isCityMatched =
+                                outlet?.OutletCity?.toLowerCase() ===
+                                SelectedData.selectedCity?.toLowerCase();
+
+                              const isZoneMatched =
+                                isCityMatched &&
+                                outlet?.OutletZone?.toLowerCase() ===
+                                  SelectedData?.selecteZone?.toLowerCase();
+
+                              if (
+                                isCityMatched &&
+                                isZoneMatched &&
+                                isRecceItemIdSelected &&
+                                outlet?.OutlateFabricationNeed?.includes("Yes")
+                              ) {
+                                rowsDisplayed++;
+                                serialNumber++;
+                                return (
+                                  <tr className="tr_C" key={outlet._id}>
+                                    <td className="td_S p-1">
+                                      <input
+                                        style={{
+                                          width: "15px",
+                                          height: "15px",
+                                          marginRight: "5px",
+                                        }}
+                                        type="checkbox"
+                                        checked={selectedRecceItems.includes(
+                                          outlet._id
+                                        )}
+                                        onChange={() =>
+                                          handleToggleSelect(
+                                            recceItem.BrandId,
+                                            outlet._id
+                                          )
+                                        }
+                                      />
+                                    </td>
+                                    <td className="td_S p-1">{serialNumber}</td>
+                                    <td className="td_S p-1">Job{JobNob}</td>
+                                    <td className="td_S p-1">
+                                      {recceItem?.BrandName}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet.ShopName}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet.ClientName}
+                                    </td>
+                                    <td className="td_S p-1">{outlet.State}</td>
+                                    <td className="td_S p-1">
+                                      {outlet.OutletContactNumber}
+                                    </td>
+
+                                    <td className="td_S p-1">
+                                      {outlet.OutletZone}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {extractedPincode
+                                        ? extractedPincode[0]
+                                        : ""}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet.OutletCity}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet.FLBoard}
+                                    </td>
+                                    <td className="td_S p-1">{outlet.GSB}</td>
+                                    <td className="td_S p-1">
+                                      {outlet.Inshop}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet.Category}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet.height}
+                                      {outlet.unit}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet.width}
+                                      {outlet.unit}
+                                    </td>
+                                    <td className="td_S ">
+                                      {recceItem.createdAt
+                                        ? new Date(recceItem.createdAt)
+                                            .toISOString()
+                                            .slice(0, 10)
+                                        : ""}
+                                    </td>
+                                    <td className="td_S ">
+                                      <span
+                                        variant="info "
+                                        onClick={() => {
+                                          handleEdit(outlet);
+                                        }}
+                                        style={{
+                                          cursor: "pointer",
+                                          color: "skyblue",
+                                        }}
+                                      >
+                                        view
+                                      </span>
+                                    </td>
+                                  </tr>
+                                );
+                              }
+                            }
+                            return null;
+                          })
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="col-md-1">
+                    <ArrowCircleLeftIcon
+                      onClick={() => setSelected(false)}
+                      style={{ color: "#068FFF", fontSize: "35px" }}
+                    />
+                  </div>
+                  <ToastContainer type="success" />
+
+                  <div className="row mt-3 m-auto containerPadding">
+                    {InstaLationGroups ? (
+                      InstaLationGroups?.map((ele, index) => {
+                        if (ele?.InstalationGroup?.length > 0) {
+                          <Card
+                            key={ele.VendorId}
+                            className="col-md-4 m-3 p-2"
+                            style={{
+                              width: "200px",
+                              height: "250px",
+                              borderRadius: "10%",
+                            }}
                           >
-                            Assigned Job
-                          </Button>
-                        </div>
-                      </Card>
-                    ))
-                  ) : (
-                    <div>Loading or no data available</div>
-                  )}
-                </div>
-              </>
+                            <div className="row text-center m-auto">
+                              <h4>Group{ele.InstalationGroup.length}</h4>
+                              <h4>{jobType}</h4>
+                            </div>
+
+                            <div className="row m-auto">
+                              <Button
+                                className="c_W"
+                                onClick={() => {
+                                  AssignInstallation(
+                                    selectedRecceItems,
+                                    ele._id,
+                                    selecteZone,
+                                    selectedCity
+                                  );
+                                }}
+                              >
+                                Assigned Job
+                              </Button>
+                            </div>
+                          </Card>;
+                        }
+                      })
+                    ) : (
+                      <div>Loading or no data available</div>
+                    )}
+                  </div>
+                </>
+              )}
             </>
           ) : null || jobType === "Printing" ? (
             <>
@@ -847,7 +1652,24 @@ export default function JobManagement() {
                                 (outlet, outletArray) => {
                                   if (rowsDisplayed < rowsPerPage1) {
                                     const pincodePattern = /\b\d{6}\b/;
+                                    // const desiredClient =
+                                    //   ClientInfo?.client?.find(
+                                    //     (client) =>
+                                    //       client._id === recceItem.BrandName
+                                    //   );
 
+                                    let JobNob = 0;
+                                    RecceData?.forEach(
+                                      (recceItem, recceIndex) => {
+                                        recceItem?.outletName?.forEach(
+                                          (item) => {
+                                            if (outlet._id === item._id) {
+                                              JobNob = recceIndex + 1;
+                                            }
+                                          }
+                                        );
+                                      }
+                                    );
                                     const address = outlet?.OutletAddress;
                                     const extractedPincode =
                                       address?.match(pincodePattern);
@@ -867,10 +1689,10 @@ export default function JobManagement() {
                                             {serialNumber}
                                           </td>
                                           <td className="td_S p-1">
-                                            Job{index + 1}
+                                            Job{JobNob}
                                           </td>
                                           <td className="td_S p-1">
-                                            {recceItem.BrandName}
+                                            {recceItem?.BrandName}
                                           </td>
                                           <td className="td_S p-1">
                                             {outlet.ShopName}
@@ -955,137 +1777,135 @@ export default function JobManagement() {
                   </>
                 ) : (
                   <>
-                    <>
-                      <div
-                        className="col-md-1"
-                        onClick={(e) => setSelected(e, null)}
-                      >
-                        <ArrowCircleLeftIcon
-                          onClick={() => setselectedIndexPrint(false)}
-                          style={{ color: "#068FFF", fontSize: "35px" }}
-                        />
-                      </div>
-                      <Row className="row m-auto">
-                        <Col className="col-md-3">
-                          <Form.Label>Choose Category</Form.Label>{" "}
-                          <Form.Select
-                            onChange={(e) => setCatagoryName(e.target.value)}
-                          >
-                            <option value="">Select</option>
-                            {categoryData?.map((category) => (
-                              <option
-                                key={category._id}
-                                value={category.categoryName}
-                              >
-                                {category.categoryName}
-                              </option>
-                            ))}
-                          </Form.Select>
-                        </Col>
+                    <div
+                      className="col-md-1"
+                      onClick={(e) => setSelected(e, null)}
+                    >
+                      <ArrowCircleLeftIcon
+                        onClick={() => setselectedIndexPrint(false)}
+                        style={{ color: "#068FFF", fontSize: "35px" }}
+                      />
+                    </div>
+                    <Row className="row m-auto">
+                      <Col className="col-md-3">
+                        <Form.Label>Choose Category</Form.Label>{" "}
+                        <Form.Select
+                          onChange={(e) => setCatagoryName(e.target.value)}
+                        >
+                          <option value="">Select</option>
+                          {categoryData?.map((category) => (
+                            <option
+                              key={category._id}
+                              value={category.categoryName}
+                            >
+                              {category.categoryName}
+                            </option>
+                          ))}
+                        </Form.Select>
+                      </Col>
 
-                        <Col className="col-md-3">
-                          <Form.Group
-                            className="mb-3"
-                            controlId="exampleForm.ControlInput1"
-                          >
-                            <Form.Label>Quantity</Form.Label>
-                            <Form.Control
-                              onChange={(e) => setQuantity(e.target.value)}
-                              placeholder="Enter  Quantity"
-                              type="text"
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
+                      <Col className="col-md-3">
+                        <Form.Group
+                          className="mb-3"
+                          controlId="exampleForm.ControlInput1"
+                        >
+                          <Form.Label>Quantity</Form.Label>
+                          <Form.Control
+                            onChange={(e) => setQuantity(e.target.value)}
+                            placeholder="Enter  Quantity"
+                            type="text"
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
 
-                      <div className="row  m-auto ">
-                        <div className="col-md-8">
-                          <div>
-                            <p>
-                              <span className="cl"> Shop Name:</span>
-                              <span>{PrintData.ShopName}</span>
-                            </p>
-                            <p>
-                              <span className="cl"> Partner Code:</span>
-                              <span> {PrintData.PartnerCode}</span>
-                            </p>
-                            <p>
-                              <span className="cl"> Category :</span>
-                              <span> {PrintData.Category}</span>
-                            </p>
-                            <p>
-                              <span className="cl">Outlet Pincode :</span>
-                              <span> {PrintData.OutletPincode}</span>
-                            </p>
-                            <p>
-                              <span className="cl"> Inshop :</span>
-                              <span>
-                                {PrintData.Inshop === "Y" || "y"
-                                  ? PrintData.Inshop
-                                  : "No"}
-                              </span>
-                            </p>
-                            <p>
-                              <span className="cl"> GSB :</span>
-                              <span>
-                                {PrintData.GSB === "Y" || "y"
-                                  ? PrintData.GSB
-                                  : "No"}
-                              </span>
-                            </p>
-                            <p>
-                              <span className="cl"> FLBoard :</span>
-                              <span>
-                                {PrintData.FLBoard === "Y"
-                                  ? PrintData.FLBoard
-                                  : "No"}
-                              </span>
-                            </p>
-                            <p>
-                              <span className="cl"> Hight:</span>
-                              <span>
-                                {PrintData.height}
-                                {PrintData.unit}
-                              </span>
-                            </p>
-                            <p>
-                              <span className="cl"> Width :</span>
-                              <span>
-                                {PrintData.width}
-                                {PrintData.unit}
-                              </span>
-                            </p>
-                            <p>
-                              <span className="cl"> GST Number :</span>
-                              <span>{PrintData.GSTNumber}</span>
-                            </p>
-                          </div>
-
+                    <div className="row  m-auto ">
+                      <div className="col-md-8">
+                        <div>
                           <p>
-                            <span className="cl"> Download :</span>
+                            <span className="cl"> Shop Name:</span>
+                            <span>{PrintData.ShopName}</span>
+                          </p>
+                          <p>
+                            <span className="cl"> Partner Code:</span>
+                            <span> {PrintData.PartnerCode}</span>
+                          </p>
+                          <p>
+                            <span className="cl"> Category :</span>
+                            <span> {PrintData.Category}</span>
+                          </p>
+                          <p>
+                            <span className="cl">Outlet Pincode :</span>
+                            <span> {PrintData.OutletPincode}</span>
+                          </p>
+                          <p>
+                            <span className="cl"> Inshop :</span>
                             <span>
-                              <img
-                                onClick={downloadAsPdf}
-                                width={"50px"}
-                                height={"50px"}
-                                src="../Assests/downloadicon.gif"
-                                alt=""
-                              />
+                              {PrintData.Inshop === "Y" || "y"
+                                ? PrintData.Inshop
+                                : "No"}
                             </span>
                           </p>
+                          <p>
+                            <span className="cl"> GSB :</span>
+                            <span>
+                              {PrintData.GSB === "Y" || "y"
+                                ? PrintData.GSB
+                                : "No"}
+                            </span>
+                          </p>
+                          <p>
+                            <span className="cl"> FLBoard :</span>
+                            <span>
+                              {PrintData.FLBoard === "Y"
+                                ? PrintData.FLBoard
+                                : "No"}
+                            </span>
+                          </p>
+                          <p>
+                            <span className="cl"> Hight:</span>
+                            <span>
+                              {PrintData.height}
+                              {PrintData.unit}
+                            </span>
+                          </p>
+                          <p>
+                            <span className="cl"> Width :</span>
+                            <span>
+                              {PrintData.width}
+                              {PrintData.unit}
+                            </span>
+                          </p>
+                          <p>
+                            <span className="cl"> GST Number :</span>
+                            <span>{PrintData.GSTNumber}</span>
+                          </p>
                         </div>
-                        <div className="row mt-3">
-                          <Button
-                            onClick={(event) =>
-                              handleUpdate(event, PrintData._id)
-                            }
-                            className="col-md-2 mt-3 "
-                          >
-                            Process
-                          </Button>
-                        </div>
+
+                        <p>
+                          <span className="cl"> Download :</span>
+                          <span>
+                            <img
+                              onClick={downloadAsPdf}
+                              width={"50px"}
+                              height={"50px"}
+                              src="../Assests/downloadicon.gif"
+                              alt=""
+                            />
+                          </span>
+                        </p>
                       </div>
-                    </>
+                      <div className="row mt-3">
+                        <Button
+                          onClick={(event) =>
+                            handleUpdate(event, PrintData._id)
+                          }
+                          className="col-md-2 mt-3 "
+                        >
+                          Process
+                        </Button>
+                      </div>
+                    </div>
                   </>
                 )}
               </div>
@@ -1154,6 +1974,18 @@ export default function JobManagement() {
                       <tbody>
                         {RecceData?.map((recceItem, index) =>
                           recceItem?.outletName.map((outlet, outletArray) => {
+                            // const desiredClient = ClientInfo?.client?.find(
+                            //   (client) => client._id === recceItem.BrandName
+                            // );
+
+                            let JobNob = 0;
+                            RecceData?.forEach((recceItem, recceIndex) => {
+                              recceItem?.outletName?.forEach((item) => {
+                                if (outlet._id === item._id) {
+                                  JobNob = recceIndex + 1;
+                                }
+                              });
+                            });
                             if (rowsDisplayed < rowsPerPage1) {
                               const pincodePattern = /\b\d{6}\b/;
 
@@ -1172,9 +2004,9 @@ export default function JobManagement() {
                                 return (
                                   <tr className="tr_C" key={serialNumber}>
                                     <td className="td_S p-1">{serialNumber}</td>
-                                    <td className="td_S p-1">Job{index + 1}</td>
+                                    <td className="td_S p-1">Job{JobNob}</td>
                                     <td className="td_S p-1">
-                                      {recceItem.BrandName}
+                                      {recceItem?.BrandName}
                                     </td>
                                     <td className="td_S p-1">
                                       {outlet.ShopName}

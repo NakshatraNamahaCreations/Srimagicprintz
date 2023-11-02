@@ -106,12 +106,12 @@ const navData = [
     text: "Billing Management",
     link: "/Billing",
   },
-  {
-    id: 14,
-    icon: <SettingsApplicationsIcon />,
-    text: "Setting",
-    link: "/Setting",
-  },
+  // {
+  //   id: 14,
+  //   icon: <SettingsApplicationsIcon />,
+  //   text: "Setting",
+  //   link: "/Setting",
+  // },
   {
     id: 15,
     icon: <ExitToAppIcon />,

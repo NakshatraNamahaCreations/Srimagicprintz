@@ -4,11 +4,14 @@ import { useLocation } from "react-router-dom";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { NavLink } from "react-router-dom";
+import { useGlobalNotification } from "../Component/NotificationContext";
 
 function Header() {
-  const user = JSON.parse(sessionStorage.getItem("userData"));
-  const userName = user.name;
-  const Name = userName.charAt(0).toUpperCase() + userName.substr(1);
+  const { notifications } = useGlobalNotification();
+  const user = JSON.parse(localStorage.getItem("userData"));
+
+  const userName = user?.name;
+  const Name = userName?.charAt(0).toUpperCase() + userName?.substr(1);
 
   const location = useLocation();
   const pathname = location.pathname;
@@ -49,6 +52,10 @@ function Header() {
   } else if (pathname === "/Notification") {
     sidenavName = " Notification ";
   }
+  
+
+  // Now, `filteredNotifications` contains notifications without the "New notification" text.
+
   return (
     <>
       <Navbar
@@ -69,21 +76,46 @@ function Header() {
           <Nav>
             <Nav.Link as={NavLink} to="/Notification">
               <NotificationsIcon style={{ fontSize: "40px" }} />
+
+              <div
+                className="row  "
+                style={{
+                  position: "absolute",
+                  right: "10.5%",
+                  top: "16%",
+                }}
+              >
+                <p className="col-md-2 m-auto">
+                  <p
+                    className="text-center "
+                    style={{
+                      height: "25px",
+                      width: "25px",
+                      backgroundColor: "red",
+                      borderRadius: "100%",
+                    }}
+                  >
+                    <span className="poppinfnt   bold fs_7  text-white">
+                      {notifications?.length}
+                    </span>{" "}
+                  </p>
+                </p>
+              </div>
             </Nav.Link>
             <Nav.Link eventKey={2} as={NavLink} to="/Setting">
               {user === [] ? (
                 <AccountCircleIcon style={{ fontSize: "40px" }} />
               ) : (
                 <>
-                 <span className="m-1"> {Name}</span>
+                  <span className="m-1"> {Name ? Name : null}</span>
                   <img
                     width={"35px"}
                     height={"35px"}
                     style={{ borderRadius: "100px" }}
-                   src={`http://api.srimagicprintz.com
-/ProfileImage/${user?.profileImage}`}
+                    src={`http://localhost:8001/ProfileImage/${user?.profileImage}`}
                     alt=""
                   />
+
                   <br />
                 </>
               )}

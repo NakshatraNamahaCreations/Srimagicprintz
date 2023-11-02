@@ -15,7 +15,9 @@ export default function VendorInfo() {
   const [vendorId, setVendorId] = useState(null);
   const [image, setImage] = useState("");
   const [selected, setSelected] = useState("");
+  const [passWord, setPassWord] = useState(null);
 
+  // login api  http://localhost:8001/api/Vendor/vendorInfo/login
   const AddVendorData = async (e) => {
     e.preventDefault();
 
@@ -29,12 +31,12 @@ export default function VendorInfo() {
     formData.append("SelectedType", selected);
     formData.append("VendorImage", image);
     formData.append("VendorId", vendorId);
-
+    formData.append("PassWord", passWord);
     try {
       const config = {
         url: "/Vendor/vendorInfo/addvendorinfo",
         method: "post",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
@@ -100,6 +102,14 @@ export default function VendorInfo() {
                   value={VendorEmail}
                   onChange={(e) => setVendorEmail(e.target.value)}
                   placeholder="Please Enter Your Email"
+                />
+              </Col>
+              <Col className="mb-3">
+                <Form.Label> Password </Form.Label>
+                <Form.Control
+                  value={passWord}
+                  onChange={(e) => setPassWord(e.target.value)}
+                  placeholder="Please Enter  Password"
                 />
               </Col>
             </Row>

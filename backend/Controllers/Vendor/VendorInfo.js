@@ -1,6 +1,6 @@
 const VendorInfoModel = require("../../Model/Vendor/vendorInfo");
 const { v4: uuidv4 } = require("uuid");
-
+const bcrypt = require("bcryptjs");
 function uuidStringToNumber(uuid) {
   let hash = 0;
   for (let i = 0; i < uuid.length; i++) {
@@ -24,6 +24,7 @@ class VendorInfo {
       VendorEmail,
       VendorAdress,
       SelectedType,
+      PassWord,
     } = req.body;
 
     let file = req.file?.filename;
@@ -49,8 +50,9 @@ class VendorInfo {
         BankAccountType: null,
         IFSCCode: null,
         BankInfoImage: null,
+        PassWord,
       });
-
+// if(VendorEmail)
       if (!file) {
         return res.status(400).json({
           status: 400,
@@ -169,6 +171,50 @@ class VendorInfo {
       return res.json({ success: "Deleted Successfully" });
     } else {
       return res.json({ error: "not able to complete" });
+    }
+  }
+
+  async VendorLogin(req, res) {
+    let { VendorContactNumber, PassWord } = req.body;
+    try {
+      if (!VendorContactNumber || !PassWord) {
+        return res.status(400).json({ error: "Please fill in all fields" });
+      } else {
+        const contact = await VendorInfoModel.findOne({ VendorContactNumber });
+        if (!contact) {
+          return res.status(400).json({ error: "Invalid Phone Number" });
+        } else {
+          const vendor = await VendorInfoModel.findOne({
+            VendorContactNumber,
+            PassWord,
+          });
+          if (vendor) {
+            return res.status(200).json({ success: "Login Successfully" });
+          } else {
+            return res.status(400).json({ error: "Invalid Password" });
+          }
+        }
+      }
+    } catch (err) {
+      console.log(err, "err");
+      return res
+        .status(500)
+        .json({ error: "Error occurred while logging in Vendor" });
+    }
+  }
+
+  async SignOut(req, res) {
+    const logoutid = req.params.loginid;
+
+    try {
+      let logoutUser = await VendorInfoModel.deleteMany({ _id: logoutid });
+      if (logoutUser) {
+        return res.json({ Success: "succesfully deleted" });
+      } else {
+        return res.status(401).json("Unauthorized");
+      }
+    } catch (err) {
+      return res.json({ err: "failed to logout" });
     }
   }
 }

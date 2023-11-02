@@ -45,9 +45,9 @@ export function Signup() {
 
     try {
       const config = {
-        url: "/auth/auth/signup",
+        url: "/api/auth/auth/signup",
         method: "POST",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001",
         data: formData,
       };
 
@@ -56,7 +56,6 @@ export function Signup() {
       if (res.status === 200) {
         alert("Signup success");
         window.location.assign("/");
-        sessionStorage.setItem("userData", JSON.stringify(res.data));
       } else {
         alert("Email or Mobile already exists");
       }

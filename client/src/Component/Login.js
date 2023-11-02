@@ -19,18 +19,17 @@ export const Login = () => {
       const config = {
         url: "/auth/auth/login",
         method: "POST",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         data: {
           email: email,
           password: password,
         },
       };
       let res = await axios(config);
-
       if (res.status === 200) {
         alert("Login success");
         window.location.assign("/Overview");
-        sessionStorage.setItem("userData", JSON.stringify(res.data.user));
+        localStorage.setItem("userData", JSON.stringify(res.data.user));
       } else {
         alert("user or password not correct");
       }
@@ -48,9 +47,9 @@ export const Login = () => {
   };
   return (
     <>
-      <Form className="row m-auto mt-5">
+      <Form className="row  m-auto mt-5">
         <div className="col-md-8 m-auto">
-          <div className="row shadow   bg-body rounded">
+          <div className="row shadow   bg-body rounded m-auto">
             <div className="col-md-6  ">
               <Row className="mb-3  ">
                 <h4 className="col-md-2 m-auto">Login</h4>
@@ -131,7 +130,7 @@ export const Login = () => {
             </div>
             <img
               alt=""
-              className="col-md-6 "
+              className="col-md-6 p-0"
               src="https://img.freepik.com/premium-vector/abstract-vector-business-banner-designs_9583-165.jpg"
             />{" "}
           </div>

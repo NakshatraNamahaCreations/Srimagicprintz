@@ -30,6 +30,7 @@ router.post(
   upload.single("VendorImage"),
   VendorInfoController.addVendorInfo
 );
+// router.post("/createroup",VendorInfoController.VendorInstallation)
 router.post(
   "/linkbankinfo",
   upload1.single("BankInfoImage"),
@@ -44,5 +45,7 @@ router.delete(
   "/deletevendordata/:vendordeletid",
   VendorInfoController.deleteVendorData
 );
+router.post("/login", VendorInfoController.VendorLogin);
+router.delete("/signout", VendorInfoController.SignOut);
 
 module.exports = router;

@@ -9,6 +9,7 @@ import Modal from "react-bootstrap/Modal";
 import { Card } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import Row from "react-bootstrap/Row";
+import { useDispatch } from "react-redux";
 import "react-toastify/dist/ReactToastify.css";
 import { CSVLink, CSVDownload } from "react-csv";
 import * as XLSX from "xlsx";
@@ -17,9 +18,14 @@ import pptxgen from "pptxgenjs";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import moment from "moment";
 import { saveAs } from "file-saver";
+
+
+
 const ExcelJS = require("exceljs");
 
 export default function ReceeManagement() {
+  
+
   const ApiURL = process.env.REACT_APP_API_URL;
 
   const [selectedIndex, setSelectedIndex] = useState(false);
@@ -50,24 +56,28 @@ export default function ReceeManagement() {
   const [selectedcategory, setselectedcategory] = useState("");
   const [SearchCategory, setSearchCategory] = useState("");
   const [selectedRecceItems, setSelectedRecceItems] = useState([]);
+
+  const [selectedRecceItems1, setSelectedRecceItems1] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [editrecce, setEditRecce] = useState(false);
-  const [Editarea, setEditArea] = useState("");
-  const [Editclient, setEditclient] = useState("");
-  const [Editshopname, setEditShopName] = useState("");
-  const [EditCity, setEditCity] = useState("");
-  const [EditContactNumber, setEditContactNumber] = useState("");
-  const [EditPincode, setEditPincode] = useState("");
-  const [EditZone, setEditZone] = useState("");
-  const [Editdatastatus, setEditdatastatus] = useState("");
-  const [Editreccehight, setEditreccehight] = useState("");
-  const [Editreccewidth, setEditreccewidth] = useState("");
-  const [EditrecceUnit, setEditrecceUnit] = useState("");
+  // const [Editarea, setEditArea] = useState("");
+  // const [Editclient, setEditclient] = useState("");
+  // const [Editshopname, setEditShopName] = useState("");
+  // const [EditCity, setEditCity] = useState("");
+  // const [EditContactNumber, setEditContactNumber] = useState("");
+  // const [EditPincode, setEditPincode] = useState("");
+  // const [EditZone, setEditZone] = useState("");
+  // const [Editdatastatus, setEditdatastatus] = useState("");
+  // const [Editreccehight, setEditreccehight] = useState("");
+  // const [Editreccewidth, setEditreccewidth] = useState("");
+  // const [EditrecceUnit, setEditrecceUnit] = useState("");
+
   const [editRecceData, setEditRecceData] = useState({});
   const [moreoption, setmoreoption] = useState(false);
+  const [moreoption1, setmoreoption1] = useState(false);
   const [show, setShow] = useState(false);
   const [selectAction, setselectAction] = useState(false);
-
+  const [selectAction1, setselectAction1] = useState(false);
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
 
@@ -96,19 +106,44 @@ export default function ReceeManagement() {
   const [pendingStatus, setpendingStatus] = useState([]);
   const [cancelledStatus, setcancelledStatus] = useState([]);
   const [proccesingStatus, setproccesingStatus] = useState([]);
+  const [selctedVendor, setselctedVendor] = useState(null);
+  const [ClientInfo, setClientInfo] = useState([]);
+  const handleClose1 = () => setShow(false);
+  const [data1, setdata1] = useState(0);
+  const [OutletDoneData, setOutletDoneData] = useState([]);
+  const [selectrecceStatus, setSelectRecceStatus] = useState(null);
 
   useEffect(() => {
     getAllRecce();
     getAllVendorInfo();
     getAllCategory();
+    getAllClientsInfo();
+    getOuletById();
   }, []);
   useEffect(() => {
     getLengthOfStatus();
   }, [reccedata]);
+
+  const getOuletById = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:8001/api/getoutletboarddatabyrecceid/${getVendorName._id}`
+      );
+      if (res.status === 200) {
+        setOutletDoneData(res?.data?.outletBoard);
+      }
+    } catch (err) {
+      // alert(err);
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -122,7 +157,7 @@ export default function ReceeManagement() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -135,7 +170,18 @@ export default function ReceeManagement() {
       alert("can't able to fetch data");
     }
   };
+  useEffect(() => {
+    setdata1(rowsDisplayed);
+  }, [rowsPerPage1]);
 
+  let rowsDisplayed = 0;
+
+  const handleRowsPerPageChange = (e) => {
+    const newRowsPerPage = parseInt(e.target.value);
+    setRowsPerPage1(newRowsPerPage);
+
+    rowsDisplayed = 0;
+  };
   useEffect(() => {
     const filteredClients = () => {
       let results = [...reccedata];
@@ -328,7 +374,7 @@ export default function ReceeManagement() {
           const outletNames = flattenOutletNames(filteredData);
 
           const res = await axios.post(
-            `http://api.srimagicprintz.com/api/recce/recce/addreccesviaexcelesheet/${outlateid}`,
+            `http://localhost:8001/api/recce/recce/addreccesviaexcelesheet/${outlateid}`,
             { outletName: outletNames },
             {
               headers: {
@@ -393,54 +439,54 @@ export default function ReceeManagement() {
     const files = event.target.files;
     setDesignImages(files);
   };
-  const updateRecceData = async () => {
-    const formdata = new FormData();
-    if ("reccedesign") {
-      for (const image of designImages) {
-        formdata.append("designimage", image);
-      }
-    }
+  // const updateRecceData = async () => {
+  //   const formdata = new FormData();
+  //   if ("reccedesign") {
+  //     for (const image of designImages) {
+  //       formdata.append("designimage", image);
+  //     }
+  //   }
 
-    formdata.append("Area", Editarea || editRecceData.Area);
-    formdata.append("ClientName", Editclient || editRecceData.ClientName);
-    formdata.append("City", EditCity || editRecceData.City);
-    formdata.append(
-      "ContactNumber",
-      EditContactNumber || editRecceData.ContactNumber
-    );
-    formdata.append("Pincode", EditPincode || editRecceData.Pincode);
-    formdata.append("Zone", EditZone || editRecceData.Zone);
-    formdata.append("recceUnit", EditrecceUnit || editRecceData.recceUnit);
-    formdata.append("category", selectedcategory || editRecceData.category);
-    formdata.append("datastatus", Editdatastatus || editRecceData.datastatus);
+  //   formdata.append("Area", Editarea || editRecceData.Area);
+  //   formdata.append("ClientName", Editclient || editRecceData.ClientName);
+  //   formdata.append("City", EditCity || editRecceData.City);
+  //   formdata.append(
+  //     "ContactNumber",
+  //     EditContactNumber || editRecceData.ContactNumber
+  //   );
+  //   formdata.append("Pincode", EditPincode || editRecceData.Pincode);
+  //   formdata.append("Zone", EditZone || editRecceData.Zone);
+  //   formdata.append("recceUnit", EditrecceUnit || editRecceData.recceUnit);
+  //   formdata.append("category", selectedcategory || editRecceData.category);
+  //   formdata.append("datastatus", Editdatastatus || editRecceData.datastatus);
 
-    formdata.append("reccehight", Editreccehight || editRecceData.reccehight);
+  //   formdata.append("reccehight", Editreccehight || editRecceData.reccehight);
 
-    formdata.append("reccewidth", Editreccewidth || editRecceData.reccewidth);
+  //   formdata.append("reccewidth", Editreccewidth || editRecceData.reccewidth);
 
-    formdata.append("ShopName", Editshopname || editRecceData.ShopName);
-    try {
-      const recceId = editRecceData._id;
-      const config = {
-        url: `/recce/recce/updatereccedata/${recceId}`,
-        method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
-        headers: { "Content-Type": "application/json" },
+  //   formdata.append("ShopName", Editshopname || editRecceData.ShopName);
+  //   try {
+  //     const recceId = editRecceData._id;
+  //     const config = {
+  //       url: `/recce/recce/updatereccedata/${recceId}`,
+  //       method: "put",
+  //       baseURL: "http://localhost:8001/api",
+  //       headers: { "Content-Type": "application/json" },
 
-        data: formdata,
-      };
+  //       data: formdata,
+  //     };
 
-      const res = await axios(config);
+  //     const res = await axios(config);
 
-      if (res.status === 200) {
-        alert("Successfully linked vendor to recce");
-        setSelectedIndex(null);
-        window.location.reload();
-      }
-    } catch (err) {
-      alert("Not able to add", err);
-    }
-  };
+  //     if (res.status === 200) {
+  //       alert("Successfully linked vendor to recce");
+  //       setSelectedIndex(null);
+  //       window.location.reload();
+  //     }
+  //   } catch (err) {
+  //     alert("Not able to add", err);
+  //   }
+  // };
 
   const handleVendorEdit = (recceid) => {
     const recceTobeedit = filteredData.find((recce) => recce._id === recceid);
@@ -517,7 +563,7 @@ export default function ReceeManagement() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
+        "http://localhost:8001/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -588,6 +634,126 @@ export default function ReceeManagement() {
     }
   };
 
+  const handleAssignVendor = async () => {
+    setShow(true);
+  };
+
+  const selectedv = vendordata?.find((vendor) => vendor._id === selctedVendor);
+
+  const handleUpdate = async () => {
+    try {
+      for (const outletid of selectedRecceItems1) {
+        const formdata = new FormData();
+
+        if (selectrecceStatus !== undefined && selectrecceStatus !== null) {
+          formdata.append("RecceStatus", selectrecceStatus);
+        }
+
+        const config = {
+          url: `/recce/recce/updatereccedata/${getVendorName._id}/${outletid}`,
+          method: "put",
+          baseURL: "http://localhost:8001/api",
+          headers: { "Content-Type": "multipart/form-data" },
+          data: formdata,
+        };
+
+        const res = await axios(config);
+
+        if (res.status === 200) {
+          alert("Successfully updated outlet");
+          console.log(res.data);
+          window.location.reload();
+        } else {
+          console.error("Received non-200 status code:", res.status);
+        }
+      }
+    } catch (err) {
+      console.error("Error:", err.response ? err.response.data : err.message);
+      alert(
+        "Not able to update: " +
+          (err.response ? err.response.data.message : err.message)
+      );
+    }
+  };
+
+  async function AssignVendor(selectedVendor) {
+    try {
+      const updatedRecceData = [];
+
+      for (const recceId of selectedRecceItems1) {
+        const filteredData = reccedata.map((ele) =>
+          ele.outletName.filter((item) => {
+            if (recceId === item._id) {
+              item.vendor = vendordata._id;
+            }
+            return item;
+          })
+        );
+
+        updatedRecceData.push(...filteredData);
+
+        const config = {
+          url: `/api/recce/recce/outletupdate/${recceId}/${selectedv?._id}`,
+          baseURL: "http://localhost:8001",
+          method: "put",
+          headers: { "Content-Type": "application/json" },
+          data: { reccedata: updatedRecceData },
+        };
+
+        const res = await axios(config);
+
+        if (res.status === 200) {
+          alert(`Recce Assign to ${selectedv.VendorFirstName}`);
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      alert("Error while updating outlet:", error.message);
+    }
+  }
+
+  const updateVendor = async () => {
+    if (window.confirm(`Are you sure you want to update clients data?`)) {
+      try {
+        await AssignVendor(selectedv);
+      } catch (error) {
+        console.error("Error while updating recce items:", error);
+      }
+    }
+  };
+
+  async function deleteOutlet(recceId) {
+    try {
+      const response = await axios.delete(
+        `${ApiURL}/recce/recce/recceoudelet/${recceId}`
+      );
+
+      if (response.status === 200) {
+        alert("Outlet deleted successfully");
+        window.location.reload();
+      }
+    } catch (error) {
+      alert("Error while deleting outlet:", error.message);
+    }
+  }
+
+  const handleDeleteSelectedOutlet = async () => {
+    if (selectedRecceItems1.length === 0) {
+      return;
+    }
+
+    if (window.confirm(`Are you sure you want to delete  clients data ?`)) {
+      try {
+        for (const recceId of selectedRecceItems1) {
+          await deleteOutlet(recceId);
+        }
+
+        setSelectedRecceItems1([]);
+      } catch (error) {
+        console.error("Error while deleting recce items:", error);
+      }
+    }
+  };
   const handleFilterStartDateChange = (event) => {
     setFilterStartDate(event.target.value);
   };
@@ -628,16 +794,6 @@ export default function ReceeManagement() {
   const filteredData1 = filteredData?.filter(
     (vendor) => vendor?._id === getVendorName?._id
   );
-
-  let serialNumber = 0;
-  let rowsDisplayed = 0;
-
-  const handleRowsPerPageChange = (e) => {
-    const newRowsPerPage = parseInt(e.target.value);
-    setRowsPerPage1(newRowsPerPage);
-    serialNumber = 0;
-    rowsDisplayed = 0;
-  };
 
   useEffect(() => {
     const filteredClients = () => {
@@ -909,29 +1065,30 @@ export default function ReceeManagement() {
           }
 
           if (outlet.RecceStatus.includes("Completed")) {
-            const rHeightInFeet = convertToFeet(outlet.height, outlet.unit);
-            const rWidthInFeet = convertToFeet(outlet.width, outlet.unit);
+            const width = outlet.width || 1;
+            const height = outlet.height || 1;
+            const rHeightInFeet = convertToFeet(height, outlet.unit);
+            const rWidthInFeet = convertToFeet(width, outlet.unit);
             const media = outlet.Category || "";
 
-            const formattedDimensions = `H${Math.round(
-              rHeightInFeet
-            )}XW${Math.round(rWidthInFeet)}`;
-
             const slide = pptx.addSlide();
-            slide.addText(`Outlatename:${outlet.ShopName}`, {
+
+            slide.addText(`Outlet Name: ${outlet.ShopName}`, {
               x: 1,
               y: 0.3,
               w: "100%",
               fontSize: 12,
             });
 
-            slide.addText(`Address:${outlet.OutletAddress}`, {
+            slide.addText(`Address: ${outlet.OutletAddress}`, {
               x: 1,
-              y: 0.1,
+              y: 0.6,
               w: "100%",
               fontSize: 12,
             });
-
+            const formattedDimensions = `H${Math.round(
+              rHeightInFeet
+            )}XW${Math.round(rWidthInFeet)}`;
             const imageUrls = ["url1.jpg", "url2.jpg", "url3.jpg"];
             const imageWidth = "30%";
 
@@ -967,7 +1124,6 @@ export default function ReceeManagement() {
           }
         }
       }
-
       pptx.write("blob").then((blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -978,6 +1134,16 @@ export default function ReceeManagement() {
         a.click();
         window.URL.revokeObjectURL(url);
       });
+      // pptx.write("blob").then((blob) => {
+      //   const url = window.URL.createObjectURL(blob);
+      //   const a = document.createElement("a");
+      //   a.style.display = "none";
+      //   a.href = url;
+      //   a.download = "presentation.pptx";
+      //   document.body.appendChild(a);
+      //   a.click();
+      //   window.URL.revokeObjectURL(url);
+      // });
     } catch (err) {
       console.error("Error:", err);
       alert("An error occurred. Please try again.");
@@ -1022,10 +1188,10 @@ export default function ReceeManagement() {
               "Outlet Contact Number": outlet.OutletContactNumber,
               "GST Number": outlet.GSTNumber,
               "GSB/inshop": outlet.GSB || outlet.Inshop,
+              "No.Quantity": outlet.No_Quantity || 0,
               "Media .": outlet.Category,
               Height: rHeightInFeet || 0,
               Width: rWidthInFeet || 0,
-              "No.Quantity": outlet.No_Quantity || 0,
               SFT: outlet.SFT,
               "Production Rate": outlet.ProductionRate,
               "Production Cost": outlet.ProductionCost,
@@ -1182,6 +1348,87 @@ export default function ReceeManagement() {
     }
   };
 
+  const getAllClientsInfo = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:8001/api/Client/clients/getallclient"
+      );
+      if (res.status === 200) {
+        setClientInfo(res.data);
+      }
+    } catch (err) {
+      alert(err, "err");
+    }
+  };
+
+  const handleOutletToggleSelect = (item, outletId) => {
+    let updatedSelectedRecceItems;
+
+    if (selectedRecceItems1.includes(outletId)) {
+      updatedSelectedRecceItems = selectedRecceItems1.filter(
+        (id) => id !== outletId
+      );
+    } else {
+      updatedSelectedRecceItems = [...selectedRecceItems1, outletId];
+    }
+
+    setSelectedRecceItems1(updatedSelectedRecceItems);
+    setmoreoption1(updatedSelectedRecceItems.length > 0);
+  };
+
+  const handleOutletSelectAllChange = () => {
+    setSelectAll(!selectAll);
+
+    if (!selectAll) {
+      const allOutletIds = reccedata.flatMap((item) =>
+        item?.outletName.map((outlet) => outlet._id)
+      );
+      setSelectedRecceItems1(allOutletIds);
+    } else {
+      setSelectedRecceItems1([]);
+    }
+
+    setmoreoption1(!selectAll);
+  };
+
+  const [FilterStartDate1, setFilterStartDate1] = useState();
+  const [FilterEndDate1, setFilterEndDate1] = useState();
+
+  const handleClearDateFilters1 = () => {
+    setFilterStartDate1("");
+    setFilterEndDate1("");
+  };
+  const handleFilterEndDateChange1 = (event) => {
+    setFilterEndDate1(event.target.value);
+  };
+  const handleFilterStartDateChange1 = (event) => {
+    setFilterStartDate1(event.target.value);
+  };
+
+  const filterDateswise = (data) => {
+    return data?.filter((item) => {
+      const createdAtDate = moment(item.createdAt, "YYYY-MM-DD");
+      const startDate = FilterStartDate1
+        ? moment(FilterStartDate1, "YYYY-MM-DD")
+        : null;
+      const endDate = FilterEndDate1
+        ? moment(FilterEndDate1, "YYYY-MM-DD")
+        : null;
+
+      if (startDate && !createdAtDate.isSameOrAfter(startDate)) {
+        return false;
+      }
+
+      if (endDate && !createdAtDate.isSameOrBefore(endDate)) {
+        return false;
+      }
+
+      return true;
+    });
+  };
+
+  const filteredDate = filterDateswise(filteredData1);
+
   return (
     <>
       <Header />
@@ -1281,7 +1528,7 @@ export default function ReceeManagement() {
                         style={{ display: "none" }}
                         id="icon-button-file"
                         type="file"
-                        disabled={selectedRecceItems.length === 0}
+                        disabled={selectedRecceItems?.length === 0}
                         onChange={(e) => {
                           setrecceexcel(e.target.files[0]);
                         }}
@@ -1304,6 +1551,43 @@ export default function ReceeManagement() {
                 </div>
               </div>
             </div>
+            <Modal show={show} onHide={handleClose1}>
+              <Modal.Header closeButton>
+                <Modal.Title>Assign Recce </Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <Form className="row">
+                  <Col className="mb-3">
+                    <Form.Label>Select Vendor</Form.Label>
+                    <Form.Group
+                      md="5"
+                      className="mb-3"
+                      controlId="exampleForm.ControlInput1"
+                    >
+                      <Form.Select
+                        value={selctedVendor}
+                        onChange={(e) => setselctedVendor(e.target.value)}
+                      >
+                        <option disabled>Choose..</option>
+                        {vendordata?.map((vendorele) => (
+                          <option key={vendorele._id} value={vendorele._id}>
+                            {vendorele?.VendorFirstName}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                </Form>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={handleClose1}>
+                  Close
+                </Button>
+                <Button variant="primary" onClick={updateVendor}>
+                  Save
+                </Button>
+              </Modal.Footer>
+            </Modal>
             <div className="row m-auto mt-3">
               <Card
                 className={`col-md-3 m-2 c_zoom ${"active1"}`}
@@ -1390,71 +1674,56 @@ export default function ReceeManagement() {
               </Card>
             </div>
             <div className="row mt-3">
-              <div className="row ">
-                <div className="row ">
-                  <label className="col-md-2">
-                    {displayedData?.length} of: {reccedata?.length}
-                  </label>
-                  <div className="col-md-4  m-auto">
-                    <div className="row float-end ">
-                      <label className="col-md-6  m-auto">Start Date:</label>
+              <div className="col-md-2 ">
+                <label className="col-md-6">
+                  {displayedData?.length} of: {reccedata?.length}
+                </label>
+                <Form.Control
+                  as="select"
+                  value={rowsPerPage}
+                  onChange={(e) => {
+                    setRowsPerPage(parseInt(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={30}>30</option>
+                  <option value={50}>50</option>
+                  <option value={80}>80</option>
+                  <option value={100}>100</option>
+                  <option value={140}>140</option>
+                  <option value={200}>200</option>
+                  <option value={300}>300</option>
+                  <option value={400}>400</option>
+                  <option value={600}>600</option>
+                  <option value={700}>700</option>
+                  <option value={1000}>1000</option>
+                  <option value={1500}>1500</option>
+                  <option value={10000}>10000</option>
+                </Form.Control>
+              </div>
 
-                      <label className="col-md-6 m-auto">End Date:</label>
-                    </div>{" "}
+              <div className="col-md-6 float-end">
+                <div className="row">
+                  <label className="col-md-3  m-auto">Start Date:</label>
+                  <label className="col-md-6 m-auto">End Date:</label>
+                  <div className="col-md-5 ">
+                    <Form.Control
+                      type="date"
+                      value={filterStartDate}
+                      onChange={handleFilterStartDateChange}
+                    />
                   </div>
-                </div>
-
-                <div className="row ">
-                  <div className="col-md-6 ">
-                    <div className="row ">
-                      <div className="col-md-2 ">
-                        <Form.Control
-                          as="select"
-                          value={rowsPerPage}
-                          onChange={(e) => {
-                            setRowsPerPage(parseInt(e.target.value));
-                            setCurrentPage(1);
-                          }}
-                        >
-                          <option value={5}>5</option>
-                          <option value={10}>10</option>
-                          <option value={30}>30</option>
-                          <option value={50}>50</option>
-                          <option value={80}>80</option>
-                          <option value={100}>100</option>
-                          <option value={140}>140</option>
-                          <option value={200}>200</option>
-                          <option value={300}>300</option>
-                          <option value={400}>400</option>
-                          <option value={600}>600</option>
-                          <option value={700}>700</option>
-                          <option value={1000}>1000</option>
-                          <option value={1500}>1500</option>
-                          <option value={10000}>10000</option>
-                        </Form.Control>
-                      </div>
-                    </div>
+                  <div className="col-md-5 ">
+                    <Form.Control
+                      type="date"
+                      value={filterEndDate}
+                      onChange={handleFilterEndDateChange}
+                    />
                   </div>
-                  <div className="col-md-5 float-end">
-                    <div className="row">
-                      <div className="col-md-5 ">
-                        <Form.Control
-                          type="date"
-                          value={filterStartDate}
-                          onChange={handleFilterStartDateChange}
-                        />
-                      </div>
-                      <div className="col-md-5 ">
-                        <Form.Control
-                          type="date"
-                          value={filterEndDate}
-                          onChange={handleFilterEndDateChange}
-                        />
-                      </div>
-                      <div className="col-md-2 ">
-                        <Button onClick={handleClearDateFilters}>Clear</Button>
-                      </div>
-                    </div>
+                  <div className="col-md-2 ">
+                    <Button onClick={handleClearDateFilters}>Clear</Button>
                   </div>
                 </div>
               </div>
@@ -1464,7 +1733,7 @@ export default function ReceeManagement() {
               <table>
                 <thead className="t-c">
                   <tr>
-                    <th className="th_s ">
+                    <th className="th_s poppinfnt ">
                       <input
                         type="checkbox"
                         style={{
@@ -1476,21 +1745,25 @@ export default function ReceeManagement() {
                         onChange={handleSelectAllChange}
                       />
                     </th>
-                    <th className="th_s ">SI.No.</th>
-                    <th className="th_s ">Job.No.</th>
-                    <th className="th_s ">Brand Name</th>
-                    <th className="th_s ">Contact Number</th>
-                    <th className="th_s "> Date</th>
-                    <th className="th_s ">Action</th>
-                    <th className="th_s ">Outlate</th>
+                    <th className="th_s poppinfnt ">SI.No.</th>
+                    <th className="th_s poppinfnt ">Job.No.</th>
+                    <th className="th_s poppinfnt ">Client Name </th>
+                    <th className="th_s poppinfnt ">Contact Number</th>
+                    <th className="th_s poppinfnt "> Date</th>
+                    <th className="th_s poppinfnt ">Action</th>
+                    <th className="th_s poppinfnt ">Outlate</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   {filteredData?.map((item, index) => {
+                    const desiredClient = ClientInfo?.client?.find(
+                      (client) => client._id === item.BrandId
+                    );
+
                     return (
                       <tr key={item._id}>
-                        <td className="td_S p-1">
+                        <td className="td_S poppinfnt p-1">
                           <input
                             style={{
                               width: "15px",
@@ -1502,11 +1775,13 @@ export default function ReceeManagement() {
                             onChange={() => handleToggleSelect(item._id)}
                           />
                         </td>
-                        <td className="td_S ">{index + 1}</td>
-                        <td className="td_S ">Job {index + 1}</td>
-                        <td className="td_S ">{item.BrandName}</td>
-                        <td className="td_S ">{item.ContactNumber}</td>
-                        <td className="td_S ">
+                        <td className="td_S poppinfnt ">{index + 1}</td>
+                        <td className="td_S poppinfnt ">Job {index + 1}</td>
+                        <td className="td_S poppinfnt ">{item?.BrandName}</td>
+                        <td className="td_S poppinfnt ">
+                          {desiredClient?.ClientsContactNumber1}
+                        </td>
+                        <td className="td_S poppinfnt p-2 text-nowrap text-center">
                           {item.createdAt
                             ? new Date(item.createdAt)
                                 .toISOString()
@@ -1514,7 +1789,7 @@ export default function ReceeManagement() {
                             : ""}
                         </td>
 
-                        <td className="td_S ">
+                        <td className="td_S poppinfnt ">
                           <span
                             variant="info "
                             onClick={() => {
@@ -1525,7 +1800,7 @@ export default function ReceeManagement() {
                             Details
                           </span>
                         </td>
-                        <td className="td_S ">
+                        <td className="td_S poppinfnt ">
                           <span
                             variant="info "
                             onClick={() => {
@@ -1547,7 +1822,7 @@ export default function ReceeManagement() {
           <div className="row  m-auto containerPadding">
             {editrecce ? (
               <>
-                <Form>
+                {/* <Form>
                   <Form.Group className="row">
                     <Col className="col-md-4 mb-3">
                       <Form.Label>Area</Form.Label>
@@ -1698,7 +1973,7 @@ export default function ReceeManagement() {
                     </div>
                   </Row>
                   <Button onClick={updateRecceData}>Update</Button>
-                </Form>
+                </Form> */}
               </>
             ) : (
               <>
@@ -1763,169 +2038,161 @@ export default function ReceeManagement() {
                   </div>
                 ) : (
                   <>
-                    <div className="row ">
-                      <div className="col-md-1 mb-3">
+                    <div className="row " style={{ height: "10vh" }}>
+                      <div className="col-md-1 ">
                         <ArrowCircleLeftIcon
                           onClick={() => setSelectedIndex(null)}
                           style={{ color: "#068FFF", cursor: "pointer" }}
                         />
                       </div>
-                      <div className="row ">
-                        <div className="col-md-6 mb-3">
-                          <div className="row ">
-                            <div className="col-md-2 ">
-                              <Form.Control
-                                as="select"
-                                value={rowsPerPage1}
-                                onChange={handleRowsPerPageChange}
+                      <div className="col-md-1 ">
+                        {moreoption1 ? (
+                          <>
+                            <p
+                              className="mroe "
+                              onClick={() => setselectAction1(!selectAction1)}
+                              style={{
+                                border: "1px solid white",
+                                height: "38px",
+                                width: "35px",
+                                textAlign: "center",
+                                borderRadius: "100px",
+                                backgroundColor: "#F5F5F5",
+                              }}
+                            >
+                              <span className="text-center">
+                                <MoreVertIcon />
+                              </span>
+                            </p>
+                            {selectAction1 ? (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  zIndex: "10px",
+                                  top: "22%",
+                                }}
                               >
-                                <option value={5}>5</option>
-                                <option value={10}>10</option>
-                                <option value={30}>30</option>
-                                <option value={50}>50</option>
-                                <option value={80}>80</option>
-                                <option value={100}>100</option>
-                                <option value={140}>140</option>
-                                <option value={200}>200</option>
-                                <option value={300}>300</option>
-                                <option value={400}>400</option>
-                                <option value={600}>600</option>
-                                <option value={700}>700</option>
-                                <option value={1000}>1000</option>
-                                <option value={1500}>1500</option>
-                                <option value={10000}>10000</option>
-                              </Form.Control>
+                                <Card
+                                  className="m-auto p-3"
+                                  style={{ width: "12rem" }}
+                                >
+                                  <p
+                                    className="cureor"
+                                    onClick={handleAssignVendor}
+                                  >
+                                    Assign to recce
+                                  </p>
+
+                                  <p
+                                    className="cureor"
+                                    style={{ color: "red" }}
+                                    onClick={handleDeleteSelectedOutlet}
+                                  >
+                                    <span style={{ color: "red" }}>Delete</span>
+                                  </p>
+                                </Card>
+                              </div>
+                            ) : null}
+                          </>
+                        ) : null}
+                      </div>
+                    </div>
+                    <div className="row mb-3">
+                      <div className="row ">
+                        <div className="col-md-1 ">
+                          <label className="col-md-9 mb-2">
+                            <span>{data1}</span> <span>Of </span>
+                            {filteredDate?.map((recceItem, index) => (
+                              <span>{recceItem?.outletName?.length}</span>
+                            ))}
+                          </label>
+                          <Form.Control
+                            as="select"
+                            value={rowsPerPage1}
+                            onChange={handleRowsPerPageChange}
+                          >
+                            <option value={5}>5</option>
+                            <option value={10}>10</option>
+                            <option value={30}>30</option>
+                            <option value={50}>50</option>
+                            <option value={80}>80</option>
+                            <option value={100}>100</option>
+                            <option value={140}>140</option>
+                            <option value={200}>200</option>
+                            <option value={300}>300</option>
+                            <option value={400}>400</option>
+                            <option value={600}>600</option>
+                            <option value={700}>700</option>
+                            <option value={1000}>1000</option>
+                            <option value={1500}>1500</option>
+                            <option value={10000}>10000</option>
+                          </Form.Control>
+                        </div>
+
+                        <div className="col-md-5 ">
+                          <div className="row">
+                            <label className="col-md-5   mb-2">
+                              Start Date:
+                            </label>
+                            <label className="col-md-6  mb-2">End Date:</label>
+                            <div className="col-md-5 ">
+                              <Form.Control
+                                type="date"
+                                value={FilterStartDate1}
+                                onChange={handleFilterStartDateChange1}
+                              />
+                            </div>
+                            <div className="col-md-5 ">
+                              <Form.Control
+                                type="date"
+                                value={FilterEndDate1}
+                                onChange={handleFilterEndDateChange1}
+                              />
+                            </div>
+                            <div className="col-md-2 ">
+                              <Button onClick={handleClearDateFilters1}>
+                                Clear
+                              </Button>
                             </div>
                           </div>
                         </div>
+
+                        <div className="col-md-2 ">
+                          <label className="col-md-9 mb-2 ">Status</label>
+                          <Form.Select
+                            as="select"
+                            value={selectrecceStatus}
+                            onChange={(e) => {
+                              const selectedValue = e.target.value;
+                              if (selectedValue !== "Choose...") {
+                                setSelectRecceStatus(selectedValue);
+                              }
+                            }}
+                          >
+                            <option>Choose...</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Proccesing">Proccesing</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Cancelled">Cancelled</option>
+                          </Form.Select>
+                        </div>
+                        <div className="col-md-2 mt-4">
+                          <Button className="row mt-2" onClick={handleUpdate}>
+                            Save
+                          </Button>
+                        </div>
+                        {/* <div className="col-md-2 mt-4">
+                          <Button onClick={()=>handleButtonClick(selectedRecceItems1)}>
+                            Create Quote
+                          </Button>
+                        </div> */}
                       </div>
                     </div>
+
                     <table>
                       <thead className="t-c">
-                        <tr className="tr2">
-                          <th className="p-1"></th>
-                          <th className="p-1"></th>
-
-                          <th className="p-1"></th>
-                          <th className="p-1"></th>
-                          <th className="p-1">
-                            {" "}
-                            <input
-                              className="col-md-1"
-                              placeholder="Shop name"
-                              value={searchshopName}
-                              onChange={(e) =>
-                                setSearchshopName(e.target.value)
-                              }
-                              style={{ width: "55px" }}
-                            />
-                          </th>
-                          <th className="p-1">
-                            <input
-                              className="col-md-1"
-                              placeholder="owner name"
-                              value={SearchclientName}
-                              onChange={(e) =>
-                                setSearchclientName(e.target.value)
-                              }
-                              style={{ width: "55px" }}
-                            />
-                          </th>
-
-                          <th></th>
-                          <th className="p-1">
-                            <input
-                              className="col-md-1"
-                              placeholder="Contact"
-                              value={searchcontactNumber}
-                              onChange={(e) =>
-                                setSearchcontactNumber(e.target.value)
-                              }
-                              style={{ width: "55px" }}
-                            />
-                          </th>
-                          <th className="p-1">
-                            <input
-                              className="col-md-1"
-                              placeholder=" zone"
-                              value={searchzone}
-                              onChange={(e) => setSearchzone(e.target.value)}
-                              style={{ width: "55px" }}
-                            />
-                          </th>
-
-                          <th>
-                            <input
-                              className="col-md-1"
-                              placeholder=" pincode"
-                              value={searchpincode}
-                              onChange={(e) => setSearchpincode(e.target.value)}
-                              style={{ width: "55px" }}
-                            />
-                          </th>
-
-                          <th className="p-1">
-                            <input
-                              className="col-md-1"
-                              placeholder=" city"
-                              value={searchcity}
-                              onChange={(e) => setSearchcity(e.target.value)}
-                              style={{ width: "55px" }}
-                            />
-                          </th>
-                          <th className="p-1"></th>
-
-                          <th className="p-1"></th>
-                          <th className="p-1"> </th>
-                          <th className="p-1">
-                            <input
-                              className="col-md-1"
-                              placeholder=" category"
-                              value={SearchCategory}
-                              onChange={(e) =>
-                                setSearchCategory(e.target.value)
-                              }
-                              style={{ width: "55px" }}
-                            />
-                          </th>
-                          <th className="p-1"></th>
-                          <th className="p-1"></th>
-                          <th className="p-1">
-                            <input
-                              className="col-md-1"
-                              placeholder="Vendor name"
-                              value={searchVendorName}
-                              onChange={(e) =>
-                                setSearchVendorName(e.target.value)
-                              }
-                              style={{ width: "55px" }}
-                            />
-                          </th>
-                          <th className="p-1">
-                            <input
-                              className="col-md-1"
-                              placeholder=" date"
-                              value={searchdate}
-                              onChange={(e) => setSearchDate(e.target.value)}
-                              style={{ width: "55px" }}
-                            />
-                          </th>
-                          <th className="p-1">
-                            {" "}
-                            <input
-                              className="col-md-1"
-                              placeholder=" status"
-                              value={searchdatastatus}
-                              onChange={(e) =>
-                                setSearchdatastatus(e.target.value)
-                              }
-                              style={{ width: "55px" }}
-                            />
-                          </th>
-                        </tr>
-
                         <tr>
-                          <th className="th_s ">
+                          <th className="th_s poppinfnt p-1">
                             <input
                               type="checkbox"
                               style={{
@@ -1934,41 +2201,52 @@ export default function ReceeManagement() {
                                 marginRight: "5px",
                               }}
                               checked={selectAll}
-                              onChange={handleSelectAllChange}
+                              onChange={handleOutletSelectAllChange}
                             />
                           </th>
-                          <th className="th_s ">SI.No</th>
-                          <th className="th_s ">Job.No</th>
-                          <th className="th_s ">Brand </th>
-                          <th className="th_s ">Shop Name</th>
-                          <th className="th_s ">Client Name</th>
-                          <th className="th_s ">State</th>
-                          <th className="th_s ">Contact Number</th>
-                          <th className="th_s ">Zone</th>
-                          <th className="th_s ">Pincode</th>
-                          <th className="th_s ">City</th>
-                          <th className="th_s ">FL Board</th>
-                          <th className="th_s ">GSB</th>
-                          <th className="th_s ">Inshop</th>
-                          <th className="th_s ">Category</th>
-                          <th className="th_s ">Height</th>
-                          <th className="th_s ">Width</th>
-                          <th className="th_s ">Vendor Name</th>
-                          <th className="th_s ">Date</th>
-                          <th className="th_s ">Status</th>
+                          <th className="th_s poppinfnt p-1">SI.No</th>
+                          <th className="th_s poppinfnt p-1">Job.No</th>
+                          <th className="th_s poppinfnt p-1">Brand </th>
+                          <th className="th_s poppinfnt p-1">Shop Name</th>
+                          <th className="th_s poppinfnt p-1">Client Name</th>
+                          <th className="th_s poppinfnt p-1">State</th>
+                          <th className="th_s poppinfnt p-1">Contact Number</th>
+                          <th className="th_s poppinfnt p-1">Zone</th>
+                          <th className="th_s poppinfnt p-1">Pincode</th>
+                          <th className="th_s poppinfnt p-1">City</th>
+                          <th className="th_s poppinfnt p-1">FL Board</th>
+                          <th className="th_s poppinfnt p-1">GSB</th>
+                          <th className="th_s poppinfnt p-1">Inshop</th>
+                          <th className="th_s poppinfnt p-1">Category</th>
+                          <th className="th_s poppinfnt p-1">SubCategory</th>
+                          <th className="th_s poppinfnt p-1">Height</th>
+                          <th className="th_s poppinfnt p-1">Width</th>
+                          <th className="th_s poppinfnt p-1">Vendor Name</th>
+                          <th className="th_s poppinfnt p-1">Date</th>
+                          <th className="th_s poppinfnt p-1">Assigned Date</th>
+                          <th className="th_s poppinfnt p-1">Remarks</th>
+                          <th className="th_s poppinfnt p-1">Status</th>
                         </tr>
                       </thead>
 
                       <tbody>
-                        {filteredData1?.map((recceItem, index) =>
+                        {filteredDate?.map((recceItem, index) =>
                           recceItem?.outletName?.map((outlet, outletArray) => {
+                            let JobNob = 0;
+
+                            reccedata?.forEach((recceItem, recceIndex) => {
+                              recceItem?.outletName?.forEach((item) => {
+                                if (outlet._id === item._id) {
+                                  JobNob = recceIndex + 1;
+                                }
+                              });
+                            });
+
                             if (rowsDisplayed < rowsPerPage1) {
                               const selectedVendorId = outlet?.vendor;
-                              const vendor = selectedVendorId
-                                ? vendordata?.find(
-                                    (ele) => ele?._id === selectedVendorId
-                                  )
-                                : null;
+                              const vendor = vendordata?.find(
+                                (ele) => ele?._id === selectedVendorId
+                              );
 
                               rowsDisplayed++;
                               const pincodePattern = /\b\d{6}\b/;
@@ -1981,9 +2259,14 @@ export default function ReceeManagement() {
                                 outlet.OutletPincode = extractedPincode[0];
                               }
 
+                              const isMatchingCondition =
+                                OutletDoneData?.vendorId === vendor?._id &&
+                                OutletDoneData.outletObejctId === outlet._id &&
+                                OutletDoneData.outletRecceIdId ===
+                                  recceItem._id;
                               return (
                                 <tr className="tr_C" key={outlet._id}>
-                                  <td className="td_S p-1">
+                                  <td className="td_S poppinfnt p-1">
                                     <input
                                       style={{
                                         width: "15px",
@@ -1991,75 +2274,109 @@ export default function ReceeManagement() {
                                         marginRight: "5px",
                                       }}
                                       type="checkbox"
-                                      checked={selectedRecceItems.includes(
+                                      checked={selectedRecceItems1.includes(
                                         outlet._id
                                       )}
                                       onChange={() =>
-                                        handleToggleSelect(outlet._id)
+                                        handleOutletToggleSelect(
+                                          recceItem.BrandId,
+                                          outlet._id
+                                        )
                                       }
                                     />
                                   </td>
-                                  <td className="td_S p-1">
+                                  <td className="td_S poppinfnt p-1">
                                     {outletArray + 1}
                                   </td>
-                                  <td className="td_S p-1">Job{index + 1}</td>
-                                  <td className="td_S p-1">
+                                  <td className="td_S poppinfnt p-1">
+                                    Job{JobNob}
+                                  </td>
+                                  <td className="td_S poppinfnt p-1">
                                     {recceItem.BrandName}
                                   </td>
-                                  <td className="td_S p-1">
+                                  <td className="td_S poppinfnt p-1">
                                     {outlet.ShopName}
                                   </td>
-                                  <td className="td_S p-1">
+                                  <td className="td_S poppinfnt p-1">
                                     {outlet.ClientName}
                                   </td>
-                                  <td className="td_S p-1">{outlet.State}</td>
-                                  <td className="td_S p-1">
+                                  <td className="td_S poppinfnt p-1">
+                                    {outlet.State}
+                                  </td>
+                                  <td className="td_S poppinfnt p-1">
                                     {outlet.OutletContactNumber}
                                   </td>
 
-                                  <td className="td_S p-1">
+                                  <td className="td_S poppinfnt p-1">
                                     {outlet.OutletZone}
                                   </td>
-                                  <td className="td_S p-1">
+                                  <td className="td_S poppinfnt p-1">
                                     {extractedPincode
                                       ? extractedPincode[0]
                                       : ""}
                                   </td>
-                                  <td className="td_S p-1">
+                                  <td className="td_S poppinfnt p-1">
                                     {outlet.OutletCity}
                                   </td>
-                                  <td className="td_S p-1">{outlet.FLBoard}</td>
-                                  <td className="td_S p-1">{outlet.GSB}</td>
-                                  <td className="td_S p-1">{outlet.Inshop}</td>
-                                  <td className="td_S p-1">
-                                    {outlet.Category}
+                                  <td className="td_S poppinfnt p-1">
+                                    {outlet.FLBoard}
                                   </td>
-                                  <td className="td_S p-1">
-                                    {outlet.height}
-                                    {outlet.unit}
+                                  <td className="td_S poppinfnt p-1">
+                                    {outlet.GSB}
                                   </td>
-                                  <td className="td_S p-1">
-                                    {outlet.width}
-                                    {outlet.unit}
+                                  <td className="td_S poppinfnt p-1">
+                                    {outlet.Inshop}
+                                  </td>
+                                  <td className="td_S poppinfnt p-1">
+                                    {isMatchingCondition &&
+                                      OutletDoneData?.category}
+                                  </td>
+                                  <td className="td_S poppinfnt p-1">
+                                    {isMatchingCondition &&
+                                      OutletDoneData?.subCategoryName}
+                                  </td>
+                                  <td className="td_S poppinfnt p-1">
+                                    {isMatchingCondition &&
+                                      OutletDoneData?.height}{" "}
+                                    {isMatchingCondition &&
+                                      OutletDoneData?.unitsOfMeasurment}
+                                  </td>
+                                  <td className="td_S poppinfnt p-1">
+                                    {isMatchingCondition &&
+                                      OutletDoneData?.width}
+                                    {isMatchingCondition &&
+                                      OutletDoneData?.unitsOfMeasurment}
                                   </td>
 
-                                  <td className="td_S p-1">
+                                  <td className="td_S poppinfnt p-1">
                                     {vendor?.VendorFirstName}
                                   </td>
-                                  <td className="td_S ">
+                                  <td className="td_S poppinfnt p-2 text-nowrap text-center">
                                     {recceItem.createdAt
-                                      ? new Date(recceItem.createdAt)
-                                          .toISOString()
-                                          .slice(0, 10)
+                                      ? moment(recceItem.createdAt).format(
+                                          "DD MMMM YYYY"
+                                        )
                                       : ""}
                                   </td>
-                                  <td className="td_S p-1">
+
+                                  <td className="td_S poppinfnt p-1">
+                                    {outlet.date
+                                      ? moment(outlet.date).format(
+                                          "DD MMMM YYYY"
+                                        )
+                                      : ""}
+                                  </td>
+                                  <td className="td_S poppinfnt p-1">
+                                    {isMatchingCondition &&
+                                      OutletDoneData?.remark}
+                                  </td>
+
+                                  <td className="td_S poppinfnt p-1">
                                     {outlet.RecceStatus}
                                   </td>
                                 </tr>
                               );
                             }
-                            return null;
                           })
                         )}
                       </tbody>
@@ -2071,6 +2388,44 @@ export default function ReceeManagement() {
           </div>
         )}
       </div>
+
+      <Modal show={show} onHide={handleClose1}>
+        <Modal.Header closeButton>
+          <Modal.Title>Assign Recce </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form className="row">
+            <Col className="mb-3">
+              <Form.Label>Select Vendor</Form.Label>
+              <Form.Group
+                md="5"
+                className="mb-3"
+                controlId="exampleForm.ControlInput1"
+              >
+                <Form.Select
+                  value={selctedVendor}
+                  onChange={(e) => setselctedVendor(e.target.value)}
+                >
+                  <option>Choose..</option>
+                  {vendordata?.map((vendorele) => (
+                    <option key={vendorele._id} value={vendorele._id}>
+                      {vendorele?.VendorFirstName}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose1}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={AssignVendor}>
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }

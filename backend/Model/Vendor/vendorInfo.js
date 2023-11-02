@@ -17,7 +17,9 @@ const VendorInfoSchema = new mongoose.Schema(
     BankAccountType: String,
     IFSCCode: String,
     BankInfoImage: String,
+    PassWord: String,
   },
+
   { timestamps: true }
 );
 

@@ -15,7 +15,7 @@ export default function Category() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
+        "http://localhost:8001/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -34,14 +34,14 @@ export default function Category() {
     await getAllCategory();
   };
 
-  // const handlesubCategoryAdded = async (e) => {
-  //   e.preventDefault();
-  //   window.location.href = "/Subcategory";
-  // };
+  const handlesubCategoryAdded = async (e) => {
+    e.preventDefault();
+    window.location.href = "/Subcategory";
+  };
   const deleteCatagory = async (row) => {
     try {
       const response = await axios.delete(
-        `http://api.srimagicprintz.com/api/Product/category/deletecategory/${row._id}`
+        `http://localhost:8001/api/Product/category/deletecategory/${row._id}`
       );
 
       if (response.status === 200) {
@@ -83,17 +83,18 @@ export default function Category() {
           Add Category
         </Button>
 
-        {/* <Button
+        <Button
           className="col-md-2 "
           style={{ marginLeft: "5px" }}
           onClick={handlesubCategoryAdded}
         >
           Add Subcategory
-        </Button> */}
+        </Button>
         <div className="row">
           <div className="col-md-8 mt-3  containerPadding">
             <BootstrapTable
               striped
+              className="poppinfnt"
               bordered
               hover
               keyField="_id"

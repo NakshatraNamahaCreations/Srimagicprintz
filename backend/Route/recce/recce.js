@@ -44,28 +44,6 @@ router.post(
   upload1.single("excelFile"),
   RecceController.updateRecceOutletName
 );
-router.post(
-  "/updatevendorname/:zone/:vendorid/:typesofjobid",
-  RecceController.AddRecceDetails
-);
-router.post("/getcompletedid/:completedid", RecceController.SendRecceToDesign);
-router.post(
-  "/getdesigncompletedid/:designcompletedid",
-  RecceController.SendDesignToPrinting
-);
-router.post(
-  "/getcompltedprint/:completedprintid",
-  RecceController.SendPrintToFabrication
-);
-router.post(
-  "/getcompletedfabrication/:completedfabricationid",
-  RecceController.SendPrintToInstallation
-);
-router.post(
-  "/getinstallation/:getinstalationid",
-  RecceController.SendPrintToJobTrack
-);
-
 
 router.put(
   "/updatereccedata/:recceindex/:getreccedataid",
@@ -73,6 +51,19 @@ router.put(
   RecceController.UpdateRecceData
 );
 
+router.put(
+  "/outletupdate/:outletiddd/:vendoridd",
+  RecceController.UpdateOutletVendor
+);
+router.put(
+  "/updateinstaltion/:outletiddd/:instalationgroup",
+  RecceController.UpdateInstallationToVendor
+);
+// router.put(
+//   "/editoutletstatus/:outletiddd/:status",
+//   RecceController.UpdateOutletStatus
+// );
+router.delete("/recceoudelet/:outletin", RecceController.deleteOutletData);
 
 router.delete("/deletereccedata/:reccedeleteid", RecceController.DeletRecce);
 module.exports = router;

@@ -4,26 +4,19 @@ import Button from "react-bootstrap/esm/Button";
 import Form from "react-bootstrap/Form";
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import "react-data-table-component-extensions/dist/index.css";
-import Col from "react-bootstrap/Col";
-import Modal from "react-bootstrap/Modal";
-import { Card } from "react-bootstrap";
-import { ToastContainer, toast } from "react-toastify";
-import Row from "react-bootstrap/Row";
+
 import "react-toastify/dist/ReactToastify.css";
-import { CSVLink, CSVDownload } from "react-csv";
-import * as XLSX from "xlsx"; // Import the xlsx library
+
 import axios from "axios";
 import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import DonutLargeIcon from "@mui/icons-material/DonutLarge";
-// import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+
 import moment from "moment";
 import jsPDF from "jspdf";
-import "jspdf-autotable"; // Import the autotable plugin
+import "jspdf-autotable";
 
 export default function Trackassignedjob() {
-  const ApiURL = process.env.REACT_APP_API_URL;
   const [recceData, setRecceData] = useState([]);
   const [searchshopName, setSearchshopName] = useState("");
   const [searcharea, setSearcharea] = useState("");
@@ -32,38 +25,37 @@ export default function Trackassignedjob() {
   const [searchpincode, setSearchpincode] = useState("");
   const [searchzone, setSearchzone] = useState("");
   const [searchdate, setSearchDate] = useState("");
-  const [searchstatus, setSearchStatus] = useState("");
+
   const [searchVendorName, setSearchVendorName] = useState("");
   const [searchSINO, setSearchSINO] = useState("");
   const [selectAction, setselectAction] = useState(false);
   const [displayedData, setDisplayedData] = useState();
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchHight, setsearchHight] = useState("");
-  const [searchwidth, setsearchwidth] = useState("");
+
   const [SearchCategory, setSearchCategory] = useState("");
   const [CategoryData, setCategoryData] = useState(null);
   const [vendordata, setVendorData] = useState(null);
   const [getreccedata, setgetreccedata] = useState("");
   const [SelecteddesignIndex, setSelectedDesignIndex] = useState(false);
-  const [designImages, setDesignImages] = useState("");
   const [SearchclientName, setSearchclientName] = useState("");
   const [searchdatastatus, setSearchdatastatus] = useState("");
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
-  const [moreoption, setmoreoption] = useState(false);
-  const [selectedRecceItems, setSelectedRecceItems] = useState([]);
-  const [selectAll, setSelectAll] = useState(false);
 
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedRecceItems1, setSelectedRecceItems1] = useState([]);
+  const [ClientInfo, setClientInfo] = useState([]);
   useEffect(() => {
     getAllRecce();
     getAllVendorInfo();
+    getAllClientsInfo();
   }, []);
 
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -292,32 +284,32 @@ export default function Trackassignedjob() {
     });
   };
   const filteredData = filterDate(displayedData);
-  const handleToggleSelect = (itemId) => {
-    let updatedSelectedRecceItems;
+  // const handleToggleSelect = (itemId) => {
+  //   let updatedSelectedRecceItems;
 
-    if (selectedRecceItems.includes(itemId)) {
-      updatedSelectedRecceItems = selectedRecceItems.filter(
-        (id) => id !== itemId
-      );
-    } else {
-      updatedSelectedRecceItems = [...selectedRecceItems, itemId];
-    }
+  //   if (selectedRecceItems.includes(itemId)) {
+  //     updatedSelectedRecceItems = selectedRecceItems.filter(
+  //       (id) => id !== itemId
+  //     );
+  //   } else {
+  //     updatedSelectedRecceItems = [...selectedRecceItems, itemId];
+  //   }
 
-    setSelectedRecceItems(updatedSelectedRecceItems);
-    setmoreoption(updatedSelectedRecceItems.length > 0);
-  };
+  //   setSelectedRecceItems(updatedSelectedRecceItems);
+  //   setmoreoption(updatedSelectedRecceItems.length > 0);
+  // };
 
-  const handleSelectAllChange = () => {
-    setSelectAll(!selectAll);
+  // const handleSelectAllChange = () => {
+  //   setSelectAll(!selectAll);
 
-    if (!selectAll) {
-      setSelectedRecceItems(displayedData.map((item) => item._id));
-    } else {
-      setSelectedRecceItems([]);
-    }
+  //   if (!selectAll) {
+  //     setSelectedRecceItems(displayedData.map((item) => item._id));
+  //   } else {
+  //     setSelectedRecceItems([]);
+  //   }
 
-    setmoreoption(!selectAll);
-  };
+  //   setmoreoption(!selectAll);
+  // };
 
   const monthNames = [
     "January",
@@ -362,7 +354,7 @@ export default function Trackassignedjob() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -384,10 +376,59 @@ export default function Trackassignedjob() {
     serialNumber = 0;
     rowsDisplayed = 0;
   };
-  const selectedVendorId = getreccedata?.vendor?.[0];
-  const vendor = selectedVendorId
-    ? vendordata?.find((ele) => ele._id === selectedVendorId)
-    : null;
+
+  const handleOutletSelectAllChange = () => {
+    setSelectAll(!selectAll);
+
+    if (!selectAll) {
+      const allOutletIds = filteredData.flatMap((item) =>
+        item?.outletName.map((outlet) => outlet._id)
+      );
+      setSelectedRecceItems1(allOutletIds);
+    } else {
+      setSelectedRecceItems1([]);
+    }
+
+    // setmoreoption1(!selectAll);
+  };
+  const getAllClientsInfo = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:8001/api/Client/clients/getallclient"
+      );
+      if (res.status === 200) {
+        setClientInfo(res.data);
+      }
+    } catch (err) {
+      alert(err, "err");
+    }
+  };
+  const handleOutletToggleSelect = (item, outletId) => {
+    let updatedSelectedRecceItems;
+
+    if (selectedRecceItems1.includes(outletId)) {
+      updatedSelectedRecceItems = selectedRecceItems1.filter(
+        (id) => id !== outletId
+      );
+    } else {
+      updatedSelectedRecceItems = [...selectedRecceItems1, outletId];
+    }
+
+    setSelectedRecceItems1(updatedSelectedRecceItems);
+    // setmoreoption1(updatedSelectedRecceItems.length > 0);
+  };
+
+  const [data1, setdata1] = useState(rowsPerPage1);
+  useEffect(() => {
+    setdata1(rowsDisplayed);
+  }, [rowsPerPage1, data1]);
+  let outletName = 0;
+
+  filteredData?.forEach((Ele) => {
+    if (Ele?.outletName) {
+      outletName += Ele?.outletName?.length;
+    }
+  });
 
   return (
     <>
@@ -395,7 +436,7 @@ export default function Trackassignedjob() {
 
       {!SelecteddesignIndex ? (
         <div className="row  m-auto containerPadding">
-          <div className="row ">
+          {/* <div className="row ">
             <Col className="col-md-1 mb-3">
               <Form.Control
                 as="select"
@@ -465,12 +506,77 @@ export default function Trackassignedjob() {
                 </>
               ) : null}
             </Col>
+          </div> */}
+          <div className="row mb-4">
+            <div className="col-md-3 ">
+              <div className="col-md-8  mb-2">
+                <span>{data1}</span> of <span>{outletName}</span>
+              </div>
+              <Form.Control
+                className="col-md-10"
+                as="select"
+                value={rowsPerPage1}
+                onChange={handleRowsPerPageChange}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={30}>30</option>
+                <option value={50}>50</option>
+                <option value={80}>80</option>
+                <option value={100}>100</option>
+                <option value={140}>140</option>
+                <option value={200}>200</option>
+                <option value={300}>300</option>
+                <option value={400}>400</option>
+                <option value={600}>600</option>
+                <option value={700}>700</option>
+                <option value={1000}>1000</option>
+                <option value={1500}>1500</option>
+                <option value={10000}>10000</option>
+              </Form.Control>
+            </div>
+
+            <div className="col-md-6 float-end">
+              <div className="row">
+                <label className="col-md-5   mb-2">Start Date:</label>
+                <label className="col-md-6  mb-2">End Date:</label>
+                <div className="col-md-5 ">
+                  <Form.Control
+                    type="date"
+                    value={filterStartDate}
+                    onChange={handleFilterStartDateChange}
+                  />
+                </div>
+                <div className="col-md-5 ">
+                  <Form.Control
+                    type="date"
+                    value={filterEndDate}
+                    onChange={handleFilterEndDateChange}
+                  />
+                </div>
+                <div className="col-md-2 ">
+                  <Button onClick={handleClearDateFilters}>Clear</Button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="row">
             <table className="t-p">
               <thead className="t-c">
                 <tr>
+                  <th className="th_s ">
+                    <input
+                      type="checkbox"
+                      style={{
+                        width: "15px",
+                        height: "15px",
+                        marginRight: "5px",
+                      }}
+                      checked={selectAll}
+                      onChange={handleOutletSelectAllChange}
+                    />
+                  </th>
                   <th className="th_s p-1">SI.No</th>
                   <th className="th_s p-1">Job.No</th>
                   <th className="th_s p-1">Brand </th>
@@ -497,6 +603,18 @@ export default function Trackassignedjob() {
                     if (rowsDisplayed < rowsPerPage1) {
                       const pincodePattern = /\b\d{6}\b/;
 
+                      let JobNob = 0;
+                      // const desiredClient = ClientInfo?.client?.find(
+                      //   (client) => client._id === recceItem.BrandName
+                      // );
+
+                      filteredData?.forEach((recceItem, recceIndex) => {
+                        recceItem?.outletName?.forEach((item) => {
+                          if (outlet._id === item._id) {
+                            JobNob = recceIndex + 1;
+                          }
+                        });
+                      });
                       const address = outlet?.OutletAddress;
                       const extractedPincode = address?.match(pincodePattern);
 
@@ -508,34 +626,53 @@ export default function Trackassignedjob() {
                       rowsDisplayed++;
                       return (
                         <tr className="tr_C" key={serialNumber}>
-                          <td className="td_S p-1">{serialNumber}</td>
-                          <td className="td_S p-1">Job{index + 1}</td>
-                          <td className="td_S p-1">{recceItem.BrandName}</td>
-                          <td className="td_S p-1">{outlet.ShopName}</td>
-                          <td className="td_S p-1">{outlet.ClientName}</td>
-                          <td className="td_S p-1">{outlet.State}</td>
                           <td className="td_S p-1">
-                            {outlet.OutletContactNumber}
+                            <input
+                              style={{
+                                width: "15px",
+                                height: "15px",
+                                marginRight: "5px",
+                              }}
+                              type="checkbox"
+                              checked={selectedRecceItems1.includes(
+                                outlet?._id
+                              )}
+                              onChange={() =>
+                                handleOutletToggleSelect(
+                                  recceItem.BrandId,
+                                  outlet?._id
+                                )
+                              }
+                            />
+                          </td>
+                          <td className="td_S p-1">{serialNumber}</td>
+                          <td className="td_S p-1">Job{JobNob}</td>
+                          <td className="td_S p-1">{recceItem?.BrandName}</td>
+                          <td className="td_S p-1">{outlet?.ShopName}</td>
+                          <td className="td_S p-1">{outlet?.ClientName}</td>
+                          <td className="td_S p-1">{outlet?.State}</td>
+                          <td className="td_S p-1">
+                            {outlet?.OutletContactNumber}
                           </td>
 
-                          <td className="td_S p-1">{outlet.OutletZone}</td>
+                          <td className="td_S p-1">{outlet?.OutletZone}</td>
                           <td className="td_S p-1">
                             {extractedPincode ? extractedPincode[0] : ""}
                           </td>
-                          <td className="td_S p-1">{outlet.OutletCity}</td>
-                          <td className="td_S p-1">{outlet.FLBoard}</td>
-                          <td className="td_S p-1">{outlet.GSB}</td>
-                          <td className="td_S p-1">{outlet.Inshop}</td>
-                          <td className="td_S p-1">{outlet.Category}</td>
+                          <td className="td_S p-1">{outlet?.OutletCity}</td>
+                          <td className="td_S p-1">{outlet?.FLBoard}</td>
+                          <td className="td_S p-1">{outlet?.GSB}</td>
+                          <td className="td_S p-1">{outlet?.Inshop}</td>
+                          <td className="td_S p-1">{outlet?.Category}</td>
                           <td className="td_S p-1">
-                            {outlet.height}
-                            {outlet.unit}
+                            {outlet?.height}
+                            {outlet?.unit}
                           </td>
                           <td className="td_S p-1">
-                            {outlet.width}
-                            {outlet.unit}
+                            {outlet?.width}
+                            {outlet?.unit}
                           </td>
-                          <td className="td_S ">
+                          <td className="td_S p-2 text-nowrap text-center">
                             {recceItem.createdAt
                               ? new Date(recceItem.createdAt)
                                   .toISOString()
@@ -559,7 +696,6 @@ export default function Trackassignedjob() {
                         </tr>
                       );
                     }
-
                     return null;
                   })
                 )}

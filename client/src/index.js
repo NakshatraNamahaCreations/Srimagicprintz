@@ -6,16 +6,20 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter } from "react-router-dom";
 
 import reportWebVitals from "./reportWebVitals";
+import { Provider } from "react-redux";
+import store from "./Component/store";
 
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.css";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
-
+import { GlobalNotificationProvider } from "./Component/NotificationContext";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <GlobalNotificationProvider>
+        <App />
+      </GlobalNotificationProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

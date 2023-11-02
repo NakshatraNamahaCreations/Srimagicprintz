@@ -40,25 +40,35 @@ export default function Fabrication() {
   const [SearchCategory, setSearchCategory] = useState("");
   const [CategoryData, setCategoryData] = useState(null);
   const [vendordata, setVendorData] = useState(null);
-  const [getreccedata, setgetreccedata] = useState("");
-  const [SelecteddesignIndex, setSelectedDesignIndex] = useState(false);
-  const [designImages, setDesignImages] = useState("");
+  // const [getreccedata, setgetreccedata] = useState("");
+  const [fabricationStatus, setFabricationStatus] = useState("");
+  const [ClientInfo, setClientInfo] = useState([]);
   const [SearchclientName, setSearchclientName] = useState("");
   const [searchdatastatus, setSearchdatastatus] = useState("");
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
   const [moreoption, setmoreoption] = useState(false);
   const [selectedRecceItems, setSelectedRecceItems] = useState([]);
+  const [deliverType, setDeliverType] = useState(null);
+  const [selectddeliverType, setSelectedDeliverType] =
+    useState("--Select All--");
   const [selectAll, setSelectAll] = useState(false);
 
+  const [rowsPerPage1, setRowsPerPage1] = useState(5);
+  const [PrintData, setPrintData] = useState(null);
+  const [selectedPrint, setSelectedPrint] = useState(false);
+  const [moreoption1, setmoreoption1] = useState(false);
+  const [selectedRecceItems1, setSelectedRecceItems1] = useState([]);
+  const [RecceIndex, setRecceIndex] = useState(null);
   useEffect(() => {
     getAllRecce();
+    getAllClientsInfo();
   }, []);
 
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         //   const filteredRecceData = res.data.RecceData.filter(
@@ -200,21 +210,6 @@ export default function Fabrication() {
     rowsPerPage,
   ]);
 
-  // const handleEdit = (vendor) => {
-  //   setgetreccedata(vendor);
-  //   setSelectedDesignIndex(true);
-  // };
-
-  // const selectedVendorId = getreccedata?.vendor?.[0];
-  // const selectedVendor = vendordata?.find(
-  //   (vendor) => vendor._id === selectedVendorId
-  // );
-
-  // const selectedcategoryID = getreccedata?.category?.[0];
-  // const selectcategry = CategoryData?.find(
-  //   (ele) => ele?._id === selectedcategoryID
-  // );
-
   const handleExportPDF = () => {
     const pdf = new jsPDF();
     const tableColumn = [
@@ -277,12 +272,6 @@ export default function Fabrication() {
 
     pdf.save("exported_data.pdf");
   };
-  const handleImageUpload = (event) => {
-    const files = event.target.files;
-    setDesignImages(files);
-  };
-
-  const [fabristatus, setfabriStatus] = useState("");
 
   const handleClearDateFilters = () => {
     setFilterStartDate("");
@@ -311,63 +300,6 @@ export default function Fabrication() {
     });
   };
   const filteredData = filterDate(displayedData);
-  const handleToggleSelect = (itemId) => {
-    let updatedSelectedRecceItems;
-
-    if (selectedRecceItems.includes(itemId)) {
-      updatedSelectedRecceItems = selectedRecceItems.filter(
-        (id) => id !== itemId
-      );
-    } else {
-      updatedSelectedRecceItems = [...selectedRecceItems, itemId];
-    }
-
-    setSelectedRecceItems(updatedSelectedRecceItems);
-    setmoreoption(updatedSelectedRecceItems.length > 0);
-  };
-
-  const handleSelectAllChange = () => {
-    setSelectAll(!selectAll);
-
-    if (!selectAll) {
-      setSelectedRecceItems(displayedData.map((item) => item._id));
-    } else {
-      setSelectedRecceItems([]);
-    }
-
-    setmoreoption(!selectAll);
-  };
-  async function deleteRecce(recceId) {
-    try {
-      const response = await axios.delete(
-        `${ApiURL}/recce/recce/deletereccedata/${recceId}`
-      );
-      if (response.status === 200) {
-        alert("Recce deleted successfully");
-        window.location.reload();
-      }
-    } catch (error) {
-      alert("Error while deleting recce:", error);
-    }
-  }
-
-  const handleDeleteSelectedRecceItems = async () => {
-    if (selectedRecceItems.length === 0) {
-      return;
-    }
-
-    if (window.confirm(`Are you sure you want to delete  clients data ?`)) {
-      try {
-        for (const recceId of selectedRecceItems) {
-          await deleteRecce(recceId);
-        }
-
-        setSelectedRecceItems([]);
-      } catch (error) {
-        console.error("Error while deleting recce items:", error);
-      }
-    }
-  };
 
   const handleFilterStartDateChange = (event) => {
     setFilterStartDate(event.target.value);
@@ -377,40 +309,42 @@ export default function Fabrication() {
     setFilterEndDate(event.target.value);
   };
 
-  const [designData, setDesignData] = useState([]);
+  const handleUpdate = async (e) => {
+    e.preventDefault();
 
-  const handlesendInstallation = async () => {
-    for (const recceId of selectedRecceItems) {
-      const recceData = filteredData.find((item) => item._id === recceId);
+    try {
+      const config = {
+        url: `/recce/recce/updatereccedata/${RecceIndex}/${PrintData._id}`,
+        method: "put",
+        baseURL: "http://localhost:8001/api",
+        headers: { "Content-Type": "application/json" },
+        data: {
+          OutlateFabricationDeliveryType: deliverType,
+          fabricationstatus: fabricationStatus,
+        },
+      };
 
-      if (
-        recceData.fabricationstatus === "Completed" &&
-        recceData.printupload !== null
-      ) {
-        try {
-          const response = await axios.post(
-            `http://api.srimagicprintz.com/api/recce/recce/getcompletedfabrication/${recceData._id}`
-          );
+      const res = await axios(config);
 
-          if (response.status === 200) {
-            alert(`Successfully sent recce to installattion`);
-            window.location.href = "/installation";
-          } else {
-            alert(`Failed to send fabrication to installattion`);
-          }
-        } catch (err) {
-          alert(`Please Complete fabrication or fill all data`);
-        }
+      if (res.status === 200) {
+        alert("Successfully updated outlet");
+        window.location.reload();
+        console.log(res.data);
       } else {
-        alert(`Fabrication  not completed yet`);
+        console.error("Received non-200 status code:", res.status);
       }
+    } catch (err) {
+      console.error("Error:", err.response ? err.response.data : err.message);
+      alert(
+        "Not able to update: " +
+          (err.response ? err.response.data.message : err.message)
+      );
     }
   };
+
   let serialNumber = 0;
   let rowsDisplayed = 0;
-  const [rowsPerPage1, setRowsPerPage1] = useState(5);
-  const [PrintData, setPrintData] = useState(null);
-  const [selectedPrint, setSelectedPrint] = useState(false);
+
   const handleRowsPerPageChange = (e) => {
     const newRowsPerPage = parseInt(e.target.value);
     setRowsPerPage1(newRowsPerPage);
@@ -420,7 +354,69 @@ export default function Fabrication() {
   const handleEdit = (selectedSNo, recceItem) => {
     setPrintData(selectedSNo);
     setSelectedPrint(true);
+    setRecceIndex(recceItem._id);
   };
+
+  const getAllClientsInfo = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:8001/api/Client/clients/getallclient"
+      );
+      if (res.status === 200) {
+        setClientInfo(res.data);
+      }
+    } catch (err) {
+      alert(err, "err");
+    }
+  };
+  const handleOutletSelectAllChange = () => {
+    setSelectAll(!selectAll);
+
+    if (!selectAll) {
+      const allOutletIds = filteredData.flatMap((item) =>
+        item?.outletName.map((outlet) => outlet._id)
+      );
+      setSelectedRecceItems1(allOutletIds);
+    } else {
+      setSelectedRecceItems1([]);
+    }
+
+    setmoreoption1(!selectAll);
+  };
+
+  const handleOutletToggleSelect = (item, outletId) => {
+    let updatedSelectedRecceItems;
+
+    if (selectedRecceItems1.includes(outletId)) {
+      updatedSelectedRecceItems = selectedRecceItems1.filter(
+        (id) => id !== outletId
+      );
+    } else {
+      updatedSelectedRecceItems = [...selectedRecceItems1, outletId];
+    }
+
+    setSelectedRecceItems1(updatedSelectedRecceItems);
+    setmoreoption1(updatedSelectedRecceItems.length > 0);
+  };
+  const [filteredData1, setfilteredData1] = useState([]);
+  useEffect(() => {
+    const filteredDataByStatus = filteredData?.map((recceItem) => {
+      const filteredOutlets = recceItem?.outletName.filter(
+        (outlet) =>
+          outlet?.OutlateFabricationDeliveryType === selectddeliverType
+      );
+
+      return { ...recceItem, outletName: filteredOutlets };
+    });
+    if (
+      selectddeliverType === "--Select All--" ||
+      selectddeliverType === null
+    ) {
+      setfilteredData1(filteredData);
+    } else {
+      setfilteredData1(filteredDataByStatus);
+    }
+  }, [filteredData, selectddeliverType]);
 
   return (
     <>
@@ -432,6 +428,7 @@ export default function Fabrication() {
             <Col className="col-md-1 mb-3">
               <Form.Control
                 as="select"
+                className="shadow-none p-2 bg-light rounded"
                 value={rowsPerPage1}
                 onChange={handleRowsPerPageChange}
               >
@@ -456,6 +453,7 @@ export default function Fabrication() {
               <div className="row">
                 <div className="col-md-5 ">
                   <Form.Control
+                    className="shadow-none p-2 bg-light rounded"
                     type="date"
                     value={filterStartDate}
                     onChange={handleFilterStartDateChange}
@@ -463,25 +461,62 @@ export default function Fabrication() {
                 </div>
                 <div className="col-md-5 ">
                   <Form.Control
+                    className="shadow-none p-2 bg-light rounded"
                     type="date"
                     value={filterEndDate}
                     onChange={handleFilterEndDateChange}
                   />
                 </div>
                 <div className="col-md-2 ">
-                  <Button onClick={handleClearDateFilters}>Clear</Button>
+                  <Button
+                    className="shadow-none p-2  rounded"
+                    onClick={handleClearDateFilters}
+                  >
+                    Clear
+                  </Button>
                 </div>
               </div>
             </Col>
-            <Col className="col-md-1">
-              <Button onClick={handleExportPDF}> Download</Button>
+            <Col className="col-md-2">
+              <Button
+                className="shadow-none p-2  rounded"
+                onClick={handleExportPDF}
+              >
+                {" "}
+                Download
+              </Button>
+            </Col>
+            <Col className="col-md-3">
+              <Form.Select
+                value={selectddeliverType}
+                className="shadow-none p-2 bg-light rounded"
+                onChange={(e) => {
+                  setSelectedDeliverType(e.target.value);
+                }}
+              >
+                <option value="--Select All--">--Select All--</option>
+                <option value="Direct Delivery">Direct Delivery</option>
+                <option value="Go to installation">Go to installation</option>
+              </Form.Select>{" "}
             </Col>
           </div>
 
-          <div className="row ">
+          <div className="row">
             <table className="t-p">
               <thead className="t-c">
                 <tr>
+                  <th className="th_s ">
+                    <input
+                      type="checkbox"
+                      style={{
+                        width: "15px",
+                        height: "15px",
+                        marginRight: "5px",
+                      }}
+                      checked={selectAll}
+                      onChange={handleOutletSelectAllChange}
+                    />
+                  </th>
                   <th className="th_s p-1">SI.No</th>
                   <th className="th_s p-1">Job.No</th>
                   <th className="th_s p-1">Brand </th>
@@ -503,50 +538,82 @@ export default function Fabrication() {
                 </tr>
               </thead>
               <tbody>
-                {recceData?.map((recceItem, index) =>
+                {filteredData1?.map((recceItem, index) =>
                   recceItem?.outletName.map((outlet, outletArray) => {
                     if (rowsDisplayed < rowsPerPage1) {
                       const pincodePattern = /\b\d{6}\b/;
 
+                      let JobNob = 0;
+                      // const desiredClient = ClientInfo?.client?.find(
+                      //   (client) => client._id === recceItem.BrandName
+                      // );
+
+                      filteredData1?.forEach((recceItem, recceIndex) => {
+                        recceItem?.outletName?.forEach((item) => {
+                          if (outlet._id === item._id) {
+                            JobNob = recceIndex + 1;
+                          }
+                        });
+                      });
                       const address = outlet?.OutletAddress;
                       const extractedPincode = address?.match(pincodePattern);
 
                       if (extractedPincode) {
                         outlet.OutletPincode = extractedPincode[0];
                       }
+
                       if (outlet?.OutlateFabricationNeed?.includes("Yes")) {
                         serialNumber++;
                         rowsDisplayed++;
                         return (
                           <tr className="tr_C" key={serialNumber}>
-                            <td className="td_S p-1">{serialNumber}</td>
-                            <td className="td_S p-1">Job{index + 1}</td>
-                            <td className="td_S p-1">{recceItem.BrandName}</td>
-                            <td className="td_S p-1">{outlet.ShopName}</td>
-                            <td className="td_S p-1">{outlet.ClientName}</td>
-                            <td className="td_S p-1">{outlet.State}</td>
                             <td className="td_S p-1">
-                              {outlet.OutletContactNumber}
+                              <input
+                                style={{
+                                  width: "15px",
+                                  height: "15px",
+                                  marginRight: "5px",
+                                }}
+                                type="checkbox"
+                                checked={selectedRecceItems1.includes(
+                                  outlet?._id
+                                )}
+                                onChange={() =>
+                                  handleOutletToggleSelect(
+                                    recceItem.BrandId,
+                                    outlet?._id
+                                  )
+                                }
+                              />
+                            </td>
+                            <td className="td_S p-1">{serialNumber}</td>
+                            <td className="td_S p-1">Job{JobNob}</td>
+                            <td className="td_S p-1">{recceItem.BrandName}</td>
+                            <td className="td_S p-1">{outlet?.ShopName}</td>
+                            <td className="td_S p-1">{outlet?.ClientName}</td>
+                            <td className="td_S p-1">{outlet?.State}</td>
+                            <td className="td_S p-1">
+                              {outlet?.OutletContactNumber}
                             </td>
 
-                            <td className="td_S p-1">{outlet.OutletZone}</td>
+                            <td className="td_S p-1">{outlet?.OutletZone}</td>
                             <td className="td_S p-1">
                               {extractedPincode ? extractedPincode[0] : ""}
                             </td>
-                            <td className="td_S p-1">{outlet.OutletCity}</td>
-                            <td className="td_S p-1">{outlet.FLBoard}</td>
-                            <td className="td_S p-1">{outlet.GSB}</td>
-                            <td className="td_S p-1">{outlet.Inshop}</td>
-                            <td className="td_S p-1">{outlet.Category}</td>
+                            <td className="td_S p-1">{outlet?.OutletCity}</td>
+                            <td className="td_S p-1">{outlet?.FLBoard}</td>
+                            <td className="td_S p-1">{outlet?.GSB}</td>
+                            <td className="td_S p-1">{outlet?.Inshop}</td>
+                            <td className="td_S p-1">{outlet?.Category}</td>
                             <td className="td_S p-1">
-                              {outlet.height}
-                              {outlet.unit}
+                              {outlet?.height}
+                              {outlet?.unit}
                             </td>
                             <td className="td_S p-1">
-                              {outlet.width}
-                              {outlet.unit}
+                              {outlet?.width}
+                              {outlet?.unit}
                             </td>
-                            <td className="td_S ">
+                            <td className="td_S p-2 text-nowrap text-center">
                               {recceItem.createdAt
                                 ? new Date(recceItem.createdAt)
                                     .toISOString()
@@ -588,7 +655,7 @@ export default function Fabrication() {
               />{" "}
             </div>
           </div>
-          <div className="col-md-8">
+          <div className="col-md-6">
             <p>
               <span className="cl"> Shop Name:</span>
               <span>{PrintData.ShopName}</span>
@@ -639,6 +706,58 @@ export default function Fabrication() {
               <span className="cl"> GST Number :</span>
               <span>{PrintData.GSTNumber}</span>
             </p>
+          </div>
+
+          <div className="col-md-6  ">
+            <div className="row">
+              <div className="col-md-6  ">
+                {" "}
+                <Form.Label>Type Of Delivery </Form.Label>
+                <Form.Select
+                  value={deliverType}
+                  className="shadow-none p-3 mb-5 bg-light rounded"
+                  onChange={(e) => {
+                    const selectedValue = e.target.value;
+                    if (selectedValue !== "Choose...") {
+                      setDeliverType(selectedValue);
+                    }
+                  }}
+                >
+                  <option>Choose...</option>
+                  <option value="Direct Delivery">Direct Delivery</option>
+                  <option value="Go to installation">Go to installation</option>
+                </Form.Select>{" "}
+              </div>
+              <div className="col-md-6  ">
+                {" "}
+                <Form.Label>Fabrication Status </Form.Label>
+                <Form.Select
+                  as="select"
+                  className="shadow-none p-3 mb-5 bg-light rounded"
+                  value={fabricationStatus}
+                  onChange={(e) => {
+                    const selectedValue = e.target.value;
+                    if (selectedValue !== "Choose...") {
+                      setFabricationStatus(selectedValue);
+                    }
+                  }}
+                >
+                  <option>Choose...</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Proccesing">Proccesing</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Cancelled">Cancelled</option>
+                </Form.Select>
+              </div>
+            </div>
+          </div>
+          <div className="row mt-3">
+            <Button
+              className="col-md-3 m-auto"
+              onClick={(event) => handleUpdate(event, PrintData._id)}
+            >
+              Update
+            </Button>
           </div>
         </div>
       )}

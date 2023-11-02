@@ -14,7 +14,9 @@ const ClientInfo = require("./Route/Client/clients");
 const jobmanagement = require("./Route/Jobmangement/assignjob");
 const Reccemanagement = require("./Route/recce/recce");
 const MarketingManagement = require("./Route/marketingClient/marketingcliend");
-
+const Instalation = require("./Route/Instalation/instalation");
+const quotation = require("./Route/Quotation/quotation");
+const uploadOutlet = require("./Route/recce/outletUpload")
 //Data Base connection
 
 mongoose
@@ -42,12 +44,15 @@ app.use("/api/Client/clients", ClientInfo);
 app.use("/api/Jobmangement/assignjob", jobmanagement);
 app.use("/api/recce/recce", Reccemanagement);
 app.use("/api/marketingClient/marketingcliend", MarketingManagement);
+app.use("/api", Instalation);
+app.use("/api", quotation);
+app.use("/api",uploadOutlet)
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8001;
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

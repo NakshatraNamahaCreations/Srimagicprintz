@@ -1,8 +1,27 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Button from "react-bootstrap/esm/Button";
 import Header from "./Header";
-
+import axios from "axios";
 export default function Logout() {
+  const Logout = async () => {
+    const user = JSON.parse(localStorage.getItem("userData"));
+
+    try {
+      let res = await axios.delete(
+        `http://localhost:8001/api/auth/auth/logout/${user._id}`
+      );
+
+      if (res.status === 200) {
+        localStorage.removeItem("userData");
+        localStorage.clear();
+        alert("logged out succesfully");
+        window.location.href = "/";
+      }
+    } catch (err) {
+      alert(err, "can't abel to logout");
+    }
+  };
+
   return (
     <>
       <Header />
@@ -13,7 +32,7 @@ export default function Logout() {
         </p>
         <div className="row text-center mt-5">
           <div className="m-auto">
-            <Button className=" m-1 c_W" href="/">
+            <Button className=" m-1 c_W" onClick={Logout}>
               Logout
             </Button>
             <Button className=" m-1 c_W">Cancel</Button>

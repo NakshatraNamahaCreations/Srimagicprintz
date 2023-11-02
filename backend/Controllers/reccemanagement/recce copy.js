@@ -440,6 +440,45 @@ class Reccemanagement {
       return res.status(500).json({ error: "Internal server error" });
     }
   }
+
+
+  async SendRecceToDesign(req, res) {
+    const outlateid = req.params.getreccedataid;
+    const filesToUpdate = req.files || [];
+    const { OutlateFabricationNeed, Designstatus, vendor } = req.body;
+    const recceIdToUpdate = new mongoose.Types.ObjectId(req.params.recceindex);
+
+    try {
+      const updatedRecceDoc = await RecceModel.updateOne(
+        {
+          _id: recceIdToUpdate,
+          "outletName._id": outlateid,
+        },
+        {
+          $set: {
+            "outletName.$.OutlateFabricationNeed": OutlateFabricationNeed,
+            "outletName.$.designupload": filesToUpdate,
+            "outletName.$.Designstatus": Designstatus,
+            // "outletName.$.RecceStatus": RecceStatus,
+          },
+        }
+      );
+
+      if (!updatedRecceDoc) {
+        return res
+          .status(404)
+          .json({ message: "Outlet not found in Recce document" });
+      }
+
+      return res.status(200).json({
+        message: "Outlet updated successfully",
+        data: updatedRecceDoc,
+      });
+    } catch (error) {
+      return res.status(500).json({ message: "Error updating document" });
+    }
+  }
+
 }
 
 module.exports = new Reccemanagement();
