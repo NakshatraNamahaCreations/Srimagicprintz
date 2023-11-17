@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const { Object } = require("mongoose/lib/schema/index");
-const { object } = require("mongoose/lib/utils");
+// const { Object } = require("mongoose/lib/schema/index");
+// const { object } = require("mongoose/lib/utils");
 
 const RecceModel = new mongoose.Schema(
   {

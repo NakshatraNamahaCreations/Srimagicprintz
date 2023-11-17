@@ -183,7 +183,6 @@ class Reccemanagement {
       const update = {
         $set: {
           "outletName.$.vendor": vendorId,
-          "outletName.$.InstalationGroup": vendorId,
           "outletName.$.date": currentDate,
         },
       };

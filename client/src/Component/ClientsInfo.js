@@ -15,7 +15,7 @@ export default function ClientInfo() {
   const [ClientAddress, setsetClientAddress] = useState("");
   const [pincode, setPincode] = useState("");
   const [zone, setZone] = useState("");
-  const [installationRate, setInstallationRate] = useState(0);
+  // const [installationRate, setInstallationRate] = useState(0);
 
   const [clientImage, setClientImage] = useState("");
   const AddClientsData = async (e) => {
@@ -30,7 +30,7 @@ export default function ClientInfo() {
     formData.append("ClientAddress", ClientAddress);
     formData.append("Pincode", pincode);
     formData.append("Zone", zone);
-    formData.append("InstallationRate", installationRate);
+    // formData.append("InstallationRate", installationRate);
     formData.append("ClientImage", clientImage);
 
     try {
@@ -156,7 +156,7 @@ export default function ClientInfo() {
                 type="file"
               />
             </Form.Group>
-            <Form.Group as={Col} md="6" controlId="validationCustom01">
+            {/* <Form.Group as={Col} md="6" controlId="validationCustom01">
               <Form.Label>Installation Rate</Form.Label>
               <Form.Control
                 value={installationRate}
@@ -164,7 +164,7 @@ export default function ClientInfo() {
                 type="text"
                 placeholder="Enter installationRate"
               />
-            </Form.Group>
+            </Form.Group> */}
           </Row>
           <Row className="mt-4">
             <Button

@@ -11,7 +11,7 @@ class ClientManagement {
       ClientAddress,
       Pincode,
       Zone,
-      InstallationRate,
+      // InstallationRate,
     } = req.body;
     let file = req.file?.filename;
     try {
@@ -25,7 +25,7 @@ class ClientManagement {
         Pincode,
         Zone,
 
-        InstallationRate,
+        // InstallationRate,
         ClientImage: file,
       });
       if (!file) {

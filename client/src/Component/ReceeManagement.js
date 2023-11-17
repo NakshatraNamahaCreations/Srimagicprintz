@@ -19,13 +19,9 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import moment from "moment";
 import { saveAs } from "file-saver";
 
-
-
 const ExcelJS = require("exceljs");
 
 export default function ReceeManagement() {
-  
-
   const ApiURL = process.env.REACT_APP_API_URL;
 
   const [selectedIndex, setSelectedIndex] = useState(false);
@@ -36,25 +32,25 @@ export default function ReceeManagement() {
   const [recceexcel, setrecceexcel] = useState("");
   const [reccedata, setRecceData] = useState([]);
   const [vendordata, setVendorData] = useState([]);
-  const [searchshopName, setSearchshopName] = useState("");
-  const [searcharea, setSearcharea] = useState("");
-  const [searchcity, setSearchcity] = useState("");
-  const [searchcontactNumber, setSearchcontactNumber] = useState("");
-  const [searchpincode, setSearchpincode] = useState("");
-  const [searchzone, setSearchzone] = useState("");
-  const [searchdate, setSearchDate] = useState("");
-  const [searchdatastatus, setSearchdatastatus] = useState("");
-  const [searchVendorName, setSearchVendorName] = useState("");
-  const [SearchclientName, setSearchclientName] = useState("");
-  const [searchSINO, setSearchSINO] = useState("");
+  // const [searchshopName, setSearchshopName] = useState("");
+  // const [searcharea, setSearcharea] = useState("");
+  // const [searchcity, setSearchcity] = useState("");
+  // const [searchcontactNumber, setSearchcontactNumber] = useState("");
+  // const [searchpincode, setSearchpincode] = useState("");
+  // const [searchzone, setSearchzone] = useState("");
+  // const [searchdate, setSearchDate] = useState("");
+  // const [searchdatastatus, setSearchdatastatus] = useState("");
+  // const [searchVendorName, setSearchVendorName] = useState("");
+  // const [SearchclientName, setSearchclientName] = useState("");
+  // const [searchSINO, setSearchSINO] = useState("");
   const [importXLSheet, setImportXLSheet] = useState([]);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [displayedData, setDisplayedData] = useState();
   const [getVendorName, setgetVendorName] = useState(null);
   const [CategoryData, setCategoryData] = useState();
-  const [selectedcategory, setselectedcategory] = useState("");
-  const [SearchCategory, setSearchCategory] = useState("");
+  // const [selectedcategory, setselectedcategory] = useState("");
+  // const [SearchCategory, setSearchCategory] = useState("");
   const [selectedRecceItems, setSelectedRecceItems] = useState([]);
 
   const [selectedRecceItems1, setSelectedRecceItems1] = useState([]);
@@ -127,7 +123,7 @@ export default function ReceeManagement() {
   const getOuletById = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8001/api/getoutletboarddatabyrecceid/${getVendorName._id}`
+        `http://localhost:8001/api/getoutletboarddatabyrecceid/${getVendorName?._id}`
       );
       if (res.status === 200) {
         setOutletDoneData(res?.data?.outletBoard);
@@ -186,107 +182,107 @@ export default function ReceeManagement() {
     const filteredClients = () => {
       let results = [...reccedata];
 
-      if (searchSINO) {
-        results = results.filter((item, index) => {
-          return (index + 1).toString().includes(searchSINO);
-        });
-      }
+      // if (searchSINO) {
+      //   results = results.filter((item, index) => {
+      //     return (index + 1).toString().includes(searchSINO);
+      //   });
+      // }
 
-      if (SearchCategory) {
-        results = results.filter((item) => {
-          const categoryid = item?.category?.[0];
-          const selectedcategory = CategoryData?.find(
-            (ele) => ele._id === categoryid
-          );
+      // if (SearchCategory) {
+      //   results = results.filter((item) => {
+      //     const categoryid = item?.category?.[0];
+      //     const selectedcategory = CategoryData?.find(
+      //       (ele) => ele._id === categoryid
+      //     );
 
-          return (
-            selectedcategory &&
-            selectedcategory.categoryName
-              .toLowerCase()
-              .includes(SearchCategory.toLowerCase())
-          );
-        });
-      }
+      //     return (
+      //       selectedcategory &&
+      //       selectedcategory.categoryName
+      //         .toLowerCase()
+      //         .includes(SearchCategory.toLowerCase())
+      //     );
+      //   });
+      // }
 
-      if (SearchclientName) {
-        results = results.filter((item) =>
-          item.ClientName?.toLowerCase().includes(
-            SearchclientName.toLowerCase()
-          )
-        );
-      }
-      if (searchshopName) {
-        results = results.filter((item) =>
-          item.ShopName?.toLowerCase().includes(searchshopName.toLowerCase())
-        );
-      }
-      if (searchcontactNumber) {
-        results = results.filter((item) => {
-          const contactNumber1 =
-            item.ContactNumber && item.ContactNumber.toString();
-          return contactNumber1?.includes(searchcontactNumber);
-        });
-      }
-      if (searcharea) {
-        const searchTerm = searcharea.toLowerCase();
-        results = results.filter((item) => {
-          const area = item.Area?.toLowerCase();
-          return (
-            area.indexOf(searchTerm) !== -1 || city.indexOf(searchTerm) !== -1
-          );
-        });
-      }
-      if (searchcity) {
-        const searchTerm = searchcity.toLowerCase();
-        results = results.filter((item) => {
-          const city = item.City?.toLowerCase();
+      // if (SearchclientName) {
+      //   results = results.filter((item) =>
+      //     item.ClientName?.toLowerCase().includes(
+      //       SearchclientName.toLowerCase()
+      //     )
+      //   );
+      // }
+      // if (searchshopName) {
+      //   results = results.filter((item) =>
+      //     item.ShopName?.toLowerCase().includes(searchshopName.toLowerCase())
+      //   );
+      // }
+      // if (searchcontactNumber) {
+      //   results = results.filter((item) => {
+      //     const contactNumber1 =
+      //       item.ContactNumber && item.ContactNumber.toString();
+      //     return contactNumber1?.includes(searchcontactNumber);
+      //   });
+      // }
+      // if (searcharea) {
+      //   const searchTerm = searcharea.toLowerCase();
+      //   results = results.filter((item) => {
+      //     const area = item.Area?.toLowerCase();
+      //     return (
+      //       area.indexOf(searchTerm) !== -1 || city.indexOf(searchTerm) !== -1
+      //     );
+      //   });
+      // }
+      // if (searchcity) {
+      //   const searchTerm = searchcity.toLowerCase();
+      //   results = results.filter((item) => {
+      //     const city = item.City?.toLowerCase();
 
-          return (
-            area.indexOf(searchTerm) !== -1 || city.indexOf(searchTerm) !== -1
-          );
-        });
-      }
+      //     return (
+      //       area.indexOf(searchTerm) !== -1 || city.indexOf(searchTerm) !== -1
+      //     );
+      //   });
+      // }
 
-      if (searchzone) {
-        results = results.filter((item) => {
-          const Zone1 = item.Zone && item.Zone.toString();
-          return Zone1?.includes(searchzone);
-        });
-      }
-      if (searchpincode) {
-        results = results.filter((item) => {
-          const Pincode1 = item.Pincode && item.Pincode.toString();
-          return Pincode1?.includes(searchpincode);
-        });
-      }
+      // if (searchzone) {
+      //   results = results.filter((item) => {
+      //     const Zone1 = item.Zone && item.Zone.toString();
+      //     return Zone1?.includes(searchzone);
+      //   });
+      // }
+      // if (searchpincode) {
+      //   results = results.filter((item) => {
+      //     const Pincode1 = item.Pincode && item.Pincode.toString();
+      //     return Pincode1?.includes(searchpincode);
+      //   });
+      // }
 
-      if (searchdate) {
-        const searchDate = new Date(searchdate);
+      // if (searchdate) {
+      //   const searchDate = new Date(searchdate);
 
-        if (!isNaN(searchDate)) {
-          results = results.filter((item) => {
-            if (!item.createdAt) {
-              return false;
-            }
+      //   if (!isNaN(searchDate)) {
+      //     results = results.filter((item) => {
+      //       if (!item.createdAt) {
+      //         return false;
+      //       }
 
-            const createdAtDate = new Date(item.createdAt);
+      //       const createdAtDate = new Date(item.createdAt);
 
-            // Compare date components (year, month, day)
-            return (
-              createdAtDate.getFullYear() === searchDate.getFullYear() &&
-              createdAtDate.getMonth() === searchDate.getMonth() &&
-              createdAtDate.getDate() === searchDate.getDate()
-            );
-          });
-        }
-      }
+      //       // Compare date components (year, month, day)
+      //       return (
+      //         createdAtDate.getFullYear() === searchDate.getFullYear() &&
+      //         createdAtDate.getMonth() === searchDate.getMonth() &&
+      //         createdAtDate.getDate() === searchDate.getDate()
+      //       );
+      //     });
+      //   }
+      // }
 
-      if (searchdatastatus) {
-        results = results.filter((item) => {
-          const status1 = item.datastatus && item.datastatus.toString();
-          return status1?.includes(searchdatastatus);
-        });
-      }
+      // if (searchdatastatus) {
+      //   results = results.filter((item) => {
+      //     const status1 = item.datastatus && item.datastatus.toString();
+      //     return status1?.includes(searchdatastatus);
+      //   });
+      // }
 
       const startIndex = (currentPage - 1) * rowsPerPage;
       const endIndex = Math.min(startIndex + rowsPerPage, results.length);
@@ -296,17 +292,17 @@ export default function ReceeManagement() {
     filteredClients();
   }, [
     reccedata,
-    SearchclientName,
-    searchshopName,
-    searchVendorName,
-    searchcontactNumber,
-    searcharea,
-    searchcity,
-    searchpincode,
-    searchzone,
-    searchdate,
-    searchdatastatus,
-    searchSINO,
+    // SearchclientName,
+    // searchshopName,
+    // searchVendorName,
+    // searchcontactNumber,
+    // searcharea,
+    // searchcity,
+    // searchpincode,
+    // searchzone,
+    // searchdate,
+    // searchdatastatus,
+    // searchSINO,
     // currentPage,
     rowsPerPage,
   ]);
@@ -795,39 +791,39 @@ export default function ReceeManagement() {
     (vendor) => vendor?._id === getVendorName?._id
   );
 
-  useEffect(() => {
-    const filteredClients = () => {
-      if (SearchclientName) {
-        filteredData1?.flatMap((ele) =>
-          ele.outletName?.flatMap((item) =>
-            item.filter(
-              (data) =>
-                !SearchclientName ||
-                (data?.clientName &&
-                  data?.clientName
-                    .toLowerCase()
-                    .includes(SearchclientName?.toLowerCase()))
-            )
-          )
-        );
-      }
-    };
-    filteredClients();
-  }, [
-    filteredData1,
-    SearchclientName,
-    searchshopName,
-    searchVendorName,
-    searchcontactNumber,
-    searcharea,
-    searchcity,
-    searchpincode,
-    searchzone,
-    searchdate,
-    searchdatastatus,
-    searchSINO,
-    rowsPerPage,
-  ]);
+  // useEffect(() => {
+  //   const filteredClients = () => {
+  //     if (SearchclientName) {
+  //       filteredData1?.flatMap((ele) =>
+  //         ele.outletName?.flatMap((item) =>
+  //           item.filter(
+  //             (data) =>
+  //               !SearchclientName ||
+  //               (data?.clientName &&
+  //                 data?.clientName
+  //                   .toLowerCase()
+  //                   .includes(SearchclientName?.toLowerCase()))
+  //           )
+  //         )
+  //       );
+  //     }
+  //   };
+  //   filteredClients();
+  // }, [
+  //   filteredData1,
+  //   SearchclientName,
+  //   searchshopName,
+  //   searchVendorName,
+  //   searchcontactNumber,
+  //   searcharea,
+  //   searchcity,
+  //   searchpincode,
+  //   searchzone,
+  //   searchdate,
+  //   searchdatastatus,
+  //   searchSINO,
+  //   rowsPerPage,
+  // ]);
 
   const getLengthOfStatus = () => {
     const statusCounts = {
@@ -1470,7 +1466,7 @@ export default function ReceeManagement() {
                     onClick={Export}
                     style={{ backgroundColor: "#a9042e", border: 0 }}
                   >
-                    Export
+                    Actual
                   </button>
                   <div className="col-md-2 ">
                     {moreoption ? (

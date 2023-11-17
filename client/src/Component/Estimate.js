@@ -21,6 +21,7 @@ function Estimate() {
   const [quantity, setQuantity] = useState([]);
   const [productionRates, setProductionRates] = useState([]);
   const [transportationRates, setTransportationRates] = useState([]);
+  const [InstallationRates, setInstallationRates] = useState([]);
   const [selectrecceStatus, setSelectRecceStatus] = useState(null);
   const [FilteredEstimateData, setFilteredEstimateData] = useState();
   const [QuotationData, setQuotationData] = useState([]);
@@ -153,6 +154,11 @@ function Estimate() {
         updatedProductionRates[innerIndex] = value;
         setProductionRates(updatedProductionRates);
         break;
+      case "InstalationRates":
+        const updateinstaltionRate = [...InstallationRates];
+        updateinstaltionRate[innerIndex] = value;
+        setInstallationRates(updateinstaltionRate);
+        break;
       case "transportationrate":
         const updatedTransportationRates = [...transportationRates];
         updatedTransportationRates[innerIndex] = value;
@@ -204,7 +210,7 @@ function Estimate() {
           ProductionRate: productionRates,
           ProductionCost: ProductionCost,
           transportationcost: transportationCost,
-          InstallationRate: brandName?.InstallationRate,
+          InstallationRate: InstallationRates,
           InstallationCost: InstallationCost,
           transportationRate: transportationRates,
           ROF: Rof,
@@ -331,7 +337,7 @@ function Estimate() {
 
                   InstallationCost = Sft.map((sft, index) => {
                     return (
-                      Number(sft) * Number(brandName?.InstallationRate || 0)
+                      Number(sft) * Number(InstallationRates[innerIndex] || 0)
                     );
                   });
 
@@ -432,7 +438,16 @@ function Estimate() {
                         })}
                       </td>
                       <td className="thstyle poppinfnt ">
-                        {desiredClient?.InstallationRate}
+                        <Form.Control
+                          className="col-md-5"
+                          value={transportationRates[innerIndex]}
+                          onChange={(e) =>
+                            handleFieldChange(e, innerIndex, "InstalationRates")
+                          }
+                          onKeyPress={(e) => handleNumeric(e)}
+                          placeholder="Installation Rate"
+                          type="text"
+                        />
                       </td>
                       <td className="thstyle poppinfnt ">
                         {InstallationCost[innerIndex].toLocaleString("en-IN", {

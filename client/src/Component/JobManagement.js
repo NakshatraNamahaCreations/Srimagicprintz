@@ -16,7 +16,7 @@ export default function JobManagement() {
   const [vendorData, setVendorData] = useState([]);
 
   const [selecteZone, setSelectedZone] = useState("");
-  const [selectedCity, setselectedCity] = useState("");
+  const [selectedCity, setselectedCity] = useState([]);
   // const [client, setclient] = useState([]);
   const [RecceIndex, setRecceIndex] = useState(null);
   const [jobType, setJobType] = useState();
@@ -41,19 +41,25 @@ export default function JobManagement() {
   const [selectedIndexFabrication, setselectedIndexFabrication] =
     useState(false);
   const [selectedCheckboxes, setSelectedCheckboxes] = useState([]);
+  const [selectedCheckboxes1, setselectedCheckboxes1] = useState([]);
   const [PrintData, setPrintData] = useState(null);
+  const [SelectedcityNames, setSelectedcityNames] = useState([]);
   const [selectedBrandNames, setSelectedBrandNames] = useState("");
   const [brandName, setbrandName] = useState(false);
+
+  const [cityNames, setcityNames] = useState(false);
   const [rowsPerPage1, setRowsPerPage1] = useState(5);
   const [selectedRecce, setselectedRecce] = useState(false);
   const [SelectedData, setSelectedData] = useState({});
   const [selectedRecceItems, setSelectedRecceItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedOutletIds, setSelectedOutletIds] = useState([]);
+  const [selectedOutletcity, setselectedOutletcity] = useState([]);
   const [seletedInstalation, setSeletedInstalation] = useState(false);
   let serialNumber = 0;
   let rowsDisplayed = 0;
   const [InstaLationGroups, setInstaLationGroup] = useState();
+
   useEffect(() => {
     getAllRecce();
     getAllCategory();
@@ -62,7 +68,7 @@ export default function JobManagement() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        " http://localhost:8001/api/Product/category/getcategory"
+        "http://localhost:8001/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -133,6 +139,10 @@ export default function JobManagement() {
     selecteZone
   ) => {
     try {
+      const selectedCitiesArray = selectedCity
+        .split(",")
+        .map((city) => city.trim().toLowerCase());
+
       if (!assign) {
         alert("Please select a zone.");
         return;
@@ -148,10 +158,11 @@ export default function JobManagement() {
       for (const recceId of selectedRecceItems) {
         const filteredData = RecceData.map((ele) =>
           ele.outletName.filter((item) => {
+            console.log(item.OutletCity, "selectedCity");
             if (
               recceId === item._id &&
               item.OutletZone === selecteZone &&
-              item.OutletCity === selectedCity
+              selectedCitiesArray.includes(item.OutletCity?.toLowerCase())
             ) {
               item.vendor = vendordata._id;
             }
@@ -413,9 +424,9 @@ export default function JobManagement() {
     selectedRecceItems,
     instalationgroups,
     selecteZone,
-    selectedCity
+    selectedCity,
+    instalationlength
   ) => {
-    console.log(instalationgroups, "instalationgroups");
     try {
       if (!assign) {
         alert("Please select a zone.");
@@ -430,12 +441,14 @@ export default function JobManagement() {
       const updatedRecceData = [];
 
       for (const recceId of selectedRecceItems) {
-        const filteredData = RecceData.map((ele) =>
+        const filteredData = RecceData.filter((ele) =>
           ele.outletName.filter((item) => {
             if (
               recceId === item._id &&
               item.OutletZone === selecteZone &&
-              item.OutletCity === selectedCity
+              item.OutletCity?.toLowerCase()?.includes(
+                selectedCity?.toLowerCase()
+              )
             ) {
               item.InstalationGroup = instalationgroups;
             }
@@ -456,10 +469,10 @@ export default function JobManagement() {
         const res = await axios(config);
 
         if (res.status === 200) {
-          alert(`${jobType} assigned to: ${instalationgroups.VendorFirstName}`);
+          alert(`${jobType} assigned to: group of ${instalationlength} vendor`);
         } else {
           alert(
-            `Failed to assign ${jobType} to: ${instalationgroups.VendorFirstName}`
+            `Failed to assign ${jobType} to: group of ${instalationlength} vendor`
           );
         }
       }
@@ -471,6 +484,25 @@ export default function JobManagement() {
 
       alert("Failed to assign recce. Error: " + err.message);
     }
+  };
+  const handleCheckboxChange1 = (event, city) => {
+    const isChecked = event.target.checked;
+    let updatedCheckboxes;
+
+    if (isChecked) {
+      updatedCheckboxes = [...new Set([...selectedCheckboxes1, city])];
+    } else {
+      updatedCheckboxes = selectedCheckboxes1.filter(
+        (checkbox) => checkbox !== city
+      );
+    }
+
+    if (Array.isArray(updatedCheckboxes)) {
+      setselectedCheckboxes1(updatedCheckboxes);
+    }
+
+    const selectedCities = updatedCheckboxes.join(", ");
+    setselectedCity(selectedCities);
   };
 
   return (
@@ -672,7 +704,7 @@ export default function JobManagement() {
                       </Col>
                     </Row>
                     <Row>
-                      <Col>
+                      {/* <Col>
                         <Form.Group
                           md="5"
                           className="mb-3"
@@ -682,14 +714,14 @@ export default function JobManagement() {
 
                           <Form.Select
                             value={selectedCity}
+                            as="checkbox"
                             onChange={(e) => {
                               const selectedValue = e.target.value;
-                              if (selectedValue !== "Choose...") {
-                                setselectedCity(selectedValue);
-                              }
+
+                              setselectedCity(selectedValue);
                             }}
                           >
-                            <option>Choose...</option>
+                            <option value="Select All">Select All</option>
                             {RecceData?.map((recceItem, index) =>
                               recceItem?.outletName?.map(
                                 (outlet, outletArray) => (
@@ -702,6 +734,87 @@ export default function JobManagement() {
                               )
                             )}
                           </Form.Select>
+                        </Form.Group>
+                      </Col> */}
+
+                      <Col>
+                        <Form.Group
+                          md="5"
+                          className="mb-3"
+                          controlId="exampleForm.ControlInput1"
+                        >
+                          {" "}
+                          <>
+                            <Form.Label>Select City</Form.Label>
+                            <div>
+                              <Form.Control
+                                placeholder="select city "
+                                value={selectedCity}
+                                onClick={() => setcityNames(!cityNames)}
+                                readOnly
+                              />
+                            </div>
+
+                            {cityNames ? (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  width: "14.2rem",
+                                }}
+                                className="col-md-2 m-auto shadow-sm p-3 mb-5 bg-white rounded"
+                              >
+                                <div>
+                                  {RecceData?.map((recceItem, index) => {
+                                    const uniqueCitiesSet = new Set();
+
+                                    return recceItem?.outletName?.map(
+                                      (outlet, outletArray) => {
+                                        const city =
+                                          outlet?.OutletCity?.toLowerCase();
+
+                                        if (!uniqueCitiesSet.has(city)) {
+                                          uniqueCitiesSet.add(city);
+
+                                          return (
+                                            <div
+                                              className="row m-auto"
+                                              key={index}
+                                              style={{ zIndex: "100" }}
+                                            >
+                                              <Form.Label>
+                                                <Form.Check
+                                                  type="checkbox"
+                                                  className="me-3 d-inline"
+                                                  value={city}
+                                                  checked={selectedCheckboxes1.includes(
+                                                    city
+                                                  )}
+                                                  onChange={(event) => {
+                                                    handleCheckboxChange1(
+                                                      event,
+                                                      city
+                                                    );
+                                                    setselectedOutletcity(
+                                                      event,
+                                                      city
+                                                    );
+                                                  }}
+                                                />
+
+                                                <p className="d-inline">
+                                                  {city}
+                                                </p>
+                                              </Form.Label>
+                                            </div>
+                                          );
+                                        }
+                                      }
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            ) : null}
+                          </>
                         </Form.Group>
                       </Col>
                       <Col>
@@ -719,7 +832,7 @@ export default function JobManagement() {
                               setSelectedZone(newSelectedZone);
                             }}
                           >
-                            <option>Choose..</option>
+                            <option value="Select All">Select All</option>
                             <option value="west">west</option>
                             <option value="south">south</option>
                             <option value="north">north</option>
@@ -854,15 +967,22 @@ export default function JobManagement() {
                               if (extractedPincode) {
                                 outlet.OutletPincode = extractedPincode[0];
                               }
+                              const selectedCitiesArray =
+                                SelectedData.selectedCity
+                                  .split(",")
+                                  .map((city) => city.trim().toLowerCase());
 
                               const isCityMatched =
-                                outlet?.OutletCity?.toLowerCase() ===
-                                SelectedData.selectedCity?.toLowerCase();
+                                SelectedData.selectedCity === "Select All" ||
+                                selectedCitiesArray.includes(
+                                  outlet?.OutletCity?.toLowerCase()
+                                );
 
                               const isZoneMatched =
-                                isCityMatched &&
-                                outlet?.OutletZone?.toLowerCase() ===
-                                  SelectedData?.selecteZone?.toLowerCase();
+                                SelectedData.selecteZone === "Select All" ||
+                                (isCityMatched &&
+                                  outlet?.OutletZone?.toLowerCase() ===
+                                    SelectedData?.selecteZone?.toLowerCase());
 
                               if (
                                 isCityMatched &&
@@ -962,7 +1082,6 @@ export default function JobManagement() {
                                 );
                               }
                             }
-                            return null;
                           })
                         )}
                       </tbody>
@@ -1414,20 +1533,30 @@ export default function JobManagement() {
                                 outlet.OutletPincode = extractedPincode[0];
                               }
 
+                              const selectedCitiesArray =
+                                SelectedData.selectedCity
+                                  .split(",")
+                                  .map((city) => city.trim().toLowerCase());
+
                               const isCityMatched =
-                                outlet?.OutletCity?.toLowerCase() ===
-                                SelectedData.selectedCity?.toLowerCase();
+                                SelectedData.selectedCity === "Select All" ||
+                                selectedCitiesArray.includes(
+                                  outlet?.OutletCity?.toLowerCase()
+                                );
 
                               const isZoneMatched =
-                                isCityMatched &&
-                                outlet?.OutletZone?.toLowerCase() ===
-                                  SelectedData?.selecteZone?.toLowerCase();
+                                SelectedData.selecteZone === "Select All" ||
+                                (isCityMatched &&
+                                  outlet?.OutletZone?.toLowerCase() ===
+                                    SelectedData?.selecteZone?.toLowerCase());
 
                               if (
                                 isCityMatched &&
                                 isZoneMatched &&
                                 isRecceItemIdSelected &&
-                                outlet?.OutlateFabricationNeed?.includes("Yes")
+                                outlet?.OutlateFabricationDeliveryType?.includes(
+                                  "Go to installation"
+                                )
                               ) {
                                 rowsDisplayed++;
                                 serialNumber++;
@@ -1543,36 +1672,42 @@ export default function JobManagement() {
                     {InstaLationGroups ? (
                       InstaLationGroups?.map((ele, index) => {
                         if (ele?.InstalationGroup?.length > 0) {
-                          <Card
-                            key={ele.VendorId}
-                            className="col-md-4 m-3 p-2"
-                            style={{
-                              width: "200px",
-                              height: "250px",
-                              borderRadius: "10%",
-                            }}
-                          >
-                            <div className="row text-center m-auto">
-                              <h4>Group{ele.InstalationGroup.length}</h4>
-                              <h4>{jobType}</h4>
-                            </div>
+                          return (
+                            <Card
+                              key={ele.VendorId}
+                              className="col-md-4 m-3 p-2"
+                              style={{
+                                width: "200px",
+                                height: "250px",
+                                borderRadius: "10%",
+                              }}
+                            >
+                              {/* {console.log(ele?.InstalationGroup?.length)} */}
+                              <div className="row text-center m-auto">
+                                <h4>
+                                  Group of {ele?.InstalationGroup?.length}
+                                </h4>
+                                <h4>{jobType}</h4>
+                              </div>
 
-                            <div className="row m-auto">
-                              <Button
-                                className="c_W"
-                                onClick={() => {
-                                  AssignInstallation(
-                                    selectedRecceItems,
-                                    ele._id,
-                                    selecteZone,
-                                    selectedCity
-                                  );
-                                }}
-                              >
-                                Assigned Job
-                              </Button>
-                            </div>
-                          </Card>;
+                              <div className="row m-auto">
+                                <Button
+                                  className="c_W"
+                                  onClick={() => {
+                                    AssignInstallation(
+                                      selectedRecceItems,
+                                      ele._id,
+                                      selecteZone,
+                                      selectedCity,
+                                      ele?.InstalationGroup?.length
+                                    );
+                                  }}
+                                >
+                                  Assigned Job
+                                </Button>
+                              </div>
+                            </Card>
+                          );
                         }
                       })
                     ) : (

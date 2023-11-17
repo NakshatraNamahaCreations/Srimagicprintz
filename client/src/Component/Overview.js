@@ -449,7 +449,7 @@ export default function Overview() {
           </Card>
         </div>
         <div className="row mt-5 m-auto">
-          <div className="col-md-8">
+          <div className="col-md-9">
             <div className="row ">
               <div className="col-md-3 ">
                 <div className="col-md-8  mb-2">
@@ -479,7 +479,7 @@ export default function Overview() {
                 </Form.Control>
               </div>
 
-              <div className="col-md-6 float-end">
+              <div className="col-md-9 float-end">
                 <div className="row">
                   <label className="col-md-5   mb-2">Start Date:</label>
                   <label className="col-md-6  mb-2">End Date:</label>
@@ -504,28 +504,27 @@ export default function Overview() {
               </div>
             </div>
           </div>
-          <div className="col-md-3 mt-4">
-            <div className="row">
-              <Form.Select
-                className="row "
-                value={selctedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-              >
-                <option>--Select All--</option>
-                <option value="Completed" className="cureor">
-                  Completed
-                </option>
-                <option value="Proccesing" className="cureor">
-                  Proccesing
-                </option>
-                <option value="Pending" className="cureor">
-                  Pending
-                </option>
-                <option value="Cancelled" className="cureor">
-                  Cancelled
-                </option>
-              </Form.Select>
-            </div>
+          <div className="col-md-3 ">
+            <label className="mb-2">Select Status</label>
+            <Form.Select
+              className="row "
+              value={selctedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+            >
+              <option>--Select All--</option>
+              <option value="Completed" className="cureor">
+                Completed
+              </option>
+              <option value="Proccesing" className="cureor">
+                Proccesing
+              </option>
+              <option value="Pending" className="cureor">
+                Pending
+              </option>
+              <option value="Cancelled" className="cureor">
+                Cancelled
+              </option>
+            </Form.Select>
           </div>
         </div>
         <div className="row mt-3 m-auto">

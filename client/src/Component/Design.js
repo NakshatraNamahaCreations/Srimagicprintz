@@ -52,12 +52,11 @@ export default function Design() {
   const [ClientInfo, setClientInfo] = useState([]);
   const [selectedFiles, setselectedFiles] = useState([]);
 
-
-
   const [fabricationneed, setFabricationneed] = useState("");
   const [selectedRecceItems1, setSelectedRecceItems1] = useState([]);
   const [designStatus, setdesignStatus] = useState("");
   const [selectAll, setSelectAll] = useState(false);
+  const [selectrecceStatus, setSelectRecceStatus] = useState(null);
   useEffect(() => {
     getAllRecce();
     getAllClientsInfo();
@@ -204,8 +203,6 @@ export default function Design() {
     rowsPerPage,
   ]);
 
-
-
   const handleExportPDF = () => {
     const pdf = new jsPDF();
     const tableColumn = [
@@ -268,8 +265,6 @@ export default function Design() {
 
     pdf.save("exported_data.pdf");
   };
-
-
 
   const handleClearDateFilters = () => {
     setFilterStartDate("");
@@ -441,14 +436,55 @@ export default function Design() {
 
     setmoreoption1(!selectAll);
   };
+
+  const handleUpdate1 = async () => {
+    try {
+      for (const recceid of filteredData) {
+        for (const outlet of recceid.outletName) {
+          if (selectedRecceItems1.includes(outlet._id)) {
+            const formdata = new FormData();
+
+            if (fabricationneed !== undefined && fabricationneed !== null) {
+              formdata.append("OutlateFabricationNeed", fabricationneed);
+            }
+
+            const config = {
+              url: `/recce/recce/updatereccedata/${recceid._id}/${outlet._id}`,
+              method: "put",
+              baseURL: "http://localhost:8001/api",
+              headers: { "Content-Type": "multipart/form-data" },
+              data: formdata,
+            };
+
+            const res = await axios(config);
+
+            if (res.status === 200) {
+              alert("Successfully updated outlet");
+
+              window.location.reload();
+            } else {
+              console.error("Received non-200 status code:", res.status);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Error:", err.response ? err.response.data : err.message);
+      alert(
+        "Not able to update: " +
+          (err.response ? err.response.data.message : err.message)
+      );
+    }
+  };
+
   return (
     <>
       <Header />
 
       {!SelecteddesignIndex ? (
         <div className="row  m-auto containerPadding">
-          <div className="row ">
-            <Col className="col-md-1 mb-3">
+          {/* <div className="row ">
+            <Col className="col-md-1 ">
               <Form.Control
                 as="select"
                 value={rowsPerPage1}
@@ -495,9 +531,118 @@ export default function Design() {
             <Col className="col-md-1">
               <Button onClick={handleExportPDF}> Download</Button>
             </Col>
-          </div>
+            <Col className="col-md-3">
+              <div className="row">
+                <div className="col-md-10 p-2">
+                  <Form.Label>Approval For Fabrication</Form.Label>
+                  <Form.Select
+                    className="shadow-none p-3 mb-5 bg-light rounded"
+                    value={fabricationneed}
+                    onChange={(e) => {
+                      const selectedValue = e.target.value;
+                      if (selectedValue !== "Choose...") {
+                        setFabricationneed(selectedValue);
+                      }
+                    }}
+                  >
+                    <option>Choose...</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </Form.Select>{" "}
+                </div>
+                <div className="col-md-2 mt-4">
+                  <Button className="row mt-2" onClick={handleUpdate1}>
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </Col>
+          </div> */}
+          <div className="row mt-3 m-3 m-auto">
+            <div className="col-md-8">
+              <div className="row ">
+                <Col className="col-md-2 ">
+                  <div className="col-md-8  mb-2">
+                    <span></span> of <span>{filteredData?.length}</span>
+                  </div>
 
-          <div className="row">
+                  <Form.Control
+                    as="select"
+                    value={rowsPerPage1}
+                    onChange={handleRowsPerPageChange}
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={30}>30</option>
+                    <option value={50}>50</option>
+                    <option value={80}>80</option>
+                    <option value={100}>100</option>
+                    <option value={140}>140</option>
+                    <option value={200}>200</option>
+                    <option value={300}>300</option>
+                    <option value={400}>400</option>
+                    <option value={600}>600</option>
+                    <option value={700}>700</option>
+                    <option value={1000}>1000</option>
+                    <option value={1500}>1500</option>
+                    <option value={10000}>10000</option>
+                  </Form.Control>
+                </Col>
+
+                <div className="col-md-9 float-end">
+                  <div className="row">
+                    <label className="col-md-5   mb-2">Start Date:</label>
+                    <label className="col-md-6  mb-2">End Date:</label>
+                    <div className="col-md-4 ">
+                      <Form.Control
+                        type="date"
+                        value={filterStartDate}
+                        onChange={handleFilterStartDateChange}
+                      />
+                    </div>
+                    <div className="col-md-4 ">
+                      <Form.Control
+                        type="date"
+                        value={filterEndDate}
+                        onChange={handleFilterEndDateChange}
+                      />
+                    </div>
+                    <div className="col-md-2 ">
+                      <Button onClick={handleClearDateFilters}>Clear</Button>
+                    </div>
+                    <Col className="col-md-1">
+                      <Button onClick={handleExportPDF}> Download</Button>
+                    </Col>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-4 ">
+              <label className="mb-2">Approval For Fabrication</label>
+              <div className="row">
+                <div className="col-md-8 ">
+                  <Form.Select
+                    className="shadow-none  bg-light rounded"
+                    value={fabricationneed}
+                    onChange={(e) => {
+                      const selectedValue = e.target.value;
+                      if (selectedValue !== "Choose...") {
+                        setFabricationneed(selectedValue);
+                      }
+                    }}
+                  >
+                    <option>Choose...</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </Form.Select>{" "}
+                </div>
+                <Button className="col-md-3 " onClick={handleUpdate1}>
+                  Save
+                </Button>
+              </div>
+            </div>
+          </div>
+          <div className="row mt-3">
             <table className="t-p">
               <thead className="t-c">
                 <tr>
@@ -583,9 +728,7 @@ export default function Design() {
                             </td>
                             <td className="td_S p-1">{serialNumber}</td>
                             <td className="td_S p-1">Job{JobNob}</td>
-                            <td className="td_S p-1">
-                              {recceItem.BrandName}
-                            </td>
+                            <td className="td_S p-1">{recceItem.BrandName}</td>
                             <td className="td_S p-1">{outlet?.ShopName}</td>
                             <td className="td_S p-1">{outlet?.ClientName}</td>
                             <td className="td_S p-1">{outlet?.State}</td>
@@ -635,7 +778,7 @@ export default function Design() {
                         );
                       }
                     }
-                    return null;
+                    // return null;
                   })
                 )}
               </tbody>

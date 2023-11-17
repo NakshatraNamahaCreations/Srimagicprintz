@@ -142,7 +142,9 @@ function BillingEstimate() {
 
                     selectedGSTRate = filteredOutlet?.GST;
                     Rof = filteredOutlet?.ROF;
-                    GrandTotal = filteredOutlet?.GrandTotal;
+
+                    GrandTotal = Number(filteredOutlet?.GrandTotal.toFixed(2));
+
                     return recceData?.flatMap((receeitem) =>
                       receeitem?.outletName
                         ?.filter((ele) => ele?._id === item)

@@ -11,7 +11,7 @@ const Schemaforclient = new mongoose.Schema(
     Pincode: Number,
     Zone: String,
     ClientImage: String,
-    InstallationRate: Number,
+    // InstallationRate: Number,
   },
   {
     timestamps: true,

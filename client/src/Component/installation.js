@@ -19,47 +19,33 @@ import moment from "moment";
 import jsPDF from "jspdf";
 import "jspdf-autotable"; // Import the autotable plugin
 
-
 export default function Installation() {
-
-
-  const ApiURL = process.env.REACT_APP_API_URL;
+  // const ApiURL = process.env.REACT_APP_API_URL;
   const [recceData, setRecceData] = useState([]);
-  const [searchshopName, setSearchshopName] = useState("");
-  const [searcharea, setSearcharea] = useState("");
-  const [searchcity, setSearchcity] = useState("");
-  const [searchcontactNumber, setSearchcontactNumber] = useState("");
-  const [searchpincode, setSearchpincode] = useState("");
-  const [searchzone, setSearchzone] = useState("");
-  const [searchdate, setSearchDate] = useState("");
-  const [searchstatus, setSearchStatus] = useState("");
-  const [searchVendorName, setSearchVendorName] = useState("");
-  const [searchSINO, setSearchSINO] = useState("");
-  const [selectAction, setselectAction] = useState(false);
+
   const [displayedData, setDisplayedData] = useState();
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectAction, setselectAction] = useState(false);
 
-  const [SearchCategory, setSearchCategory] = useState("");
-  const [CategoryData, setCategoryData] = useState(null);
-  const [vendordata, setVendorData] = useState(null);
-  const [getreccedata, setgetreccedata] = useState("");
-  const [SelecteddesignIndex, setSelectedDesignIndex] = useState(false);
-  const [designImages, setDesignImages] = useState("");
-  const [SearchclientName, setSearchclientName] = useState("");
-  const [searchdatastatus, setSearchdatastatus] = useState("");
+  const [InstaLationGroups, setInstaLationGroups] = useState(null);
+
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
   const [moreoption, setmoreoption] = useState(false);
-  const [selectedRecceItems, setSelectedRecceItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedRecceItems1, setSelectedRecceItems1] = useState([]);
   const [ClientInfo, setClientInfo] = useState([]);
   const [selectrecceStatus, setSelectRecceStatus] = useState(null);
   const [RecceId, setRecceId] = useState(null);
+  const [show, setShow] = useState(false);
+  const [instalationgrp, setInstalationgrp] = useState(null);
+  const handleClose1 = () => setShow(false);
+
   useEffect(() => {
     getAllRecce();
     getAllClientsInfo();
+    getAllInstalation();
   }, []);
 
   const getAllRecce = async () => {
@@ -82,130 +68,13 @@ export default function Installation() {
     const filteredClients = () => {
       let results = [...recceData];
 
-      if (searchSINO) {
-        results = results.filter((item, index) => {
-          return (index + 1).toString().includes(searchSINO);
-        });
-      }
-
-      if (SearchCategory) {
-        results = results.filter((item) => {
-          const categoryid = item?.category?.[0];
-          const selectedcategory = CategoryData?.find(
-            (ele) => ele._id === categoryid
-          );
-
-          return (
-            selectedcategory &&
-            selectedcategory.categoryName
-              .toLowerCase()
-              .includes(SearchCategory.toLowerCase())
-          );
-        });
-      }
-
-      if (SearchclientName) {
-        results = results.filter((item) =>
-          item.ClientName?.toLowerCase().includes(
-            SearchclientName.toLowerCase()
-          )
-        );
-      }
-      if (searchshopName) {
-        results = results.filter((item) =>
-          item.ShopName?.toLowerCase().includes(searchshopName.toLowerCase())
-        );
-      }
-      if (searchcontactNumber) {
-        results = results.filter((item) => {
-          const contactNumber1 =
-            item.ContactNumber && item.ContactNumber.toString();
-          return contactNumber1?.includes(searchcontactNumber);
-        });
-      }
-      if (searcharea) {
-        const searchTerm = searcharea.toLowerCase();
-        results = results.filter((item) => {
-          const area = item.Area?.toLowerCase();
-          return (
-            area.indexOf(searchTerm) !== -1 || area.indexOf(searchTerm) !== -1
-          );
-        });
-      }
-      if (searchcity) {
-        const searchTerm = searchcity.toLowerCase();
-        results = results.filter((item) => {
-          const city = item.City?.toLowerCase();
-
-          return (
-            city.indexOf(searchTerm) !== -1 || city.indexOf(searchTerm) !== -1
-          );
-        });
-      }
-
-      if (searchzone) {
-        results = results.filter((item) => {
-          const Zone1 = item.Zone && item.Zone.toString();
-          return Zone1?.includes(searchzone);
-        });
-      }
-      if (searchpincode) {
-        results = results.filter((item) => {
-          const Pincode1 = item.Pincode && item.Pincode.toString();
-          return Pincode1?.includes(searchpincode);
-        });
-      }
-
-      if (searchdate) {
-        const searchDate = new Date(searchdate);
-
-        if (!isNaN(searchDate)) {
-          results = results.filter((item) => {
-            if (!item.createdAt) {
-              return false;
-            }
-
-            const createdAtDate = new Date(item.createdAt);
-
-            // Compare date components (year, month, day)
-            return (
-              createdAtDate.getFullYear() === searchDate.getFullYear() &&
-              createdAtDate.getMonth() === searchDate.getMonth() &&
-              createdAtDate.getDate() === searchDate.getDate()
-            );
-          });
-        }
-      }
-
-      if (searchdatastatus) {
-        results = results.filter((item) => {
-          const status1 = item.datastatus && item.datastatus.toString();
-          return status1?.includes(searchdatastatus);
-        });
-      }
-
       const startIndex = (currentPage - 1) * rowsPerPage;
       const endIndex = Math.min(startIndex + rowsPerPage, results.length);
       const dataToDisplay = results.slice(startIndex, endIndex);
       setDisplayedData(dataToDisplay);
     };
     filteredClients();
-  }, [
-    recceData,
-    SearchclientName,
-    searchshopName,
-    searchVendorName,
-    searchcontactNumber,
-    searcharea,
-    searchcity,
-    searchpincode,
-    searchzone,
-    searchdate,
-    searchdatastatus,
-    searchSINO,
-    // currentPage,
-    rowsPerPage,
-  ]);
+  }, [recceData, rowsPerPage]);
 
   const getAllClientsInfo = async () => {
     try {
@@ -219,7 +88,18 @@ export default function Installation() {
       alert(err, "err");
     }
   };
-
+  const getAllInstalation = async () => {
+    try {
+      let res = await axios.get("http://localhost:8001/api/getgroup");
+      if (res.status === 200) {
+        let instalationData = res?.data?.instalation?.flatMap((ele) => ele);
+        setInstaLationGroups(instalationData);
+        // InstalationGroup
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
   const handleExportPDF = () => {
     const pdf = new jsPDF();
     const tableColumn = [
@@ -239,18 +119,18 @@ export default function Installation() {
     ];
     const tableData = displayedData.map((item, index) => {
       const selectedVendorId = item?.vendor?.[0];
-      const selectedVendor = vendordata?.find(
-        (vendor) => vendor?._id === selectedVendorId
-      );
+      // const selectedVendor = vendordata?.find(
+      //   (vendor) => vendor?._id === selectedVendorId
+      // );
       const selectedCategoryId = item?.category?.[0];
-      const category = CategoryData?.find(
-        (ele) => ele?._id === selectedCategoryId
-      );
+      // const category = CategoryData?.find(
+      //   (ele) => ele?._id === selectedCategoryId
+      // );
 
       return [
         index + 1,
         item.ShopName,
-        selectedVendor ? selectedVendor.VendorFirstName : "",
+        // selectedVendor ? selectedVendor.VendorFirstName : "",
         item.ContactNumber,
         item.Area,
         item.City,
@@ -262,7 +142,7 @@ export default function Installation() {
         item.Status,
         item.height,
         item.width,
-        category ? category?.categoryName : "",
+        // category ? category?.categoryName : "",
       ];
     });
 
@@ -319,41 +199,6 @@ export default function Installation() {
     setFilterEndDate(event.target.value);
   };
 
-  const [designData, setDesignData] = useState([]);
-
-  const handleEdit = (item) => {
-    setgetreccedata(item, designData);
-    setDesignData(designData);
-    setSelectedDesignIndex(true);
-  };
-
-  const handlesendPrinting = async () => {
-    for (const recceId of selectedRecceItems) {
-      const recceData = filteredData.find((item) => item._id === recceId);
-
-      if (
-        recceData.installationSTatus === "Completed" &&
-        recceData.installationupload !== null
-      ) {
-        try {
-          const response = await axios.post(
-            `http://localhost:8001/api/recce/recce/getinstallation/${recceData._id}`
-          );
-
-          if (response.status === 200) {
-            alert(`Successfully installation sent to track`);
-            window.location.href = "/Trackassignedjob";
-          } else {
-            alert(`Failed to send installation to trackjob`);
-          }
-        } catch (err) {
-          alert(`Please Complete installation or fill all data`);
-        }
-      } else {
-        alert(`Installation  not completed yet`);
-      }
-    }
-  };
   let serialNumber = 0;
   let rowsDisplayed = 0;
   const [rowsPerPage1, setRowsPerPage1] = useState(5);
@@ -374,6 +219,7 @@ export default function Installation() {
 
     setSelectedRecceItems1(updatedSelectedRecceItems);
     setRecceId(receeid);
+    setmoreoption(updatedSelectedRecceItems.length > 0);
   };
 
   const handleOutletSelectAllChange = () => {
@@ -388,14 +234,14 @@ export default function Installation() {
       setSelectedRecceItems1([]);
     }
 
-    // setmoreoption1(!selectAll);
+    setmoreoption(!selectAll);
   };
 
   const handleUpdate = async (RecceId, selectedRecceItems1) => {
     try {
       for (const outletid of selectedRecceItems1) {
         const formdata = new FormData();
-        console.log(outletid, "outletid");
+
         if (selectrecceStatus !== undefined && selectrecceStatus !== null) {
           formdata.append("installationSTatus", selectrecceStatus);
         }
@@ -427,14 +273,109 @@ export default function Installation() {
     }
   };
 
+  const selectedInstalationGroups = InstaLationGroups?.filter(
+    (vendors) => vendors?._id === instalationgrp
+  );
+
+  async function AssignVendor(selectedInstalationGroups) {
+    try {
+      const updatedRecceData = [];
+
+      for (const outlateid of selectedRecceItems1) {
+        for (const recceid of filteredData) {
+          const filteredData1 = recceid.outletName.filter((outlet) => {
+            if (outlateid === outlet._id) {
+              // Set InstalationGroups to the _id of the selected installation group
+              outlet.InstalationGroups = selectedInstalationGroups[0]?._id;
+            }
+            return outlet;
+          });
+
+          updatedRecceData.push(...filteredData1);
+
+          const config = {
+            url: `/api/recce/recce/updateinstaltion/${outlateid}/${selectedInstalationGroups[0]?._id}`,
+            baseURL: "http://localhost:8001",
+            method: "put",
+            headers: { "Content-Type": "application/json" },
+            data: { reccedata: updatedRecceData },
+          };
+
+          const res = await axios(config);
+
+          if (res.status === 200) {
+            // alert(`Recce Assign to ${selectedInstalationGroups[0]?.length}`);
+            alert("Succesfully assigned Installation to group");
+            window.location.reload();
+          }
+        }
+      }
+    } catch (error) {
+      alert("Error while updating outlet:", error.message);
+    }
+  }
+
+  const updateVendor = async () => {
+    if (window.confirm(`Are you sure you want to update clients data?`)) {
+      try {
+        await AssignVendor(selectedInstalationGroups);
+      } catch (error) {
+        console.error("Error while updating recce items:", error);
+      }
+    }
+  };
+
+  const handleAssignVendor = async () => {
+    setShow(true);
+  };
   return (
     <>
       <Header />
-
+      <Modal show={show} onHide={handleClose1}>
+        <Modal.Header closeButton>
+          <Modal.Title>Assign Recce </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form className="row">
+            <Col className="mb-3">
+              <Form.Label>Select Vendor</Form.Label>
+              <Form.Group
+                md="5"
+                className="mb-3"
+                controlId="exampleForm.ControlInput1"
+              >
+                <Form.Select
+                  value={instalationgrp}
+                  onChange={(e) => setInstalationgrp(e.target.value)}
+                >
+                  <option disabled>Choose..</option>
+                  {InstaLationGroups?.flatMap((ele) => {
+                    if (ele?.InstalationGroup?.length > 0) {
+                      return (
+                        <option key={ele?.InstalationGroup._id} value={ele._id}>
+                          Group of {ele?.InstalationGroup?.length}
+                        </option>
+                      );
+                    }
+                  })}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose1}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={updateVendor}>
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
       {!selectedPrint ? (
         <div className="row  m-auto containerPadding">
           <div className="row mt-2 mb-4">
-            <div className="col-md-7">
+            <div className="col-md-6">
               <div className="row ">
                 <Col className="col-md-2">
                   <Form.Label>
@@ -508,7 +449,7 @@ export default function Installation() {
                     <option value="Cancelled">Cancelled</option>
                   </Form.Select>
                 </div>
-                <div className="col-md-2 me-2">
+                <div className="col-md-2 ">
                   <Button
                     onClick={() => handleUpdate(RecceId, selectedRecceItems1)}
                   >
@@ -520,6 +461,44 @@ export default function Installation() {
                 </Col>
               </div>
             </Col>
+            <div className="col-md-1 ">
+              {moreoption ? (
+                <>
+                  <p
+                    className="mroe "
+                    onClick={() => setselectAction(!selectAction)}
+                    style={{
+                      border: "1px solid white",
+                      width: "38px",
+                      height: "38px",
+                      textAlign: "center",
+                      borderRadius: "100px",
+                      backgroundColor: "#F5F5F5",
+                    }}
+                  >
+                    <span className="text-center">
+                      <MoreVertIcon />
+                    </span>
+                  </p>
+                  {selectAction ? (
+                    <div
+                      style={{
+                        position: "absolute",
+                        zIndex: "100",
+                        top: "24%",
+                        right:"2%"
+                      }}
+                    >
+                      <Card className="m-auto p-2" style={{ width: "10rem" }}>
+                        <p className="cureor" onClick={handleAssignVendor}>
+                          Assign to recce
+                        </p>
+                      </Card>
+                    </div>
+                  ) : null}
+                </>
+              ) : null}
+            </div>
           </div>
 
           <div className="row">
