@@ -42,7 +42,7 @@ export default function Invoice() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8001/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         let recceData = res.data.RecceData.filter((ele) => ele._id === idd);

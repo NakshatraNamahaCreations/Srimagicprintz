@@ -49,7 +49,7 @@ export default function Invoice() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -65,7 +65,7 @@ export default function Invoice() {
   const getOuletById = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8001/api/getoutletboarddatabyrecceid/${idd}`
+        `http://api.srimagicprintz.com/api/getoutletboarddatabyrecceid/${idd}`
       );
       if (res.status === 200) {
         setOutletDoneData(res?.data?.outletBoard);
@@ -76,7 +76,7 @@ export default function Invoice() {
   };
   const getQuotation = async () => {
     try {
-      const res = await axios.get("http://localhost:8001/api/getquotation");
+      const res = await axios.get("http://api.srimagicprintz.com/api/getquotation");
       if (res.status === 200) {
         let quotation = res.data.data;
         let filtered = quotation.filter((ele) => ele.ReeceId === idd);
@@ -89,7 +89,7 @@ export default function Invoice() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8001/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         let recceData = res.data.RecceData.filter((ele) => ele._id === idd);
@@ -102,7 +102,7 @@ export default function Invoice() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8001/api/Client/clients/getallclient"
+        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);

@@ -28,7 +28,7 @@ export default function ClientsManagement() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8001/api/Client/clients/getallclient"
+        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setAddClients(res.data.client);
@@ -117,9 +117,9 @@ export default function ClientsManagement() {
       <Header />
       {!selected ? (
         <>
-          <div className="col-md-12 m-auto ">
+          <div className="col-md-11 m-auto ">
             <Button
-              className="col-md-3 mt-3 c_W"
+              className="col-md-3 mt-3  c_W"
               style={{ marginLeft: "5px", color: "white" }}
               href="/ClientsInfo"
             >
@@ -127,8 +127,8 @@ export default function ClientsManagement() {
             </Button>
           </div>
 
-          <div className="containerPadding">
-            <table>
+          <div className="row containerPadding">
+            <table className="col-md-11 m-auto">
               <thead className="t-c">
                 <tr>
                   <th className="th_s p-1 ">SI.No.</th>
@@ -136,7 +136,7 @@ export default function ClientsManagement() {
                   <th className="th_s p-1 ">Client Business Name </th>
                   <th className="th_s p-1 ">Contact Number</th>
                   <th className="th_s p-1 ">Pincode</th>
-                  <th className="th_s p-1 ">Installation Rate</th>
+                  {/* <th className="th_s p-1 ">Installation Rate</th> */}
                   <th className="th_s p-1 "> Date</th>
                   <th className="th_s p-1 ">Action</th>
                 </tr>
@@ -147,11 +147,17 @@ export default function ClientsManagement() {
                   return (
                     <tr className="tr_C" key={item._id}>
                       <td className="td_S poppinfnt p-1">{index + 1}</td>
-                      <td className="td_S poppinfnt p-1">{item?.clientsName}</td>
-                      <td className="td_S poppinfnt p-1">{item?.clientsBrand}</td>
-                      <td className="td_S poppinfnt p-1">{item?.ClientsContactNumber1}</td>
+                      <td className="td_S poppinfnt p-1">
+                        {item?.clientsName}
+                      </td>
+                      <td className="td_S poppinfnt p-1">
+                        {item?.clientsBrand}
+                      </td>
+                      <td className="td_S poppinfnt p-1">
+                        {item?.ClientsContactNumber1}
+                      </td>
                       <td className="td_S poppinfnt p-1">{item?.Pincode}</td>
-                      <td className="td_S poppinfnt p-1">{item?.InstallationRate}</td>
+                      {/* <td className="td_S poppinfnt p-1">{item?.InstallationRate}</td> */}
                       <td className="td_S poppinfnt p-1">
                         {item?.createdAt
                           ? new Date(item.createdAt).toISOString().slice(0, 10)
@@ -190,7 +196,7 @@ export default function ClientsManagement() {
               <div className="row ">
                 <img
                   variant="top"
-                  src={`http://localhost:8001/ClientImage/${clientID?.ClientImage}`}
+                  src={`http://api.srimagicprintz.com/ClientImage/${clientID?.ClientImage}`}
                   alt=""
                   style={{
                     width: "150px",
