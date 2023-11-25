@@ -82,7 +82,7 @@ function Estimate() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "https://admin.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         let recceData = res.data.RecceData.filter((ele) => ele._id === idd);
@@ -96,7 +96,7 @@ function Estimate() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "https://admin.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -150,7 +150,7 @@ function Estimate() {
     try {
       const config = {
         url: "/quotation",
-        baseURL: "https://admin.srimagicprintz.com/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         method: "post",
         headers: { "Content-Type": "application/json" },
         data: {

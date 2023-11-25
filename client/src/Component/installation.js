@@ -51,7 +51,7 @@ export default function Installation() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "https://admin.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         // const filteredRecceData = res.data.RecceData.filter(
@@ -79,7 +79,7 @@ export default function Installation() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "https://admin.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -90,7 +90,7 @@ export default function Installation() {
   };
   const getAllInstalation = async () => {
     try {
-      let res = await axios.get("https://admin.srimagicprintz.com/api/getgroup");
+      let res = await axios.get("http://api.srimagicprintz.com/api/getgroup");
       if (res.status === 200) {
         let instalationData = res?.data?.instalation?.flatMap((ele) => ele);
         setInstaLationGroups(instalationData);
@@ -249,7 +249,7 @@ export default function Installation() {
         const config = {
           url: `/recce/recce/updatereccedata/${RecceId}/${outletid}`,
           method: "put",
-          baseURL: "https://admin.srimagicprintz.com/api",
+          baseURL: "http://api.srimagicprintz.com/api",
           headers: { "Content-Type": "multipart/form-data" },
           data: formdata,
         };
@@ -295,7 +295,7 @@ export default function Installation() {
 
           const config = {
             url: `/api/recce/recce/updateinstaltion/${outlateid}/${selectedInstalationGroups[0]?._id}`,
-            baseURL: "https://admin.srimagicprintz.com",
+            baseURL: "http://api.srimagicprintz.com",
             method: "put",
             headers: { "Content-Type": "application/json" },
             data: { reccedata: updatedRecceData },

@@ -60,7 +60,7 @@ export default function Vendor() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "https://admin.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -80,7 +80,7 @@ console.log("vendorData",vendorData)
   const handleShow = async () => {
     try {
       const response = await axios.get(
-        "https://admin.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -118,7 +118,7 @@ console.log("vendorData",vendorData)
       const config = {
         url: "/Vendor/vendorInfo/linkbankinfo",
         method: "post",
-        baseURL: "https://admin.srimagicprintz.com/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
@@ -249,7 +249,7 @@ console.log("vendorData",vendorData)
       const vendorid = editVendorData._id;
       const config = {
         url: `/Vendor/vendorInfo/updatevendordata/${vendorid}`,
-        baseURL: "https://admin.srimagicprintz.com/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         method: "put",
         Header: { "Content-type": "application/json" },
         data: formData,
@@ -268,7 +268,7 @@ console.log("vendorData",vendorData)
   const deleteVendorData = async (row) => {
     try {
       const response = await axios.delete(
-        `https://admin.srimagicprintz.com/api/Vendor/vendorInfo/deletevendordata/${row._id}`
+        `http://api.srimagicprintz.com/api/Vendor/vendorInfo/deletevendordata/${row._id}`
       );
 
       if (response.status === 200) {
@@ -296,7 +296,7 @@ console.log("vendorData",vendorData)
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "https://admin.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -344,7 +344,7 @@ console.log("vendorData",vendorData)
 
       const config = {
         url: "installgrp/createroup",
-        baseURL: "https://admin.srimagicprintz.com/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         method: "post",
         headers: {
           "Content-Type": "application/json",
@@ -468,7 +468,7 @@ console.log("vendorData",vendorData)
                               borderRadius: "100%",
                             }}
                             className="m-auto"
-                            src={`https://admin.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
+                            src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
                             alt=""
                           />
                         ) : (
@@ -703,7 +703,7 @@ console.log("vendorData",vendorData)
                                     height: "30%",
                                     borderRadius: "100%",
                                   }}
-                                  src={`https://admin.srimagicprintz.com/VendorImage/${vendorData[selected].VendorImage}`}
+                                  src={`http://api.srimagicprintz.com/VendorImage/${vendorData[selected].VendorImage}`}
                                   alt=""
                                 />
                               ) : null}
@@ -797,7 +797,7 @@ console.log("vendorData",vendorData)
                               <img
                                 width={"200px"}
                                 height={"100px"}
-                                src={`https://admin.srimagicprintz.com/BankInfoImage/${vendorData[selected].BankInfoImage}`}
+                                src={`http://api.srimagicprintz.com/BankInfoImage/${vendorData[selected].BankInfoImage}`}
                                 alt=""
                               />
                             ) : null}

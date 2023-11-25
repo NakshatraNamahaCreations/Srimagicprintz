@@ -13,7 +13,7 @@ export default function Notification() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "https://admin.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         let recceData = res.data.RecceData;

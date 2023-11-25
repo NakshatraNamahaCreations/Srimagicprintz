@@ -8,7 +8,7 @@ export default function Logout() {
 
     try {
       let res = await axios.delete(
-        `https://admin.srimagicprintz.com/api/auth/auth/logout/${user._id}`
+        `http://api.srimagicprintz.com/api/auth/auth/logout/${user._id}`
       );
 
       if (res.status === 200) {

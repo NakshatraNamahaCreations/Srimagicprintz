@@ -64,7 +64,7 @@ export default function Trackassignedjob() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "https://admin.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -395,7 +395,7 @@ export default function Trackassignedjob() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "https://admin.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {

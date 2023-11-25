@@ -39,7 +39,7 @@ function MarketingAddClient() {
     try {
       const config = {
         url: "/marketingClient/marketingcliend/addmarketingclient",
-        baseURL: "https://admin.srimagicprintz.com/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: { "Content-Type": "multipart/form-data" },
         method: "post",
         data: formData,

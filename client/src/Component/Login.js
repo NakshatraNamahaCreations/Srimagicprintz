@@ -19,7 +19,7 @@ export const Login = () => {
       const config = {
         url: "/auth/auth/login",
         method: "POST",
-        baseURL: "https://admin.srimagicprintz.com/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         data: {
           email: email,
           password: password,
