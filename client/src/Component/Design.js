@@ -65,7 +65,7 @@ export default function Design() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://admin.srimagicprintz.com/api/recce/recce/getallrecce"
+        "https://admin.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -322,7 +322,7 @@ export default function Design() {
       const config = {
         url: `/recce/recce/updatereccedata/${RecceIndex}/${getreccedata._id}`,
         method: "put",
-        baseURL: "http://admin.srimagicprintz.com/api",
+        baseURL: "https://admin.srimagicprintz.com/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -355,7 +355,7 @@ export default function Design() {
   //     ) {
   //       try {
   //         const response = await axios.post(
-  //           `http://admin.srimagicprintz.com/api/recce/recce/getdesigncompletedid/${recceData._id}`
+  //           `https://admin.srimagicprintz.com/api/recce/recce/getdesigncompletedid/${recceData._id}`
   //         );
 
   //         if (response.status === 200) {
@@ -397,7 +397,7 @@ export default function Design() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://admin.srimagicprintz.com/api/Client/clients/getallclient"
+        "https://admin.srimagicprintz.com/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -451,7 +451,7 @@ export default function Design() {
             const config = {
               url: `/recce/recce/updatereccedata/${recceid._id}/${outlet._id}`,
               method: "put",
-              baseURL: "http://admin.srimagicprintz.com/api",
+              baseURL: "https://admin.srimagicprintz.com/api",
               headers: { "Content-Type": "multipart/form-data" },
               data: formdata,
             };

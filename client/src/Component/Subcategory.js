@@ -24,7 +24,7 @@ export default function Subcategory() {
       const config = {
         url: "/Product/subcategory/addsubcategory",
         method: "post",
-        baseURL: "http://admin.srimagicprintz.com/api",
+        baseURL: "https://admin.srimagicprintz.com/api",
         Header: { "Content-Type": "application/json" },
         data: { catagoryName: catagoryName, subCategoryName: subcatagoryName },
       };
@@ -41,7 +41,7 @@ export default function Subcategory() {
 
   const getAllSubcategory = async () => {
     let res = await axios.get(
-      "http://admin.srimagicprintz.com/api/Product/subcategory/getallsubcategory"
+      "https://admin.srimagicprintz.com/api/Product/subcategory/getallsubcategory"
     );
     if (res.status === 200) {
       setSubcategoryData(res.data?.subcatagory);
@@ -58,7 +58,7 @@ export default function Subcategory() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://admin.srimagicprintz.com/api/Product/category/getcategory"
+        "https://admin.srimagicprintz.com/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -83,7 +83,7 @@ export default function Subcategory() {
       const config = {
         url: `/Product/subcategory/updateSubcategory/${categoryId}`,
         method: "put",
-        baseURL: "http://admin.srimagicprintz.com/api",
+        baseURL: "https://admin.srimagicprintz.com/api",
         headers: {
           "Content-Type": "application/json",
         },
@@ -105,7 +105,7 @@ export default function Subcategory() {
   const deleteCatagory = async (row) => {
     try {
       const response = await axios.delete(
-        `http://admin.srimagicprintz.com/api/Product/subcategory/deletesubcatagory/${row._id}`
+        `https://admin.srimagicprintz.com/api/Product/subcategory/deletesubcatagory/${row._id}`
       );
 
       if (response.status === 200) {

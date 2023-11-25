@@ -98,7 +98,7 @@ export default function ReceeManagement() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://admin.srimagicprintz.com/api/recce/recce/getallrecce"
+        "https://admin.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -112,7 +112,7 @@ export default function ReceeManagement() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://admin.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "https://admin.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -323,7 +323,7 @@ export default function ReceeManagement() {
       setUploading(true);
       try {
         const res = await axios.post(
-          "http://admin.srimagicprintz.com/api/recce/recce/addreccesviaexcelesheet",
+          "https://admin.srimagicprintz.com/api/recce/recce/addreccesviaexcelesheet",
           importXLSheet
         );
         if (res.status === 200) {
@@ -384,7 +384,7 @@ export default function ReceeManagement() {
       const config = {
         url: `/recce/recce/updatereccedata/${recceId}`,
         method: "put",
-        baseURL: "http://admin.srimagicprintz.com/api",
+        baseURL: "https://admin.srimagicprintz.com/api",
         headers: { "Content-Type": "application/json" },
 
         data: formdata,
@@ -443,7 +443,7 @@ export default function ReceeManagement() {
       for (const recceId of selectedRecceItems) {
         const config = {
           url: `/recce/recce/updatevendorname/${recceId}`,
-          baseURL: "http://admin.srimagicprintz.com/api",
+          baseURL: "https://admin.srimagicprintz.com/api",
           method: "post",
           headers: { "Content-Type": "application/json" },
           data: { vendor: selectedVendor._id },
@@ -511,7 +511,7 @@ export default function ReceeManagement() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://admin.srimagicprintz.com/api/Product/category/getcategory"
+        "https://admin.srimagicprintz.com/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -637,7 +637,7 @@ export default function ReceeManagement() {
       ) {
         try {
           const response = await axios.post(
-            `http://admin.srimagicprintz.com/api/recce/recce/getcompletedid/${recceData._id}`
+            `https://admin.srimagicprintz.com/api/recce/recce/getcompletedid/${recceData._id}`
           );
 
           if (response.status === 200) {

@@ -68,7 +68,7 @@ export default function JobManagement() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://admin.srimagicprintz.com/api/Product/category/getcategory"
+        "https://admin.srimagicprintz.com/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -100,7 +100,7 @@ export default function JobManagement() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://admin.srimagicprintz.com/api/recce/recce/getallrecce"
+        "https://admin.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -118,7 +118,7 @@ export default function JobManagement() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://admin.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "https://admin.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -174,7 +174,7 @@ export default function JobManagement() {
 
         const config = {
           url: `/api/recce/recce/outletupdate/${recceId}/${vendordata?._id}`,
-          baseURL: "http://admin.srimagicprintz.com",
+          baseURL: "https://admin.srimagicprintz.com",
           method: "put",
           headers: { "Content-Type": "application/json" },
           data: { RecceData: updatedRecceData },
@@ -220,7 +220,7 @@ export default function JobManagement() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://admin.srimagicprintz.com/api/Client/clients/getallclient"
+        "https://admin.srimagicprintz.com/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -275,7 +275,7 @@ export default function JobManagement() {
       const config = {
         url: `/recce/recce/updatereccedata/${RecceIndex}/${PrintData._id}`,
         method: "put",
-        baseURL: "http://admin.srimagicprintz.com/api",
+        baseURL: "https://admin.srimagicprintz.com/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -409,7 +409,7 @@ export default function JobManagement() {
   };
   const getAllInstalation = async () => {
     try {
-      let res = await axios.get("http://admin.srimagicprintz.com/api/getgroup");
+      let res = await axios.get("https://admin.srimagicprintz.com/api/getgroup");
       if (res.status === 200) {
         let instalationData = res?.data?.instalation?.flatMap((ele) => ele);
         setInstaLationGroup(instalationData);
@@ -461,7 +461,7 @@ export default function JobManagement() {
         console.log("vendor", vendor);
         const config = {
           url: `/api/recce/recce/updateinstaltion/${recceId}/${vendor}`,
-          baseURL: "http://admin.srimagicprintz.com",
+          baseURL: "https://admin.srimagicprintz.com",
           method: "put",
           headers: { "Content-Type": "application/json" },
           data: { RecceData: updatedRecceData },
@@ -1116,7 +1116,7 @@ export default function JobManagement() {
                                   borderRadius: "100%",
                                 }}
                                 className="m-auto"
-                                src={`http://admin.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
+                                src={`https://admin.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
                                 alt=""
                               />
                             ) : (
@@ -1735,7 +1735,7 @@ export default function JobManagement() {
                                   borderRadius: "100%",
                                 }}
                                 className="m-auto"
-                                src={`http://admin.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
+                                src={`https://admin.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
                                 alt=""
                               />
                             ) : (

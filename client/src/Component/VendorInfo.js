@@ -17,7 +17,7 @@ export default function VendorInfo() {
   const [selected, setSelected] = useState("");
   const [passWord, setPassWord] = useState(null);
 
-  // login api  http://admin.srimagicprintz.com/api/Vendor/vendorInfo/login
+  // login api  https://admin.srimagicprintz.com/api/Vendor/vendorInfo/login
   const AddVendorData = async (e) => {
     e.preventDefault();
 
@@ -36,7 +36,7 @@ export default function VendorInfo() {
       const config = {
         url: "/Vendor/vendorInfo/addvendorinfo",
         method: "post",
-        baseURL: "http://admin.srimagicprintz.com/api",
+        baseURL: "https://admin.srimagicprintz.com/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };

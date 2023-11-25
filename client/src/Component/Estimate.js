@@ -47,7 +47,7 @@ function Estimate() {
   const getOuletById = async () => {
     try {
       const res = await axios.get(
-        `http://admin.srimagicprintz.com/api/getoutletboarddatabyrecceid/${idd}`
+        `https://admin.srimagicprintz.com/api/getoutletboarddatabyrecceid/${idd}`
       );
       if (res.status === 200) {
         setOutletDoneData(res?.data?.outletBoard);
@@ -59,7 +59,7 @@ function Estimate() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://admin.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "https://admin.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -114,7 +114,7 @@ function Estimate() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://admin.srimagicprintz.com/api/recce/recce/getallrecce"
+        "https://admin.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         let RecceID = res?.data?.RecceData?.filter((ele) => ele?._id === idd);
@@ -129,7 +129,7 @@ function Estimate() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://admin.srimagicprintz.com/api/Client/clients/getallclient"
+        "https://admin.srimagicprintz.com/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -186,7 +186,7 @@ function Estimate() {
 
   const getQuotation = async () => {
     try {
-      const res = await axios.get("http://admin.srimagicprintz.com/api/getquotation");
+      const res = await axios.get("https://admin.srimagicprintz.com/api/getquotation");
       if (res.status === 200) {
         let quotation = res.data.data;
 
@@ -201,7 +201,7 @@ function Estimate() {
     try {
       const config = {
         url: "/quotation",
-        baseURL: "http://admin.srimagicprintz.com/api",
+        baseURL: "https://admin.srimagicprintz.com/api",
         method: "post",
         headers: { "Content-Type": "application/json" },
         data: {

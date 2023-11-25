@@ -193,7 +193,7 @@ export default function Fabrication() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://admin.srimagicprintz.com/api/recce/recce/getallrecce"
+        "https://admin.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         const filteredRecceData = res.data.RecceData.filter(
@@ -209,7 +209,7 @@ export default function Fabrication() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://admin.srimagicprintz.com/api/Product/category/getcategory"
+        "https://admin.srimagicprintz.com/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -225,7 +225,7 @@ export default function Fabrication() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://admin.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "https://admin.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -562,7 +562,7 @@ export default function Fabrication() {
                       {design.reeceDetails.includes(printingdata._id) && (
                         <img
                           alt=""
-                         src={`http://admin.srimagicprintz.com
+                         src={`https://admin.srimagicprintz.com
 /designimage/${design?.designimage}`}
                           style={{ maxWidth: "100px", maxHeight: "100px" }}
                         />

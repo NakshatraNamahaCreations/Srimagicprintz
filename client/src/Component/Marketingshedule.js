@@ -13,7 +13,7 @@ function Marketingshedule() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://admin.srimagicprintz.com/api/marketingClient/marketingcliend/getmarketingclient"
+        "https://admin.srimagicprintz.com/api/marketingClient/marketingcliend/getmarketingclient"
       );
       if (res.status === 200) {
         setSheduleData(res.data.mclient);

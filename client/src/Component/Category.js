@@ -15,7 +15,7 @@ export default function Category() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://admin.srimagicprintz.com/api/Product/category/getcategory"
+        "https://admin.srimagicprintz.com/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -41,7 +41,7 @@ export default function Category() {
   const deleteCatagory = async (row) => {
     try {
       const response = await axios.delete(
-        `http://admin.srimagicprintz.com/api/Product/category/deletecategory/${row._id}`
+        `https://admin.srimagicprintz.com/api/Product/category/deletecategory/${row._id}`
       );
 
       if (response.status === 200) {

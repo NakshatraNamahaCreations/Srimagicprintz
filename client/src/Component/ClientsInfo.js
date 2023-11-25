@@ -36,7 +36,7 @@ export default function ClientInfo() {
     try {
       const config = {
         url: "/Client/clients/addclient",
-        baseURL: "http://admin.srimagicprintz.com/api",
+        baseURL: "https://admin.srimagicprintz.com/api",
         headers: { "Content-Type": "multipart/form-data" },
         method: "post",
         data: formData,
