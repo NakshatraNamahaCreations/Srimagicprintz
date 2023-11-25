@@ -49,7 +49,7 @@ export default function JobManagement() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        " http://localhost:8001/api/Product/category/getcategory"
+        " http://admin.srimagicprintz.com/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -81,7 +81,7 @@ export default function JobManagement() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8001/api/recce/recce/getallrecce"
+        "http://admin.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -98,7 +98,7 @@ export default function JobManagement() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
+        "http://admin.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -148,7 +148,7 @@ export default function JobManagement() {
 
       const config = {
         url: `/api/recce/recce/updatevendorname/${selectedZone}/${vendordata?._id}/${jobType}`,
-        baseURL: "http://localhost:8001",
+        baseURL: "http://admin.srimagicprintz.com",
         method: "post",
         headers: { "Content-Type": "application/json" },
         data: { RecceData: updatedRecceData },
@@ -234,7 +234,7 @@ export default function JobManagement() {
       const config = {
         url: `/recce/recce/updatereccedata/${RecceIndex}/${PrintData._id}`,
         method: "put",
-        baseURL: "http://localhost:8001/api",
+        baseURL: "http://admin.srimagicprintz.com/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -454,7 +454,7 @@ export default function JobManagement() {
                                 borderRadius: "100%",
                               }}
                               className="m-auto"
-                              src={`http://localhost:8001/VendorImage/${ele.VendorImage}`}
+                              src={`http://admin.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
                               alt=""
                             />
                           ) : (

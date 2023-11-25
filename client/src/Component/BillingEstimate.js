@@ -24,7 +24,7 @@ function BillingEstimate() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8001/api/recce/recce/getallrecce"
+        "http://admin.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         let recceData = res.data.RecceData.filter((ele) => ele._id === id);
@@ -39,7 +39,7 @@ function BillingEstimate() {
   const [QuotationData, setQuotationData] = useState([]);
   const getQuotation = async () => {
     try {
-      const res = await axios.get("http://localhost:8001/api/getquotation");
+      const res = await axios.get("http://admin.srimagicprintz.com/api/getquotation");
       if (res.status === 200) {
         let quotation = res.data.data;
         let filtered = quotation.filter((ele) => ele.ReeceId === id);
