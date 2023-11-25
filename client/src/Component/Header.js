@@ -112,7 +112,7 @@ function Header() {
                     width={"35px"}
                     height={"35px"}
                     style={{ borderRadius: "100px" }}
-                    src={`http://api.srimagicprintz.com/ProfileImage/${user?.profileImage}`}
+                    src={`http://localhost:8001/ProfileImage/${user?.profileImage}`}
                     alt=""
                   />
 

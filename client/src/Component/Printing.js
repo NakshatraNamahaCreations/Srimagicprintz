@@ -61,7 +61,7 @@ export default function Printing() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://localhost:8001/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -73,7 +73,7 @@ export default function Printing() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -369,7 +369,7 @@ export default function Printing() {
         const config = {
           url: `/recce/recce/updatereccedata/${RecceId}/${outletid}`,
           method: "put",
-          baseURL: "http://api.srimagicprintz.com/api",
+          baseURL: "http://localhost:8001/api",
           headers: { "Content-Type": "multipart/form-data" },
           data: formdata,
         };

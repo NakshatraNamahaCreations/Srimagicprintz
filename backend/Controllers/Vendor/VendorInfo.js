@@ -173,7 +173,6 @@ class VendorInfo {
       return res.json({ error: "not able to complete" });
     }
   }
-
   async VendorLogin(req, res) {
     let { VendorContactNumber, PassWord } = req.body;
     try {
@@ -203,20 +202,120 @@ class VendorInfo {
     }
   }
 
-  async SignOut(req, res) {
-    const logoutid = req.params.loginid;
-
+  async VendorLoginWitheEmail(req, res) {
+    //this
+    let { VendorEmail, PassWord } = req.body;
     try {
-      let logoutUser = await VendorInfoModel.deleteMany({ _id: logoutid });
-      if (logoutUser) {
-        return res.json({ Success: "succesfully deleted" });
+      if (!VendorEmail || !PassWord) {
+        return res.status(400).json({ error: "Please fill in all fields" });
       } else {
-        return res.status(401).json("Unauthorized");
+        const email = await VendorInfoModel.findOne({ VendorEmail });
+        if (!email) {
+          return res.status(400).json({ error: "Invalid Email" });
+        } else {
+          const vendor = await VendorInfoModel.findOne(
+            {
+              VendorEmail,
+              PassWord,
+            },
+            { status: "Online" }
+          );
+          if (vendor) {
+            return res
+              .status(200)
+              .json({ success: "Login Successfully", user: vendor });
+          } else {
+            return res.status(400).json({ error: "Invalid Password" });
+          }
+        }
       }
     } catch (err) {
-      return res.json({ err: "failed to logout" });
+      console.log(err, "err");
+      return res
+        .status(500)
+        .json({ error: "Error occurred while logging in Vendor" });
     }
   }
+
+  async vendorSignout(req, res) {
+    //this
+    const logoutid = req.params.id;
+    try {
+      if (!logoutid) {
+        return res.status(400).json({ error: "Invalid signout ID" });
+      }
+      await VendorInfoModel.findOneAndUpdate(
+        { _id: logoutid },
+        { status: "Offline" }
+      );
+      console.log("Logged out successfully");
+      res.status(200).json("Successfully logged out");
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "Something went wrong" });
+    }
+  }
+
+
+
+  async getParticulatVendorById(req, res) {
+    try {
+      let vendorId = req.params.id;
+      const vendor = await VendorInfoModel.findById(vendorId);
+      if (!vendor) {
+        return res.status(404).json({ error: "Vendor not found" });
+      }
+      console.log("vendor======", vendor);
+      return res.status(200).json({ vendor });
+    } catch (err) {
+      console.log("Error in fetching particular vendor by id", err);
+      return res.status(500).json({ error: "server error" });
+    }
+  }
+
+  // async VendorLogin(req, res) {
+  //   let { VendorContactNumber, PassWord } = req.body;
+  //   try {
+  //     if (!VendorContactNumber || !PassWord) {
+  //       return res.status(400).json({ error: "Please fill in all fields" });
+  //     } else {
+  //       const contact = await VendorInfoModel.findOne({ VendorContactNumber });
+  //       if (!contact) {
+  //         return res.status(400).json({ error: "Invalid Phone Number" });
+  //       } else {
+  //         const vendor = await VendorInfoModel.findOne({
+  //           VendorContactNumber,
+  //           PassWord,
+  //         });
+  //         if (vendor) {
+  //           return res.status(200).json({ success: "Login Successfully" });
+  //         } else {
+  //           return res.status(400).json({ error: "Invalid Password" });
+  //         }
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.log(err, "err");
+  //     return res
+  //       .status(500)
+  //       .json({ error: "Error occurred while logging in Vendor" });
+  //   }
+  // }
+
+  // async SignOut(req, res) {
+  //   const logoutid = req.params.loginid;
+
+  //   try {
+  //     let logoutUser = await VendorInfoModel.deleteMany({ _id: logoutid });
+  //     if (logoutUser) {
+  //       return res.json({ Success: "succesfully deleted" });
+  //     } else {
+  //       return res.status(401).json("Unauthorized");
+  //     }
+  //   } catch (err) {
+  //     return res.json({ err: "failed to logout" });
+  //   }
+  // }
 }
 
 const VendorInfoController = new VendorInfo();

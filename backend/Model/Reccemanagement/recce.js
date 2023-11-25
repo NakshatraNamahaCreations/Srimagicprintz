@@ -68,6 +68,16 @@ const RecceModel = new mongoose.Schema(
     completedInstallation: {
       type: String,
     },
+    jobStatus: {
+      type: Boolean,
+    },
+    latitude: {
+      type: String,
+    },
+   
+    longitude: {
+      type: String,
+    },
   },
 
   { timestamps: true }

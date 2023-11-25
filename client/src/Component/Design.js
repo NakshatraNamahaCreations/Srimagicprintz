@@ -65,7 +65,7 @@ export default function Design() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -80,7 +80,7 @@ export default function Design() {
 
       if (searchSINO) {
         results = results.filter((item, index) => {
-          return (index + 1).toString().includes(searchSINO);
+          return (index + 1).toString()?.includes(searchSINO);
         });
       }
 
@@ -95,21 +95,21 @@ export default function Design() {
             selectedcategory &&
             selectedcategory.categoryName
               .toLowerCase()
-              .includes(SearchCategory.toLowerCase())
+              ?.includes(SearchCategory.toLowerCase())
           );
         });
       }
 
       if (SearchclientName) {
         results = results.filter((item) =>
-          item.ClientName?.toLowerCase().includes(
+          item.ClientName?.toLowerCase()?.includes(
             SearchclientName.toLowerCase()
           )
         );
       }
       if (searchshopName) {
         results = results.filter((item) =>
-          item.ShopName?.toLowerCase().includes(searchshopName.toLowerCase())
+          item.ShopName?.toLowerCase()?.includes(searchshopName?.toLowerCase())
         );
       }
       if (searchcontactNumber) {
@@ -322,7 +322,7 @@ export default function Design() {
       const config = {
         url: `/recce/recce/updatereccedata/${RecceIndex}/${getreccedata._id}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -355,7 +355,7 @@ export default function Design() {
   //     ) {
   //       try {
   //         const response = await axios.post(
-  //           `http://api.srimagicprintz.com/api/recce/recce/getdesigncompletedid/${recceData._id}`
+  //           `http://localhost:8001/api/recce/recce/getdesigncompletedid/${recceData._id}`
   //         );
 
   //         if (response.status === 200) {
@@ -397,7 +397,7 @@ export default function Design() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://localhost:8001/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -410,7 +410,7 @@ export default function Design() {
   const handleOutletToggleSelect = (item, outletId) => {
     let updatedSelectedRecceItems;
 
-    if (selectedRecceItems1.includes(outletId)) {
+    if (selectedRecceItems1?.includes(outletId)) {
       updatedSelectedRecceItems = selectedRecceItems1.filter(
         (id) => id !== outletId
       );
@@ -441,7 +441,7 @@ export default function Design() {
     try {
       for (const recceid of filteredData) {
         for (const outlet of recceid.outletName) {
-          if (selectedRecceItems1.includes(outlet._id)) {
+          if (selectedRecceItems1?.includes(outlet._id)) {
             const formdata = new FormData();
 
             if (fabricationneed !== undefined && fabricationneed !== null) {
@@ -451,7 +451,7 @@ export default function Design() {
             const config = {
               url: `/recce/recce/updatereccedata/${recceid._id}/${outlet._id}`,
               method: "put",
-              baseURL: "http://api.srimagicprintz.com/api",
+              baseURL: "http://localhost:8001/api",
               headers: { "Content-Type": "multipart/form-data" },
               data: formdata,
             };
@@ -680,31 +680,37 @@ export default function Design() {
               </thead>
               <tbody>
                 {filteredData?.map((recceItem, index) =>
-                  recceItem?.outletName.map((outlet, outletArray) => {
-                    if (rowsDisplayed < rowsPerPage1) {
-                      const pincodePattern = /\b\d{6}\b/;
+                  recceItem?.outletName
+                    .filter((item) => item?.RecceStatus === "Completed")
+                    .map((outlet) => {
+                      const outletItem = outlet;
 
-                      let JobNob = 0;
-                      // const desiredClient = ClientInfo?.client?.find(
-                      //   (client) => client?._id === recceItem?.BrandName
-                      // );
+                      if (rowsDisplayed < rowsPerPage1) {
+                        const pincodePattern = /\b\d{6}\b/;
 
-                      filteredData?.forEach((recceItem, recceIndex) => {
-                        recceItem?.outletName?.forEach((item) => {
-                          if (outlet?._id === item?._id) {
-                            JobNob = recceIndex + 1;
-                          }
-                        });
-                      });
-                      const address = outlet?.OutletAddress;
-                      const extractedPincode = address?.match(pincodePattern);
+                        let JobNob = 0;
 
-                      if (extractedPincode) {
-                        outlet.OutletPincode = extractedPincode[0];
-                      }
-                      if (outlet.RecceStatus.includes("Completed")) {
+                        const matchingRecceItem = filteredData?.find(
+                          (recce, recceIndex) =>
+                            recce?.outletName?.some(
+                              (item) => item?._id === outletItem?._id
+                            )
+                        );
+
+                        if (matchingRecceItem) {
+                          JobNob = filteredData.indexOf(matchingRecceItem) + 1;
+                        }
+
+                        const address = outletItem?.OutletAddress;
+                        const extractedPincode = address?.match(pincodePattern);
+
+                        if (extractedPincode) {
+                          outletItem.OutletPincode = extractedPincode[0];
+                        }
+
                         serialNumber++;
                         rowsDisplayed++;
+
                         return (
                           <tr className="tr_C" key={serialNumber}>
                             <td className="td_S p-1">
@@ -715,7 +721,7 @@ export default function Design() {
                                   marginRight: "5px",
                                 }}
                                 type="checkbox"
-                                checked={selectedRecceItems1.includes(
+                                checked={selectedRecceItems1?.includes(
                                   outlet._id
                                 )}
                                 onChange={() =>
@@ -735,7 +741,6 @@ export default function Design() {
                             <td className="td_S p-1">
                               {outlet?.OutletContactNumber}
                             </td>
-
                             <td className="td_S p-1">{outlet?.OutletZone}</td>
                             <td className="td_S p-1">
                               {extractedPincode ? extractedPincode[0] : ""}
@@ -777,9 +782,7 @@ export default function Design() {
                           </tr>
                         );
                       }
-                    }
-                    // return null;
-                  })
+                    })
                 )}
               </tbody>
             </table>

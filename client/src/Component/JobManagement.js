@@ -68,7 +68,7 @@ export default function JobManagement() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
+        "http://localhost:8001/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -100,7 +100,7 @@ export default function JobManagement() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -118,7 +118,7 @@ export default function JobManagement() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -174,7 +174,7 @@ export default function JobManagement() {
 
         const config = {
           url: `/api/recce/recce/outletupdate/${recceId}/${vendordata?._id}`,
-          baseURL: "http://api.srimagicprintz.com",
+          baseURL: "http://localhost:8001",
           method: "put",
           headers: { "Content-Type": "application/json" },
           data: { RecceData: updatedRecceData },
@@ -220,7 +220,7 @@ export default function JobManagement() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://localhost:8001/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -275,7 +275,7 @@ export default function JobManagement() {
       const config = {
         url: `/recce/recce/updatereccedata/${RecceIndex}/${PrintData._id}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -409,7 +409,7 @@ export default function JobManagement() {
   };
   const getAllInstalation = async () => {
     try {
-      let res = await axios.get("http://api.srimagicprintz.com/api/getgroup");
+      let res = await axios.get("http://localhost:8001/api/getgroup");
       if (res.status === 200) {
         let instalationData = res?.data?.instalation?.flatMap((ele) => ele);
         setInstaLationGroup(instalationData);
@@ -422,11 +422,12 @@ export default function JobManagement() {
 
   const AssignInstallation = async (
     selectedRecceItems,
-    instalationgroups,
+    vendor,
     selecteZone,
-    selectedCity,
-    instalationlength
+    selectedCity
+    // instalationlength
   ) => {
+    console.log(vendor, "vendor");
     try {
       if (!assign) {
         alert("Please select a zone.");
@@ -450,17 +451,17 @@ export default function JobManagement() {
                 selectedCity?.toLowerCase()
               )
             ) {
-              item.InstalationGroup = instalationgroups;
+              item.InstalationGroup = vendor;
             }
             return item;
           })
         );
 
         updatedRecceData.push(...filteredData);
-
+        console.log("vendor", vendor);
         const config = {
-          url: `/api/recce/recce/updateinstaltion/${recceId}/${instalationgroups}`,
-          baseURL: "http://api.srimagicprintz.com",
+          url: `/api/recce/recce/updateinstaltion/${recceId}/${vendor}`,
+          baseURL: "http://localhost:8001",
           method: "put",
           headers: { "Content-Type": "application/json" },
           data: { RecceData: updatedRecceData },
@@ -469,11 +470,9 @@ export default function JobManagement() {
         const res = await axios(config);
 
         if (res.status === 200) {
-          alert(`${jobType} assigned to: group of ${instalationlength} vendor`);
+          alert(`${jobType} assigned to: group of ${vendor} vendor`);
         } else {
-          alert(
-            `Failed to assign ${jobType} to: group of ${instalationlength} vendor`
-          );
+          alert(`Failed to assign ${jobType} to: group of ${vendor} vendor`);
         }
       }
       alert("Successfully linked vendors to recce items");
@@ -1117,7 +1116,7 @@ export default function JobManagement() {
                                   borderRadius: "100%",
                                 }}
                                 className="m-auto"
-                                src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
+                                src={`http://localhost:8001/VendorImage/${ele.VendorImage}`}
                                 alt=""
                               />
                             ) : (
@@ -1668,7 +1667,7 @@ export default function JobManagement() {
                   </div>
                   <ToastContainer type="success" />
 
-                  <div className="row mt-3 m-auto containerPadding">
+                  {/* <div className="row mt-3 m-auto containerPadding">
                     {InstaLationGroups ? (
                       InstaLationGroups?.map((ele, index) => {
                         if (ele?.InstalationGroup?.length > 0) {
@@ -1682,7 +1681,7 @@ export default function JobManagement() {
                                 borderRadius: "10%",
                               }}
                             >
-                              {/* {console.log(ele?.InstalationGroup?.length)} */}
+                            
                               <div className="row text-center m-auto">
                                 <h4>
                                   Group of {ele?.InstalationGroup?.length}
@@ -1710,6 +1709,68 @@ export default function JobManagement() {
                           );
                         }
                       })
+                    ) : (
+                      <div>Loading or no data available</div>
+                    )}
+                  </div> */}
+
+                  <div className="row mt-3 m-auto containerPadding">
+                    {vendorData ? (
+                      vendorData.map((ele, index) => (
+                        <Card
+                          key={ele.VendorId}
+                          className="col-md-4 m-3 "
+                          style={{
+                            width: "240px",
+                            height: "320px",
+                            borderRadius: "10%",
+                          }}
+                        >
+                          <div className="row text-center m-auto">
+                            {ele.VendorImage ? (
+                              <img
+                                style={{
+                                  width: "70%",
+                                  height: "50%",
+                                  borderRadius: "100%",
+                                }}
+                                className="m-auto"
+                                src={`http://localhost:8001/VendorImage/${ele.VendorImage}`}
+                                alt=""
+                              />
+                            ) : (
+                              <span>No Image Available</span>
+                            )}
+                            <span>
+                              {ele.VendorFirstName?.charAt(0)?.toUpperCase() +
+                                ele.VendorFirstName?.substr(1)}
+                              {ele.VendorLastName}
+                            </span>
+                            <span>{ele.VendorId}</span>
+                            <span style={{ color: "orange" }}>
+                              Job Assigned
+                              <span style={{ margin: "5px" }}>0</span>
+                            </span>
+                            <span style={{ color: "green" }}>
+                              Job Completed
+                              <span style={{ margin: "5px" }}>0</span>
+                            </span>
+                            <Button
+                              className="c_W mt-2"
+                              onClick={() => {
+                                AssignInstallation(
+                                  selectedRecceItems,
+                                  ele._id,
+                                  selectedCity,
+                                  selecteZone
+                                );
+                              }}
+                            >
+                              Assign Installation
+                            </Button>
+                          </div>
+                        </Card>
+                      ))
                     ) : (
                       <div>Loading or no data available</div>
                     )}

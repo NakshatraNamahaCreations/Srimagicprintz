@@ -97,7 +97,7 @@ export default function Design() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setDesignToPrint(res.data.RecceData);
@@ -302,7 +302,7 @@ export default function Design() {
       setUploading(true);
       try {
         const res = await axios.post(
-          "http://api.srimagicprintz.com/api/recce/recce/addreccesviaexcelesheet",
+          "http://localhost:8001/api/recce/recce/addreccesviaexcelesheet",
           importXLSheet
         );
         if (res.status === 200) {
@@ -338,7 +338,7 @@ export default function Design() {
       const config = {
         url: `/recce/recce/updatereccedata/${recceId}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         headers: { "Content-Type": "application/json" },
         data: {
           Area: Editarea || editRecceData.Area,
@@ -433,7 +433,7 @@ export default function Design() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
+        "http://localhost:8001/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -567,7 +567,7 @@ export default function Design() {
     try {
       const config = {
         url: "/design/design/adddesign",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         method: "post",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,

@@ -2,19 +2,21 @@ const mongoose = require("mongoose");
 
 const outletBoardUpload = new mongoose.Schema(
   {
-    vendorId: String,
-    outletRecceIdId: String,
-    outletObejctId: String,
-    outletBrandId: String,
-    outletBrandName: String,
+    outletShopName: String,
+    outletShopId: String,
     category: String,
     subCategoryName: String,
-    height: Number,
-    width: Number,
+    height: String,
+    width: String,
     unitsOfMeasurment: String,
     quantity: Number,
     ouletBannerImage: String,
     remark: String,
+    jobStatus: Boolean,
+    boardType: String,
+    gstNumber: String,
+    vendorId: String,
+    vendorName: String,
   },
 
   { timestamps: true }

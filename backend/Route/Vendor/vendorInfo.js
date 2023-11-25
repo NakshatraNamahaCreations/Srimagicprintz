@@ -45,7 +45,11 @@ router.delete(
   "/deletevendordata/:vendordeletid",
   VendorInfoController.deleteVendorData
 );
+// router.post("/login", VendorInfoController.VendorLogin);
+// router.delete("/signout", VendorInfoController.SignOut);
 router.post("/login", VendorInfoController.VendorLogin);
-router.delete("/signout", VendorInfoController.SignOut);
+router.post("/loginwithemail", VendorInfoController.VendorLoginWitheEmail);
+router.get("/getvendorbyid/:id", VendorInfoController.getParticulatVendorById); //this
+router.get("/signout/:id", VendorInfoController.vendorSignout);
 
 module.exports = router;

@@ -1,4 +1,7 @@
-const Instalationmongoose = require("mongoose");
+const mongoose = require("mongoose");
 
-const Schema = Instalationmongoose.Schema({ InstalationGroup: Array });
-module.exports = Instalationmongoose.model("instalations", Schema);
+const InstaLationSchema = new mongoose.Schema({
+  InstallationGroup: [{ _id: String }],
+});
+
+module.exports = mongoose.model("instalations", InstaLationSchema);

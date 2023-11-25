@@ -68,7 +68,7 @@ export default function Fabrication() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         //   const filteredRecceData = res.data.RecceData.filter(
@@ -316,7 +316,7 @@ export default function Fabrication() {
       const config = {
         url: `/recce/recce/updatereccedata/${RecceIndex}/${PrintData._id}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         headers: { "Content-Type": "application/json" },
         data: {
           OutlateFabricationDeliveryType: deliverType,
@@ -360,7 +360,7 @@ export default function Fabrication() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://localhost:8001/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);

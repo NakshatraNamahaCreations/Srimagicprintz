@@ -66,4 +66,24 @@ router.put(
 router.delete("/recceoudelet/:outletin", RecceController.deleteOutletData);
 
 router.delete("/deletereccedata/:reccedeleteid", RecceController.DeletRecce);
+
+// kiruthiks's code
+router.get(
+  "/getreccedatabyvendorid/:id",
+  RecceController.getAllRecceDataByVendorId //this
+);
+router.get(
+  "/getreccedatabyrecceid/:Id",
+  RecceController.getParticularRecceByRecceId //this
+);
+
+router.post(
+  "/addoutlet/:id",
+  upload.single("ouletBannerImage"),
+  RecceController.addOutlet
+); //this
+
+
+
+router.put("/completejob/:id", RecceController.completeJob); //this
 module.exports = router;

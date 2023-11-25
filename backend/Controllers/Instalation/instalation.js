@@ -1,22 +1,28 @@
-const InstalationModule = require("../../Model/Installation/instalation");
+const InstalationMododl = require("../../Model/Installation/instalation");
 
 class AddInstalationGroup {
   async VendorInstallation(req, res) {
-    const { InstalationGroup } = req.body;
     try {
-      let Instalation = new InstalationModule({ InstalationGroup });
-      let Instalations = Instalation.save();
-      if (Instalations) {
-        return res.status(200).json({ success: "Succesfully group created" });
-      }
+      const { InstallationGroup } = req.body;
+
+      const Instalationdata = await InstalationMododl({
+        InstallationGroup,
+      });
+      let InstalationSAve = await Instalationdata.save();
+
+      return res.status(200).json({
+        success: "Successfully groups created",
+        data: InstalationSAve,
+      });
     } catch (err) {
-      return res.status(500).json({ err: "Err" });
+      console.error(err);
+      return res.status(500).json({ err: "Error" });
     }
   }
 
   async getInstalation(req, res) {
     try {
-      let instalation = await InstalationModule.find({});
+      let instalation = await InstalationMododl.find({});
       return res.status(200).json({ instalation });
     } catch (err) {
       return res.status(500).json({ err: "err while fetching data" });

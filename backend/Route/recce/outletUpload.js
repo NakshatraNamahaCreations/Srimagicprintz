@@ -9,21 +9,46 @@ var storage = multer.diskStorage({
     cb(null, "Public/Outlet");
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + "_" + file.originalname);
+    cb(null, file.fieldname + "-" + Date.now());
   },
 });
 
 const upload = multer({ storage: storage });
+router.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    return res
+      .status(400)
+      .json({ error: "Multer Error", message: err.message });
+  } else if (err) {
+    return res
+      .status(500)
+      .json({ error: "Server Error", message: err.message });
+  }
+  next();
+});
 
 router.post(
   "/addoutlet",
   upload.single("ouletBannerImage"),
   outLetBoardManagement.addOutlet
 );
+
 router.get("/getalloutlets", outLetBoardManagement.getAllOutlets);
 router.get(
-  "/getoutletboarddatabyrecceid/:id",
-  outLetBoardManagement.getshopDataByRecceId
+  "/getshopdatabyshopidid/:id",
+  outLetBoardManagement.getshopDataByShopId
 );
+router.get(
+  "/getparticularshopbyid/:id",
+  outLetBoardManagement.getParticularShopById
+);
+router.put("/updateoutlets/:id", outLetBoardManagement.updateOutletBoard);
+router.put(
+  "/uploadimage/:id",
+  upload.single("ouletBannerImage"),
+  outLetBoardManagement.uploadBannerImage
+);
+router.patch("/completejob", outLetBoardManagement.completeJob);
+router.delete("/deletejob/:id", outLetBoardManagement.deleteJob);
 
 module.exports = router;

@@ -53,15 +53,14 @@ export default function Vendor() {
 
   useEffect(() => {
     getAllVendorInfo();
-   
+
     getAllRecce();
   }, []);
-
 
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -76,12 +75,12 @@ export default function Vendor() {
       setLoading(false);
     }
   };
-
+console.log("vendorData",vendorData)
   const handleClose = () => setaddBank(false);
   const handleShow = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -119,7 +118,7 @@ export default function Vendor() {
       const config = {
         url: "/Vendor/vendorInfo/linkbankinfo",
         method: "post",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
@@ -250,7 +249,7 @@ export default function Vendor() {
       const vendorid = editVendorData._id;
       const config = {
         url: `/Vendor/vendorInfo/updatevendordata/${vendorid}`,
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         method: "put",
         Header: { "Content-type": "application/json" },
         data: formData,
@@ -269,7 +268,7 @@ export default function Vendor() {
   const deleteVendorData = async (row) => {
     try {
       const response = await axios.delete(
-        `http://api.srimagicprintz.com/api/Vendor/vendorInfo/deletevendordata/${row._id}`
+        `http://localhost:8001/api/Vendor/vendorInfo/deletevendordata/${row._id}`
       );
 
       if (response.status === 200) {
@@ -297,7 +296,7 @@ export default function Vendor() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -322,10 +321,10 @@ export default function Vendor() {
     recceData?.forEach((recceItem) => {
       recceItem?.outletName.forEach((outlet) => {
         if (outlet.vendor === vendorId) {
-          if (outlet.RecceStatus.includes("completed")) {
+          if (outlet.RecceStatus?.includes("completed")) {
             statusCounts.completed++;
           }
-          if (outlet.RecceStatus.includes("proccesing")) {
+          if (outlet.RecceStatus?.includes("proccesing")) {
             statusCounts.processing++;
           }
         }
@@ -337,20 +336,30 @@ export default function Vendor() {
 
   const handleAddGroup = async () => {
     try {
+      const cleanedData = selectedVendorObjects.map((vendor) => {
+        return {
+          _id: vendor._id || "",
+        };
+      });
+
       const config = {
-        url: "/createroup",
-        baseURL: "http://api.srimagicprintz.com/api",
+        url: "installgrp/createroup",
+        baseURL: "http://localhost:8001/api",
         method: "post",
-        headers: { "Content-Type": "application/json" },
-        data: { InstallationGroup: selectedVendorObjects },
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: { InstallationGroup: cleanedData },
       };
+
       const response = await axios(config);
+
       if (response.status === 200) {
-        alert("created group succesfull");
+        alert("created group successfully");
         window.location.reload();
       }
-    } catch (Err) {
-      console.log(Err);
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -365,8 +374,8 @@ export default function Vendor() {
   };
 
   const handleSelectClientName = () => {
-    const selectedVendorObjects = vendorData.filter((vendor) =>
-      selectedCheckboxes.includes(vendor._id)
+    const selectedVendorObjects = vendorData?.filter((vendor) =>
+      selectedCheckboxes?.includes(vendor?._id)
     );
 
     setSelectedVendors(selectedVendorObjects);
@@ -374,7 +383,7 @@ export default function Vendor() {
   };
 
   let SelectedVendorName = selectedVendorObjects?.map(
-    (Ele) => Ele.VendorFirstName
+    (Ele) => Ele?.VendorFirstName
   );
 
   return (
@@ -454,12 +463,12 @@ export default function Vendor() {
                         {ele.VendorImage ? (
                           <img
                             style={{
-                              width: "70%",
-                              height: "50%",
+                              width: "120px",
+                              height: "100px",
                               borderRadius: "100%",
                             }}
                             className="m-auto"
-                            src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
+                            src={`http://localhost:8001/VendorImage/${ele.VendorImage}`}
                             alt=""
                           />
                         ) : (
@@ -694,7 +703,7 @@ export default function Vendor() {
                                     height: "30%",
                                     borderRadius: "100%",
                                   }}
-                                  src={`http://api.srimagicprintz.com/VendorImage/${vendorData[selected].VendorImage}`}
+                                  src={`http://localhost:8001/VendorImage/${vendorData[selected].VendorImage}`}
                                   alt=""
                                 />
                               ) : null}
@@ -788,7 +797,7 @@ export default function Vendor() {
                               <img
                                 width={"200px"}
                                 height={"100px"}
-                                src={`http://api.srimagicprintz.com/BankInfoImage/${vendorData[selected].BankInfoImage}`}
+                                src={`http://localhost:8001/BankInfoImage/${vendorData[selected].BankInfoImage}`}
                                 alt=""
                               />
                             ) : null}
@@ -990,7 +999,7 @@ export default function Vendor() {
                                 type="checkbox"
                                 className="me-3 d-inline"
                                 value={ele?.VendorFirstName}
-                                checked={selectedVendorObjects.includes(ele)}
+                                checked={selectedVendorObjects?.includes(ele)}
                                 onChange={(event) => {
                                   handleCheckboxChange(event, ele);
                                 }}

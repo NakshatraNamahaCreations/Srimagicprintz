@@ -14,7 +14,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { CSVLink, CSVDownload } from "react-csv";
 import * as XLSX from "xlsx";
 import axios from "axios";
-import pptxgen from 'pptxgenjs';
+import pptxgen from "pptxgenjs";
 
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import moment from "moment";
@@ -124,7 +124,7 @@ export default function ReceeManagement() {
   const getOuletById = async () => {
     try {
       const res = await axios.get(
-        `http://api.srimagicprintz.com/api/getoutletboarddatabyrecceid/${getVendorName?._id}`
+        `http://localhost:8001/api/getoutletboarddatabyrecceid/${getVendorName?._id}`
       );
       if (res.status === 200) {
         setOutletDoneData(res?.data?.outletBoard);
@@ -140,7 +140,7 @@ export default function ReceeManagement() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -154,7 +154,7 @@ export default function ReceeManagement() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -371,7 +371,7 @@ export default function ReceeManagement() {
           const outletNames = flattenOutletNames(filteredData);
 
           const res = await axios.post(
-            `http://api.srimagicprintz.com/api/recce/recce/addreccesviaexcelesheet/${outlateid}`,
+            `http://localhost:8001/api/recce/recce/addreccesviaexcelesheet/${outlateid}`,
             { outletName: outletNames },
             {
               headers: {
@@ -467,7 +467,7 @@ export default function ReceeManagement() {
   //     const config = {
   //       url: `/recce/recce/updatereccedata/${recceId}`,
   //       method: "put",
-  //       baseURL: "http://api.srimagicprintz.com/api",
+  //       baseURL: "http://localhost:8001/api",
   //       headers: { "Content-Type": "application/json" },
 
   //       data: formdata,
@@ -560,7 +560,7 @@ export default function ReceeManagement() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
+        "http://localhost:8001/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -576,7 +576,7 @@ export default function ReceeManagement() {
   const handleToggleSelect = (itemId) => {
     let updatedSelectedRecceItems;
 
-    if (selectedRecceItems.includes(itemId)) {
+    if (selectedRecceItems?.includes(itemId)) {
       updatedSelectedRecceItems = selectedRecceItems.filter(
         (id) => id !== itemId
       );
@@ -649,7 +649,7 @@ export default function ReceeManagement() {
         const config = {
           url: `/recce/recce/updatereccedata/${getVendorName._id}/${outletid}`,
           method: "put",
-          baseURL: "http://api.srimagicprintz.com/api",
+          baseURL: "http://localhost:8001/api",
           headers: { "Content-Type": "multipart/form-data" },
           data: formdata,
         };
@@ -691,7 +691,7 @@ export default function ReceeManagement() {
 
         const config = {
           url: `/api/recce/recce/outletupdate/${recceId}/${selectedv?._id}`,
-          baseURL: "http://api.srimagicprintz.com",
+          baseURL: "http://localhost:8001",
           method: "put",
           headers: { "Content-Type": "application/json" },
           data: { reccedata: updatedRecceData },
@@ -838,22 +838,22 @@ export default function ReceeManagement() {
       const outletNameArray = recceItem?.outletName;
 
       if (Array.isArray(outletNameArray)) {
-        outletNameArray.forEach((outlet) => {
-          if (outlet.RecceStatus.includes("Pending")) {
+        outletNameArray?.forEach((outlet) => {
+          if (outlet.RecceStatus?.includes("Pending")) {
             statusCounts.pending++;
           }
-          if (outlet.RecceStatus.includes("Cancelled")) {
+          if (outlet.RecceStatus?.includes("Cancelled")) {
             statusCounts.cancelled++;
           }
           if (
-            outlet.RecceStatus.includes("Completed") &&
+            outlet.RecceStatus?.includes("Completed") &&
             outlet.vendor !== null &&
             outlet.vendor !== undefined
           ) {
             statusCounts.completed++;
           }
           if (
-            outlet.RecceStatus.includes("Proccesing") &&
+            outlet.RecceStatus?.includes("Proccesing") &&
             outlet.vendor !== null &&
             outlet.vendor !== undefined
           ) {
@@ -908,7 +908,7 @@ export default function ReceeManagement() {
             throw new Error("Please import outlet");
           }
 
-          if (outlet.RecceStatus.includes("Completed")) {
+          if (outlet.RecceStatus?.includes("Completed")) {
             const rHeightInFeet = convertToFeet(outlet.height, outlet.unit);
             const rWidthInFeet = convertToFeet(outlet.width, outlet.unit);
             extractedData.push({
@@ -1061,7 +1061,7 @@ export default function ReceeManagement() {
             continue;
           }
 
-          if (outlet.RecceStatus.includes("Completed")) {
+          if (outlet.RecceStatus?.includes("Completed")) {
             const width = outlet.width || 1;
             const height = outlet.height || 1;
             const rHeightInFeet = convertToFeet(height, outlet.unit);
@@ -1176,7 +1176,7 @@ export default function ReceeManagement() {
             throw new Error("Please import outlet");
           }
 
-          if (outlet.RecceStatus.includes("Completed")) {
+          if (outlet.RecceStatus?.includes("Completed")) {
             const rHeightInFeet = convertToFeet(outlet.height, outlet.unit);
             const rWidthInFeet = convertToFeet(outlet.width, outlet.unit);
             extractedData.push({
@@ -1348,7 +1348,7 @@ export default function ReceeManagement() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://localhost:8001/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -1361,7 +1361,7 @@ export default function ReceeManagement() {
   const handleOutletToggleSelect = (item, outletId) => {
     let updatedSelectedRecceItems;
 
-    if (selectedRecceItems1.includes(outletId)) {
+    if (selectedRecceItems1?.includes(outletId)) {
       updatedSelectedRecceItems = selectedRecceItems1.filter(
         (id) => id !== outletId
       );
@@ -1768,7 +1768,7 @@ export default function ReceeManagement() {
                               marginRight: "5px",
                             }}
                             type="checkbox"
-                            checked={selectedRecceItems.includes(item._id)}
+                            checked={selectedRecceItems?.includes(item._id)}
                             onChange={() => handleToggleSelect(item._id)}
                           />
                         </td>
@@ -2271,7 +2271,7 @@ export default function ReceeManagement() {
                                         marginRight: "5px",
                                       }}
                                       type="checkbox"
-                                      checked={selectedRecceItems1.includes(
+                                      checked={selectedRecceItems1?.includes(
                                         outlet._id
                                       )}
                                       onChange={() =>

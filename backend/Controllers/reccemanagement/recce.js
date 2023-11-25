@@ -86,6 +86,8 @@ class Reccemanagement {
         InstallationRate,
         InstallationCost,
         transportationRate,
+        latitude,
+        longitude,
       } = req.body;
 
       const outletNameArrayWithIDs = outletName.map((outlet) => ({
@@ -122,6 +124,8 @@ class Reccemanagement {
         InstallationRate,
         InstallationCost,
         transportationRate,
+        latitude,
+        longitude,
         createdAt: new Date(),
         ...outlet,
       }));
@@ -310,6 +314,201 @@ class Reccemanagement {
       return res.status(200).json({ RecceData });
     } catch (err) {
       return res.status(500).json({ err: "server error" });
+    }
+  }
+
+  // kiruthika's backend
+  // this
+
+  async getAllRecceDataByVendorId(req, res) {
+    try {
+      const vendorId = req.params.id;
+      // console.log("vendorId=======", vendorId);
+
+      const outletData = await RecceModel.aggregate([
+        {
+          $match: {
+            "outletName.vendor": vendorId,
+          },
+        },
+        {
+          $project: {
+            _id: 1, // Include any fields you need here
+            createdAt: 1,
+            updatedAt: 1,
+            BrandId: 1,
+            BrandName: 1,
+            outletName: {
+              $filter: {
+                input: "$outletName",
+                as: "outlet",
+                cond: { $eq: ["$$outlet.vendor", vendorId] },
+              },
+            },
+          },
+        },
+      ]);
+
+      if (!outletData || outletData.length === 0) {
+        return res
+          .status(404)
+          .json({ error: "No data for the specified vendor" });
+      }
+
+      // console.log("length================", outletData.length);
+      // console.log("outletData===================", outletData);
+
+      return res.status(200).json({ outletData });
+    } catch (err) {
+      return res.status(500).json({ error: "Server error" });
+    }
+  }
+
+  // this
+  async getParticularRecceByRecceId(req, res) {
+    try {
+      const recceId = req.params.Id;
+      console.log("recceId", recceId);
+      const recce = await RecceModel.findOne(
+        {
+          "outletName._id": recceId,
+        },
+        {
+          "outletName.$": 1, // Select the matched outletName object
+          typesofjob: 1,
+          _id: 1,
+          InstalationGroup: 1,
+          BrandId: 1,
+          BrandName: 1,
+          designupload: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        }
+      );
+      console.log("reccekjv kef ibiw", recce);
+
+      // const outletData = recce.filter((item) => item._id === recceId);
+      if (!recce) {
+        return res
+          .status(404)
+          .json({ error: "No such data present in the database." });
+      } else {
+        return res.status(200).json({ recce });
+      }
+    } catch (err) {
+      return res.status(500).json({ error: "Server error" });
+    }
+  }
+
+  //this
+  async addOutlet(req, res) {
+    const outletShopId = req.params.id;
+    console.log("OutletShopId:", outletShopId);
+    try {
+      const boardType = req.body.boardType;
+      const newOutlet = {
+        outletShopName: req.body.outletShopName,
+        category: req.body.category,
+        subCategoryName: req.body.subCategoryName,
+        height: req.body.height,
+        width: req.body.width,
+        unitsOfMeasurment: req.body.unitsOfMeasurment,
+        quantity: req.body.quantity,
+        remark: req.body.remark,
+        jobStatus: req.body.jobStatus,
+        boardType: req.body.boardType,
+        // : req.body.ouletBannerImage,
+      };
+
+      const boardDocument = await RecceModel.findOne({
+        "outletName._id": outletShopId,
+      });
+      console.log("BoardDocument:", boardDocument);
+
+      if (boardDocument) {
+        return res.status(403).json({ error: "Board document not found" });
+      }
+
+      const outlet = boardDocument.outletName?.find(
+        (outlet) => outlet._id == outletShopId
+      );
+      if (!outlet) {
+        return res.status(404).json({ error: "Outlet not found" });
+      }
+      outlet[boardType].push(newOutlet);
+
+      await boardDocument.save();
+      return res.status(200).json({ success: "Thanks for completing the job" });
+    } catch (err) {
+      console.log(err, "error");
+      return res.status(500).json({ error: "Something went wrong" });
+    }
+  }
+
+  // async completeJob(req, res) {
+  //   try {
+  //     const shopId = req.params.id;
+  //     const { jobStatus } = req.body;
+  //     // const findShop = await RecceModel.findByIdAndUpdate({ "outletName._id": shopId });
+  //     // const updateShop = await RecceModel.updateOne(
+  //     //   {
+  //     //     "outletName._id": findShop,
+  //     //   },
+  //     //   {
+  //     //     $set: {
+  //     //       "outletName.$.jobStatus": jobStatus,
+  //     //     },
+  //     //   }
+  //     // );
+  //     const updateShop = await RecceModel.findByIdAndUpdate(
+  //       { "outletName._id": shopId },
+  //       { $set: { "outletName.$.jobStatus": jobStatus } },
+  //       { new: true } // This option returns the modified document
+  //     );
+  //     if (!updateShop) {
+  //       return res
+  //         .status(404)
+  //         .json({ message: "Outlet not found in Recce document" });
+  //     }
+  //     return res.status(200).json({
+  //       message: "Thanks for completing the job",
+  //       data: updateShop,
+  //     });
+  //   } catch {
+  //     return res.status(500).json({ error: "Something went wrong" });
+  //   }
+  // }
+
+  async completeJob(req, res) {
+    try {
+      const shopId = req.params.id;
+
+      const findShop = await RecceModel.findOne({ "outletName._id": shopId });
+      if (!findShop) {
+        return res.status(404).json({ error: "No such record found" });
+      }
+
+      const outletIndex = findShop.outletName.findIndex(
+        (outlet) => outlet._id.toString() === shopId
+      );
+
+      if (outletIndex !== -1) {
+        // Update the jobStatus for the found outlet
+        findShop.outletName[outletIndex].jobStatus = true;
+
+        // Save the changes to the database
+        await findShop.save();
+
+        return res.status(200).json({
+          message: "Thanks for completing the job",
+          data: findShop,
+        });
+      } else {
+        return res.status(404).json({ error: "Outlet not found" });
+      }
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Server error" });
     }
   }
 }

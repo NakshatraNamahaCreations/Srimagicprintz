@@ -60,7 +60,7 @@ export default function Overview() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         const recceData = res.data.RecceData || [];
@@ -132,7 +132,7 @@ export default function Overview() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -148,7 +148,7 @@ export default function Overview() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://localhost:8001/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setTotalAddClients(res.data.client);
@@ -274,7 +274,7 @@ export default function Overview() {
             className={`col-md-3 m-2 c_zoom ${
               activeCategory === "totalRecce" ? "active1" : ""
             }`}
-            style={{ height: "225px" }}
+            style={{ height: "140px" }}
             onClick={() => handleFilterClick("totalRecce")}
           >
             <div className={`row m-auto ${"active1"}`}>
@@ -298,7 +298,7 @@ export default function Overview() {
             className={`col-md-3 m-2 c_zoom ${
               activeCategory === "totalDesign" ? "active1" : ""
             }`}
-            style={{ height: "225px" }}
+            style={{ height: "140px" }}
             onClick={() => handleFilterClick("totalDesign")}
           >
             <div className={`row m-auto ${"active1"}`}>
@@ -322,7 +322,7 @@ export default function Overview() {
             className={`col-md-3 m-2 c_zoom ${
               activeCategory === "totalPrinting" ? "active1" : ""
             }`}
-            style={{ height: "225px" }}
+            style={{ height: "140px" }}
             onClick={() => handleFilterClick("totalPrinting")}
           >
             <div className={`row m-auto ${"active1"}`}>
@@ -345,7 +345,7 @@ export default function Overview() {
             className={`col-md-3 m-2 c_zoom ${
               activeCategory === "totalfabrication" ? "active1" : ""
             }`}
-            style={{ height: "225px" }}
+            style={{ height: "140px" }}
             onClick={() => handleFilterClick("totalfabrication")}
           >
             <div className={`row m-auto ${"active1"}`}>
@@ -366,7 +366,7 @@ export default function Overview() {
 
           <Card
             className={`col-md-3 m-2 c_zoom ${"active1"}`}
-            style={{ height: "225px" }}
+            style={{ height: "140px" }}
           >
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
@@ -387,7 +387,7 @@ export default function Overview() {
           </Card>
           <Card
             className={`col-md-3 m-2 c_zoom ${"active1"}`}
-            style={{ height: "225px" }}
+            style={{ height: "140px" }}
           >
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
@@ -408,7 +408,7 @@ export default function Overview() {
           </Card>
           <Card
             className={`col-md-3 m-2 c_zoom ${"active1"}`}
-            style={{ height: "225px" }}
+            style={{ height: "140px" }}
           >
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
@@ -428,7 +428,7 @@ export default function Overview() {
           </Card>
           <Card
             className={`col-md-3 m-2 c_zoom ${"active1"}`}
-            style={{ height: "225px" }}
+            style={{ height: "140px" }}
           >
             <div className="row m-auto">
               <div className="col-md-6 m-auto">
