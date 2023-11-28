@@ -109,25 +109,25 @@ export default function ReceeManagement() {
   const [data1, setdata1] = useState(0);
   const [OutletDoneData, setOutletDoneData] = useState([]);
   const [selectrecceStatus, setSelectRecceStatus] = useState(null);
+  const [viewOutletBoards, setViewOutletBoard] = useState(false);
+  const [viewOutletBoardsIdd, setViewOutletBoardIdd] = useState(null);
 
   useEffect(() => {
     getAllRecce();
     getAllVendorInfo();
     getAllCategory();
     getAllClientsInfo();
-    getOuletById();
+    getAllOutlets();
   }, []);
   useEffect(() => {
     getLengthOfStatus();
   }, [reccedata]);
-
-  const getOuletById = async () => {
+  //http://api.srimagicprintz.com/api
+  const getAllOutlets = async () => {
     try {
-      const res = await axios.get(
-        `http://api.srimagicprintz.com/api/getoutletboarddatabyrecceid/${getVendorName?._id}`
-      );
+      const res = await axios.get(`http://api.srimagicprintz.com/api/getalloutlets`);
       if (res.status === 200) {
-        setOutletDoneData(res?.data?.outletBoard);
+        setOutletDoneData(res?.data?.outletData);
       }
     } catch (err) {
       // alert(err);
@@ -348,7 +348,10 @@ export default function ReceeManagement() {
     setgetVendorName(vendor);
     setSelectedIndex({ action });
   };
-
+  const handleOutletView = (idd) => {
+    setViewOutletBoardIdd(idd);
+    setViewOutletBoard(true);
+  };
   const handleImport = async (outlateid) => {
     if (!outlateid) {
       return;
@@ -2035,349 +2038,427 @@ export default function ReceeManagement() {
                   </div>
                 ) : (
                   <>
-                    <div className="row " style={{ height: "10vh" }}>
-                      <div className="col-md-1 ">
-                        <ArrowCircleLeftIcon
-                          onClick={() => setSelectedIndex(null)}
-                          style={{ color: "#068FFF", cursor: "pointer" }}
-                        />
-                      </div>
-                      <div className="col-md-1 ">
-                        {moreoption1 ? (
-                          <>
-                            <p
-                              className="mroe "
-                              onClick={() => setselectAction1(!selectAction1)}
-                              style={{
-                                border: "1px solid white",
-                                height: "38px",
-                                width: "35px",
-                                textAlign: "center",
-                                borderRadius: "100px",
-                                backgroundColor: "#F5F5F5",
-                              }}
-                            >
-                              <span className="text-center">
-                                <MoreVertIcon />
-                              </span>
-                            </p>
-                            {selectAction1 ? (
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  zIndex: "10px",
-                                  top: "22%",
-                                }}
-                              >
-                                <Card
-                                  className="m-auto p-3"
-                                  style={{ width: "12rem" }}
-                                >
-                                  <p
-                                    className="cureor"
-                                    onClick={handleAssignVendor}
-                                  >
-                                    Assign to recce
-                                  </p>
+                    {viewOutletBoards ? (
+                      <>
+                        {OutletDoneData.filter(
+                          (Ele) => Ele?.outletShopId === viewOutletBoardsIdd
+                        ).map((board) => {
+                          return (
+                            <>
+                              <div className="col-md-4 ">
+                                <p>outletShopName : {board.outletShopName}</p>
+                                <p>boardType : {board.boardType}</p>
+                                {console.log(board)}
+                                <p>category : {board.category}</p>
+                                <p>gstNumber : {board.gstNumber}</p>
+                                <img
+                                  src={`http://api.srimagicprintz.com/api/getalloutlets/Outlet/${board.ouletBannerImage}`}
+                                />
 
-                                  <p
-                                    className="cureor"
-                                    style={{ color: "red" }}
-                                    onClick={handleDeleteSelectedOutlet}
-                                  >
-                                    <span style={{ color: "red" }}>Delete</span>
-                                  </p>
-                                </Card>
+                                <p>width : {board.width}</p>
+                                <p>height : {board.height}</p>
                               </div>
-                            ) : null}
-                          </>
-                        ) : null}
-                      </div>
-                    </div>
-                    <div className="row mb-3">
-                      <div className="row ">
-                        <div className="col-md-1 ">
-                          <label className="col-md-9 mb-2">
-                            <span>{data1}</span> <span>Of </span>
-                            {filteredDate?.map((recceItem, index) => (
-                              <span>{recceItem?.outletName?.length}</span>
-                            ))}
-                          </label>
-                          <Form.Control
-                            as="select"
-                            value={rowsPerPage1}
-                            onChange={handleRowsPerPageChange}
-                          >
-                            <option value={5}>5</option>
-                            <option value={10}>10</option>
-                            <option value={30}>30</option>
-                            <option value={50}>50</option>
-                            <option value={80}>80</option>
-                            <option value={100}>100</option>
-                            <option value={140}>140</option>
-                            <option value={200}>200</option>
-                            <option value={300}>300</option>
-                            <option value={400}>400</option>
-                            <option value={600}>600</option>
-                            <option value={700}>700</option>
-                            <option value={1000}>1000</option>
-                            <option value={1500}>1500</option>
-                            <option value={10000}>10000</option>
-                          </Form.Control>
-                        </div>
+                              <hr></hr>{" "}
+                            </>
+                          );
+                        })}
+                      </>
+                    ) : (
+                      <>
+                        <div className="row " style={{ height: "10vh" }}>
+                          <div className="col-md-1 ">
+                            <ArrowCircleLeftIcon
+                              onClick={() => setSelectedIndex(null)}
+                              style={{ color: "#068FFF", cursor: "pointer" }}
+                            />
+                          </div>
+                          <div className="col-md-1 ">
+                            {moreoption1 ? (
+                              <>
+                                <p
+                                  className="mroe "
+                                  onClick={() =>
+                                    setselectAction1(!selectAction1)
+                                  }
+                                  style={{
+                                    border: "1px solid white",
+                                    height: "38px",
+                                    width: "35px",
+                                    textAlign: "center",
+                                    borderRadius: "100px",
+                                    backgroundColor: "#F5F5F5",
+                                  }}
+                                >
+                                  <span className="text-center">
+                                    <MoreVertIcon />
+                                  </span>
+                                </p>
+                                {selectAction1 ? (
+                                  <div
+                                    style={{
+                                      position: "absolute",
+                                      zIndex: "10px",
+                                      top: "22%",
+                                    }}
+                                  >
+                                    <Card
+                                      className="m-auto p-3"
+                                      style={{ width: "12rem" }}
+                                    >
+                                      <p
+                                        className="cureor"
+                                        onClick={handleAssignVendor}
+                                      >
+                                        Assign to recce
+                                      </p>
 
-                        <div className="col-md-5 ">
-                          <div className="row">
-                            <label className="col-md-5   mb-2">
-                              Start Date:
-                            </label>
-                            <label className="col-md-6  mb-2">End Date:</label>
-                            <div className="col-md-5 ">
-                              <Form.Control
-                                type="date"
-                                value={FilterStartDate1}
-                                onChange={handleFilterStartDateChange1}
-                              />
-                            </div>
-                            <div className="col-md-5 ">
-                              <Form.Control
-                                type="date"
-                                value={FilterEndDate1}
-                                onChange={handleFilterEndDateChange1}
-                              />
-                            </div>
-                            <div className="col-md-2 ">
-                              <Button onClick={handleClearDateFilters1}>
-                                Clear
-                              </Button>
-                            </div>
+                                      <p
+                                        className="cureor"
+                                        style={{ color: "red" }}
+                                        onClick={handleDeleteSelectedOutlet}
+                                      >
+                                        <span style={{ color: "red" }}>
+                                          Delete
+                                        </span>
+                                      </p>
+                                    </Card>
+                                  </div>
+                                ) : null}
+                              </>
+                            ) : null}
                           </div>
                         </div>
+                        <div className="row mb-3">
+                          <div className="row ">
+                            <div className="col-md-1 ">
+                              <label className="col-md-9 mb-2">
+                                <span>{data1}</span> <span>Of </span>
+                                {filteredDate?.map((recceItem, index) => (
+                                  <span>{recceItem?.outletName?.length}</span>
+                                ))}
+                              </label>
+                              <Form.Control
+                                as="select"
+                                value={rowsPerPage1}
+                                onChange={handleRowsPerPageChange}
+                              >
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={30}>30</option>
+                                <option value={50}>50</option>
+                                <option value={80}>80</option>
+                                <option value={100}>100</option>
+                                <option value={140}>140</option>
+                                <option value={200}>200</option>
+                                <option value={300}>300</option>
+                                <option value={400}>400</option>
+                                <option value={600}>600</option>
+                                <option value={700}>700</option>
+                                <option value={1000}>1000</option>
+                                <option value={1500}>1500</option>
+                                <option value={10000}>10000</option>
+                              </Form.Control>
+                            </div>
 
-                        <div className="col-md-2 ">
-                          <label className="col-md-9 mb-2 ">Status</label>
-                          <Form.Select
-                            as="select"
-                            value={selectrecceStatus}
-                            onChange={(e) => {
-                              const selectedValue = e.target.value;
-                              if (selectedValue !== "Choose...") {
-                                setSelectRecceStatus(selectedValue);
-                              }
-                            }}
-                          >
-                            <option>Choose...</option>
-                            <option value="Completed">Completed</option>
-                            <option value="Proccesing">Proccesing</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Cancelled">Cancelled</option>
-                          </Form.Select>
-                        </div>
-                        <div className="col-md-2 mt-4">
-                          <Button className="row mt-2" onClick={handleUpdate}>
-                            Save
-                          </Button>
-                        </div>
-                        {/* <div className="col-md-2 mt-4">
+                            <div className="col-md-5 ">
+                              <div className="row">
+                                <label className="col-md-5   mb-2">
+                                  Start Date:
+                                </label>
+                                <label className="col-md-6  mb-2">
+                                  End Date:
+                                </label>
+                                <div className="col-md-5 ">
+                                  <Form.Control
+                                    type="date"
+                                    value={FilterStartDate1}
+                                    onChange={handleFilterStartDateChange1}
+                                  />
+                                </div>
+                                <div className="col-md-5 ">
+                                  <Form.Control
+                                    type="date"
+                                    value={FilterEndDate1}
+                                    onChange={handleFilterEndDateChange1}
+                                  />
+                                </div>
+                                <div className="col-md-2 ">
+                                  <Button onClick={handleClearDateFilters1}>
+                                    Clear
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="col-md-2 ">
+                              <label className="col-md-9 mb-2 ">Status</label>
+                              <Form.Select
+                                as="select"
+                                value={selectrecceStatus}
+                                onChange={(e) => {
+                                  const selectedValue = e.target.value;
+                                  if (selectedValue !== "Choose...") {
+                                    setSelectRecceStatus(selectedValue);
+                                  }
+                                }}
+                              >
+                                <option>Choose...</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Proccesing">Proccesing</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Cancelled">Cancelled</option>
+                              </Form.Select>
+                            </div>
+                            <div className="col-md-2 mt-4">
+                              <Button
+                                className="row mt-2"
+                                onClick={handleUpdate}
+                              >
+                                Save
+                              </Button>
+                            </div>
+                            {/* <div className="col-md-2 mt-4">
                           <Button onClick={()=>handleButtonClick(selectedRecceItems1)}>
                             Create Quote
                           </Button>
                         </div> */}
-                      </div>
-                    </div>
+                          </div>
+                        </div>
 
-                    <table>
-                      <thead className="t-c">
-                        <tr>
-                          <th className="th_s poppinfnt p-1">
-                            <input
-                              type="checkbox"
-                              style={{
-                                width: "15px",
-                                height: "15px",
-                                marginRight: "5px",
-                              }}
-                              checked={selectAll}
-                              onChange={handleOutletSelectAllChange}
-                            />
-                          </th>
-                          <th className="th_s poppinfnt p-1">SI.No</th>
-                          <th className="th_s poppinfnt p-1">Job.No</th>
-                          <th className="th_s poppinfnt p-1">Brand </th>
-                          <th className="th_s poppinfnt p-1">Shop Name</th>
-                          <th className="th_s poppinfnt p-1">Client Name</th>
-                          <th className="th_s poppinfnt p-1">State</th>
-                          <th className="th_s poppinfnt p-1">Contact Number</th>
-                          <th className="th_s poppinfnt p-1">Zone</th>
-                          <th className="th_s poppinfnt p-1">Pincode</th>
-                          <th className="th_s poppinfnt p-1">City</th>
-                          <th className="th_s poppinfnt p-1">FL Board</th>
-                          <th className="th_s poppinfnt p-1">GSB</th>
-                          <th className="th_s poppinfnt p-1">Inshop</th>
-                          <th className="th_s poppinfnt p-1">Category</th>
-                          <th className="th_s poppinfnt p-1">SubCategory</th>
-                          <th className="th_s poppinfnt p-1">Height</th>
-                          <th className="th_s poppinfnt p-1">Width</th>
-                          <th className="th_s poppinfnt p-1">Vendor Name</th>
-                          <th className="th_s poppinfnt p-1">Date</th>
-                          <th className="th_s poppinfnt p-1">Assigned Date</th>
-                          <th className="th_s poppinfnt p-1">Remarks</th>
-                          <th className="th_s poppinfnt p-1">Status</th>
-                        </tr>
-                      </thead>
+                        <table>
+                          <thead className="t-c">
+                            <tr>
+                              <th className="th_s poppinfnt p-1">
+                                <input
+                                  type="checkbox"
+                                  style={{
+                                    width: "15px",
+                                    height: "15px",
+                                    marginRight: "5px",
+                                  }}
+                                  checked={selectAll}
+                                  onChange={handleOutletSelectAllChange}
+                                />
+                              </th>
+                              <th className="th_s poppinfnt p-1">SI.No</th>
+                              <th className="th_s poppinfnt p-1">Job.No</th>
+                              <th className="th_s poppinfnt p-1">Brand </th>
+                              <th className="th_s poppinfnt p-1">Shop Name</th>
+                              <th className="th_s poppinfnt p-1">
+                                Client Name
+                              </th>
+                              <th className="th_s poppinfnt p-1">State</th>
+                              <th className="th_s poppinfnt p-1">
+                                Contact Number
+                              </th>
+                              <th className="th_s poppinfnt p-1">Zone</th>
+                              <th className="th_s poppinfnt p-1">Pincode</th>
+                              <th className="th_s poppinfnt p-1">City</th>
+                              <th className="th_s poppinfnt p-1">FL Board</th>
+                              <th className="th_s poppinfnt p-1">GSB</th>
+                              <th className="th_s poppinfnt p-1">Inshop</th>
+                              <th className="th_s poppinfnt p-1">Category</th>
+                              <th className="th_s poppinfnt p-1">
+                                SubCategory
+                              </th>
+                              <th className="th_s poppinfnt p-1">Height</th>
+                              <th className="th_s poppinfnt p-1">Width</th>
+                              <th className="th_s poppinfnt p-1">
+                                Vendor Name
+                              </th>
+                              <th className="th_s poppinfnt p-1">Date</th>
+                              <th className="th_s poppinfnt p-1">
+                                Assigned Date
+                              </th>
+                              <th className="th_s poppinfnt p-1">Remarks</th>
+                              <th className="th_s poppinfnt p-1">Status</th>
+                              <th className="th_s poppinfnt p-1">Action</th>
+                            </tr>
+                          </thead>
 
-                      <tbody>
-                        {filteredDate?.map((recceItem, index) =>
-                          recceItem?.outletName?.map((outlet, outletArray) => {
-                            let JobNob = 0;
+                          <tbody>
+                            {filteredDate?.map((recceItem, index) =>
+                              recceItem?.outletName?.map(
+                                (outlet, outletArray) => {
+                                  let JobNob = 0;
 
-                            reccedata?.forEach((recceItem, recceIndex) => {
-                              recceItem?.outletName?.forEach((item) => {
-                                if (outlet._id === item._id) {
-                                  JobNob = recceIndex + 1;
+                                  reccedata?.forEach(
+                                    (recceItem, recceIndex) => {
+                                      recceItem?.outletName?.forEach((item) => {
+                                        if (outlet._id === item._id) {
+                                          JobNob = recceIndex + 1;
+                                        }
+                                      });
+                                    }
+                                  );
+
+                                  if (rowsDisplayed < rowsPerPage1) {
+                                    const selectedVendorId = outlet?.vendor;
+                                    const vendor = vendordata?.find(
+                                      (ele) => ele?._id === selectedVendorId
+                                    );
+
+                                    rowsDisplayed++;
+                                    const pincodePattern = /\b\d{6}\b/;
+
+                                    const address = outlet?.OutletAddress;
+                                    const extractedPincode =
+                                      address?.match(pincodePattern);
+
+                                    if (extractedPincode) {
+                                      outlet.OutletPincode =
+                                        extractedPincode[0];
+                                    }
+
+                                    // const isMatchingCondition =
+                                    //   OutletDoneData?.vendorId === vendor?._id &&
+                                    //   OutletDoneData.outletObejctId === outlet._id &&
+                                    //   OutletDoneData.outletRecceIdId ===
+                                    //     recceItem._id;
+                                    // let isMatchingCondition =
+                                    //   OutletDoneData.filter((ele) => {
+                                    //     return (
+                                    //       ele?.outletShopId === outlet?._id
+                                    //     );
+                                    //   });
+                                    // console.log(RecceMeasurement, "RecceMeasurement");
+                                    // // outletShopId
+                                    // isMatchingCondition.map((Ele) => {
+                                    //   console.log(Ele.height, "Ele.height");
+                                    // });
+                                    // console.log(
+                                    //   isMatchingCondition,
+                                    //   "isMatchingCondition"
+                                    // );
+
+                                    return (
+                                      <tr className="tr_C" key={outlet._id}>
+                                        <td className="td_S poppinfnt p-1">
+                                          <input
+                                            style={{
+                                              width: "15px",
+                                              height: "15px",
+                                              marginRight: "5px",
+                                            }}
+                                            type="checkbox"
+                                            checked={selectedRecceItems1?.includes(
+                                              outlet._id
+                                            )}
+                                            onChange={() =>
+                                              handleOutletToggleSelect(
+                                                recceItem.BrandId,
+                                                outlet._id
+                                              )
+                                            }
+                                          />
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          {outletArray + 1}
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          Job{JobNob}
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          {recceItem.BrandName}
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          {outlet.ShopName}
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          {outlet.ClientName}
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          {outlet.State}
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          {outlet.OutletContactNumber}
+                                        </td>
+
+                                        <td className="td_S poppinfnt p-1">
+                                          {outlet.OutletZone}
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          {extractedPincode
+                                            ? extractedPincode[0]
+                                            : ""}
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          {outlet.OutletCity}
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          {outlet.FLBoard}
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          {outlet.GSB}
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          {outlet.Inshop}
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          {/* {isMatchingCondition &&
+                                            OutletDoneData?.category} */}
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          {/* {isMatchingCondition &&
+                                            OutletDoneData?.subCategoryName} */}
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          {/* {isMatchingCondition &&
+                                            OutletDoneData?.height}{" "}
+                                          {isMatchingCondition &&
+                                            OutletDoneData?.unitsOfMeasurment} */}
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          {/* {isMatchingCondition &&
+                                            OutletDoneData?.width}
+                                          {isMatchingCondition &&
+                                            OutletDoneData?.unitsOfMeasurment} */}
+                                        </td>
+
+                                        <td className="td_S poppinfnt p-1">
+                                          {vendor?.VendorFirstName}
+                                        </td>
+                                        <td className="td_S poppinfnt p-2 text-nowrap text-center">
+                                          {recceItem.createdAt
+                                            ? moment(
+                                                recceItem.createdAt
+                                              ).format("DD MMMM YYYY")
+                                            : ""}
+                                        </td>
+
+                                        <td className="td_S poppinfnt p-1">
+                                          {outlet.date
+                                            ? moment(outlet.date).format(
+                                                "DD MMMM YYYY"
+                                              )
+                                            : ""}
+                                        </td>
+                                        <td className="td_S poppinfnt p-1">
+                                          {/* {isMatchingCondition &&
+                                            OutletDoneData?.remark} */}
+                                        </td>
+
+                                        <td className="td_S poppinfnt p-1">
+                                          {outlet.RecceStatus}
+                                        </td>
+                                        <td
+                                          className="td_S poppinfnt p-1"
+                                          onClick={() =>
+                                            handleOutletView(outlet._id)
+                                          }
+                                        >
+                                          View
+                                        </td>
+                                      </tr>
+                                    );
+                                  }
                                 }
-                              });
-                            });
-
-                            if (rowsDisplayed < rowsPerPage1) {
-                              const selectedVendorId = outlet?.vendor;
-                              const vendor = vendordata?.find(
-                                (ele) => ele?._id === selectedVendorId
-                              );
-
-                              rowsDisplayed++;
-                              const pincodePattern = /\b\d{6}\b/;
-
-                              const address = outlet?.OutletAddress;
-                              const extractedPincode =
-                                address?.match(pincodePattern);
-
-                              if (extractedPincode) {
-                                outlet.OutletPincode = extractedPincode[0];
-                              }
-
-                              const isMatchingCondition =
-                                OutletDoneData?.vendorId === vendor?._id &&
-                                OutletDoneData.outletObejctId === outlet._id &&
-                                OutletDoneData.outletRecceIdId ===
-                                  recceItem._id;
-                              return (
-                                <tr className="tr_C" key={outlet._id}>
-                                  <td className="td_S poppinfnt p-1">
-                                    <input
-                                      style={{
-                                        width: "15px",
-                                        height: "15px",
-                                        marginRight: "5px",
-                                      }}
-                                      type="checkbox"
-                                      checked={selectedRecceItems1?.includes(
-                                        outlet._id
-                                      )}
-                                      onChange={() =>
-                                        handleOutletToggleSelect(
-                                          recceItem.BrandId,
-                                          outlet._id
-                                        )
-                                      }
-                                    />
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    {outletArray + 1}
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    Job{JobNob}
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    {recceItem.BrandName}
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    {outlet.ShopName}
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    {outlet.ClientName}
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    {outlet.State}
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    {outlet.OutletContactNumber}
-                                  </td>
-
-                                  <td className="td_S poppinfnt p-1">
-                                    {outlet.OutletZone}
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    {extractedPincode
-                                      ? extractedPincode[0]
-                                      : ""}
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    {outlet.OutletCity}
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    {outlet.FLBoard}
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    {outlet.GSB}
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    {outlet.Inshop}
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    {isMatchingCondition &&
-                                      OutletDoneData?.category}
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    {isMatchingCondition &&
-                                      OutletDoneData?.subCategoryName}
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    {isMatchingCondition &&
-                                      OutletDoneData?.height}{" "}
-                                    {isMatchingCondition &&
-                                      OutletDoneData?.unitsOfMeasurment}
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    {isMatchingCondition &&
-                                      OutletDoneData?.width}
-                                    {isMatchingCondition &&
-                                      OutletDoneData?.unitsOfMeasurment}
-                                  </td>
-
-                                  <td className="td_S poppinfnt p-1">
-                                    {vendor?.VendorFirstName}
-                                  </td>
-                                  <td className="td_S poppinfnt p-2 text-nowrap text-center">
-                                    {recceItem.createdAt
-                                      ? moment(recceItem.createdAt).format(
-                                          "DD MMMM YYYY"
-                                        )
-                                      : ""}
-                                  </td>
-
-                                  <td className="td_S poppinfnt p-1">
-                                    {outlet.date
-                                      ? moment(outlet.date).format(
-                                          "DD MMMM YYYY"
-                                        )
-                                      : ""}
-                                  </td>
-                                  <td className="td_S poppinfnt p-1">
-                                    {isMatchingCondition &&
-                                      OutletDoneData?.remark}
-                                  </td>
-
-                                  <td className="td_S poppinfnt p-1">
-                                    {outlet.RecceStatus}
-                                  </td>
-                                </tr>
-                              );
-                            }
-                          })
-                        )}
-                      </tbody>
-                    </table>
+                              )
+                            )}
+                          </tbody>
+                        </table>
+                      </>
+                    )}
                   </>
                 )}
               </>

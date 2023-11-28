@@ -45,9 +45,9 @@ export function Signup() {
 
     try {
       const config = {
-        url: "/api/auth/auth/signup",
+        url: "/auth/auth/signup",
         method: "POST",
-        baseURL: "http://api.srimagicprintz.com",
+        baseURL: "http://api.srimagicprintz.com/api",
         data: formData,
       };
 

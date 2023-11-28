@@ -40,12 +40,15 @@ export default function Installation() {
   const [RecceId, setRecceId] = useState(null);
   const [show, setShow] = useState(false);
   const [instalationgrp, setInstalationgrp] = useState(null);
+  const [selctedVendor, setselctedVendor] = useState(null);
+  const [vendordata, setVendorData] = useState([]);
   const handleClose1 = () => setShow(false);
 
   useEffect(() => {
     getAllRecce();
     getAllClientsInfo();
     getAllInstalation();
+    getAllVendorInfo();
   }, []);
 
   const getAllRecce = async () => {
@@ -86,6 +89,22 @@ export default function Installation() {
       }
     } catch (err) {
       alert(err, "err");
+    }
+  };
+  const getAllVendorInfo = async () => {
+    try {
+      const response = await axios.get(
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+      );
+
+      if (response.status === 200) {
+        let vendors = response.data.vendors;
+        setVendorData(vendors);
+      } else {
+        alert("Unable to fetch data");
+      }
+    } catch (err) {
+      alert("can't able to fetch data");
     }
   };
   const getAllInstalation = async () => {
@@ -273,11 +292,9 @@ export default function Installation() {
     }
   };
 
-  const selectedInstalationGroups = InstaLationGroups?.filter(
-    (vendors) => vendors?._id === instalationgrp
-  );
-
-  async function AssignVendor(selectedInstalationGroups) {
+  const selectedv = vendordata?.find((vendor) => vendor._id === selctedVendor);
+  async function AssignVendor(selectedv) {
+    console.log(selectedv, "selectedv");
     try {
       const updatedRecceData = [];
 
@@ -286,7 +303,7 @@ export default function Installation() {
           const filteredData1 = recceid.outletName.filter((outlet) => {
             if (outlateid === outlet._id) {
               // Set InstalationGroups to the _id of the selected installation group
-              outlet.InstalationGroups = selectedInstalationGroups[0]?._id;
+              outlet.InstalationGroup = selectedv;
             }
             return outlet;
           });
@@ -294,7 +311,7 @@ export default function Installation() {
           updatedRecceData.push(...filteredData1);
 
           const config = {
-            url: `/api/recce/recce/updateinstaltion/${outlateid}/${selectedInstalationGroups[0]?._id}`,
+            url: `/api/recce/recce/updateinstaltion/${outlateid}/${selectedv}`,
             baseURL: "http://api.srimagicprintz.com",
             method: "put",
             headers: { "Content-Type": "application/json" },
@@ -318,7 +335,7 @@ export default function Installation() {
   const updateVendor = async () => {
     if (window.confirm(`Are you sure you want to update clients data?`)) {
       try {
-        await AssignVendor(selectedInstalationGroups);
+        await AssignVendor(selectedv);
       } catch (error) {
         console.error("Error while updating recce items:", error);
       }
@@ -345,19 +362,15 @@ export default function Installation() {
                 controlId="exampleForm.ControlInput1"
               >
                 <Form.Select
-                  value={instalationgrp}
-                  onChange={(e) => setInstalationgrp(e.target.value)}
+                  value={selctedVendor}
+                  onChange={(e) => setselctedVendor(e.target.value)}
                 >
-                  <option disabled>Choose..</option>
-                  {InstaLationGroups?.flatMap((ele) => {
-                    if (ele?.InstalationGroup?.length > 0) {
-                      return (
-                        <option key={ele?.InstalationGroup._id} value={ele._id}>
-                          Group of {ele?.InstalationGroup?.length}
-                        </option>
-                      );
-                    }
-                  })}
+                  <option>Choose..</option>
+                  {vendordata?.map((vendorele) => (
+                    <option key={vendorele._id} value={vendorele._id}>
+                      {vendorele?.VendorFirstName}
+                    </option>
+                  ))}
                 </Form.Select>
               </Form.Group>
             </Col>
@@ -486,7 +499,7 @@ export default function Installation() {
                         position: "absolute",
                         zIndex: "100",
                         top: "24%",
-                        right:"2%"
+                        right: "2%",
                       }}
                     >
                       <Card className="m-auto p-2" style={{ width: "10rem" }}>
