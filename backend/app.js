@@ -18,6 +18,7 @@ const Instalationgrp = require("./Route/Instalation/instalation");
 const quotation = require("./Route/Quotation/quotation");
 // const uploadOutlet = require("./Route/recce/outletUpload")
 const outletUploadManagement = require("./Route/recce/outletUpload");
+const communityRights = require("./Route/userRights/userRigths");
 //Data Base connection
 
 mongoose
@@ -49,7 +50,7 @@ app.use("/api/installgrp", Instalationgrp);
 app.use("/api", quotation);
 // app.use("/api",uploadOutlet)
 app.use("/api", outletUploadManagement);
-
+app.use("/api", communityRights);
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });

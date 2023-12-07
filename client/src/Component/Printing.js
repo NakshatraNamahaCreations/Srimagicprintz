@@ -61,7 +61,7 @@ export default function Printing() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://localhost:8001/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -73,7 +73,7 @@ export default function Printing() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -212,54 +212,64 @@ export default function Printing() {
   ]);
 
   const handleExportPDF = () => {
+    if (!selectedRecceItems1 || selectedRecceItems1.length === 0) {
+      alert("Please select at least one record to export");
+      return;
+    }
+
+    if (!filteredData) {
+      alert("No data available for export");
+      return;
+    }
+
     const pdf = new jsPDF();
     const tableColumn = [
       "SI.No",
       "Shop Name",
-      "Vendor Name",
       "Contact",
-      "Area",
+      "Address",
       "City",
-      "Pincode",
       "Zone",
       "Date",
       "Status",
-      "Hight",
-      "Width",
-      "Category",
+      // "Height",
+      // "Width",
     ];
-    const tableData = displayedData.map((item, index) => {
-      const selectedVendorId = item?.vendor?.[0];
-      const selectedVendor = vendordata?.find(
-        (vendor) => vendor?._id === selectedVendorId
-      );
-      const selectedCategoryId = item?.category?.[0];
-      const category = CategoryData?.find(
-        (ele) => ele?._id === selectedCategoryId
-      );
 
-      return [
-        index + 1,
-        item.ShopName,
-        selectedVendor ? selectedVendor.VendorFirstName : "",
-        item.ContactNumber,
-        item.Area,
-        item.City,
-        item.Pincode,
-        item.Zone,
-        item.createdAt
-          ? new Date(item.createdAt).toISOString().slice(0, 10)
-          : "",
-        item.Status,
-        item.height,
-        item.width,
-        category ? category?.categoryName : "",
-      ];
-    });
+    let serialNumber = 0;
+
+    const tableData = selectedRecceItems1.flatMap((outletidd) =>
+      filteredData.flatMap((Ele) =>
+        Ele?.outletName
+          ?.filter(
+            (outle) =>
+              outle?._id === outletidd && outle?.RecceStatus?.includes("Completed")
+          )
+          .map((item) => ({
+            siNo: ++serialNumber,
+            shopName: item.ShopName,
+            contact: item.OutletContactNumber,
+            address: item.OutletAddress,
+            city: item.OutletCity,
+            zone: item.OutletZone,
+            date: item.createdAt
+              ? new Date(item.createdAt).toISOString().slice(0, 10)
+              : "",
+            status: item.RecceStatus,
+            // height: item.height,
+            // width: item.width,
+          }))
+      )
+    );
+
+    if (tableData.length === 0) {
+      alert("No data available for the selected records");
+      return;
+    }
 
     pdf.autoTable({
       head: [tableColumn],
-      body: tableData,
+      body: tableData.map((item) => Object.values(item)),
       startY: 20,
       styles: {
         fontSize: 6,
@@ -267,8 +277,7 @@ export default function Printing() {
       columnStyles: {
         0: { cellWidth: 10 },
       },
-
-      bodyStyles: { borderColor: "black", borderRight: "1px solid black" },
+      bodyStyles: { borderColor: "black", border: "1px solid black" },
     });
 
     pdf.save("exported_data.pdf");
@@ -369,7 +378,7 @@ export default function Printing() {
         const config = {
           url: `/recce/recce/updatereccedata/${RecceId}/${outletid}`,
           method: "put",
-          baseURL: "http://api.srimagicprintz.com/api",
+          baseURL: "http://localhost:8001/api",
           headers: { "Content-Type": "multipart/form-data" },
           data: formdata,
         };

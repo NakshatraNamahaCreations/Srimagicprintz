@@ -23,7 +23,7 @@ import { Signup } from "./Component/Signup";
 import Notification from "./Component/Notification";
 // import Billingquote from "./Component/Billingquote";
 import BillingEstimate from "./Component/BillingEstimate";
-import Estiamtecalculation from "./Component/Estimatecalculation";
+// import Estiamtecalculation from "./Component/Estimatecalculation";
 import Invoice from "./Component/Invoice";
 import Marketingshedule from "./Component/Marketingshedule";
 import MarketingAddClient from "./Component/MarketingAddClient";
@@ -35,45 +35,50 @@ import VendorInfo from "./Component/VendorInfo";
 import ClientInfo from "./Component/ClientsInfo";
 import ReceeManagementApi from "./Component/Recceapi";
 import { useGlobalNotification } from "./Component/NotificationContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import Userrights from "./Component/communityRights";
+import axios from "axios";
+import UserData from "./Component/Users";
+
+// import CommunityRights from "./Component/communityRights";
 export default function App() {
   const location = useLocation();
   const excludeRoutes = ["/RecceFile", "/", "/Signup"];
   const shouldRenderSidenav = !excludeRoutes.includes(location.pathname);
 
   const { notifications, playNotificationSound } = useGlobalNotification();
-  const hasNotificationsForCurrentDate = null;
-  const createdAtDate = null;
-  useEffect(
-    (hasNotificationsForCurrentDate, createdAtDate) => {
-      const currentDate = new Date();
-      hasNotificationsForCurrentDate = notifications.map((notification) => {
-        createdAtDate = new Date(notification.updatedAt);
-        return (
-          createdAtDate.getFullYear() === currentDate.getFullYear() &&
-          createdAtDate.getMonth() === currentDate.getMonth() &&
-          createdAtDate.getDate() === currentDate.getDate() &&
-          createdAtDate.getHours() === currentDate.getHours() &&
-          createdAtDate.getMinutes() === currentDate.getMinutes() &&
-          createdAtDate.getSeconds() === currentDate.getSeconds()
-        );
-      });
+ 
+  const currentDate = new Date();
+  const hasNotificationsForCurrentDate = notifications.some((notification) => {
+    const createdAtDate = new Date(notification.updatedAt);
+    return (
+      createdAtDate.getFullYear() === currentDate.getFullYear() &&
+      createdAtDate.getMonth() === currentDate.getMonth() &&
+      createdAtDate.getDate() === currentDate.getDate() &&
+      createdAtDate.getHours() === currentDate.getHours() &&
+      createdAtDate.getMinutes() === currentDate.getMinutes() &&
+      createdAtDate.getSeconds() === currentDate.getSeconds()
+    );
+  });
+ 
+  useEffect(() => {
+    if (hasNotificationsForCurrentDate) {
+      playNotificationSound();
+    }
+  }, [hasNotificationsForCurrentDate, playNotificationSound]);
 
-      if (hasNotificationsForCurrentDate) {
-        playNotificationSound();
-      }
-    },
-    [hasNotificationsForCurrentDate, createdAtDate, playNotificationSound]
-  );
+ 
 
   return (
     <>
+    
       <div className="App">
         {shouldRenderSidenav && (
           <div className="sidenav-container">
             <Sidenav1 />
           </div>
         )}
+
         <main>
           <Routes>
             <Route path="/" element={<Login />} />
@@ -118,6 +123,8 @@ export default function App() {
             <Route path="/Setting" element={<Setting />} />
             <Route path="/Setting" element={<Setting />} />
             <Route path="/Logout" element={<Logout />} />
+            <Route path="/communityRights" element={<Userrights />} />
+            <Route path="/Users" element={<UserData />} />
           </Routes>
         </main>{" "}
       </div>

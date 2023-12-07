@@ -58,17 +58,18 @@ export default function JobManagement() {
   const [seletedInstalation, setSeletedInstalation] = useState(false);
   let serialNumber = 0;
   let rowsDisplayed = 0;
-  const [InstaLationGroups, setInstaLationGroup] = useState();
+  const [selectAllClients, setselectAllClients] = useState(false);
 
+  const [selectAllCity, setselectAllCity] = useState(false);
   useEffect(() => {
     getAllRecce();
     getAllCategory();
-    getAllInstalation();
+    // getAllInstalation();
   }, []);
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
+        "http://localhost:8001/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -80,27 +81,11 @@ export default function JobManagement() {
       console.error("Error fetching category data:", error);
     }
   };
-  // const handleClientNameChange = (selectedClientId) => {
-  //   const selectedClient = RecceData.find(
-  //     (ele) => ele._id === selectedClientId
-  //   );
-
-  //   setoutlets1(selectedClient.outletName);
-  //   setclient(selectedClient);
-
-  //   if (selectedClient) {
-  //     setSelectedClientId(selectedClientId);
-  //     setRecceAssignedClientName(selectedClient?.BrandName);
-  //     setRecceAssignedClientNumber(selectedClient?.ContactNumber);
-  //     setRecceAssignedClientPincode(selectedClient?.Pincode);
-  //     setRecceAssignedClientZone(selectedClient?.Zone);
-  //   }
-  // };
 
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -118,7 +103,7 @@ export default function JobManagement() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -158,7 +143,7 @@ export default function JobManagement() {
       for (const recceId of selectedRecceItems) {
         const filteredData = RecceData.map((ele) =>
           ele.outletName.filter((item) => {
-            console.log(item.OutletCity, "selectedCity");
+            // console.log(item.OutletCity, "selectedCity");
             if (
               recceId === item._id &&
               item.OutletZone === selecteZone &&
@@ -174,7 +159,7 @@ export default function JobManagement() {
 
         const config = {
           url: `/api/recce/recce/outletupdate/${recceId}/${vendordata?._id}`,
-          baseURL: "http://api.srimagicprintz.com",
+          baseURL: "http://localhost:8001",
           method: "put",
           headers: { "Content-Type": "application/json" },
           data: { RecceData: updatedRecceData },
@@ -220,7 +205,7 @@ export default function JobManagement() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://localhost:8001/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -275,7 +260,7 @@ export default function JobManagement() {
       const config = {
         url: `/recce/recce/updatereccedata/${RecceIndex}/${PrintData._id}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -320,14 +305,14 @@ export default function JobManagement() {
           (checkbox) =>
             !checkbox.includes(`${brandName}_${index}_${recceItemId}`)
         );
-
+    // setIDD(recceItemId)
     setSelectedCheckboxes(updatedCheckboxes);
   };
 
   const handleSelectOutlet = (index, id) => {
     if (jobType === "Recce" || jobType === "Installation") {
-      const selectedIds = selectedCheckboxes.map((checkbox) => {
-        const parts = checkbox.split("_");
+      const selectedIds = selectedCheckboxes?.map((checkbox) => {
+        const parts = checkbox?.split("_");
         return parts[2];
       });
 
@@ -407,16 +392,55 @@ export default function JobManagement() {
       }
     }
   };
-  const getAllInstalation = async () => {
-    try {
-      let res = await axios.get("http://api.srimagicprintz.com/api/getgroup");
-      if (res.status === 200) {
-        let instalationData = res?.data?.instalation?.flatMap((ele) => ele);
-        setInstaLationGroup(instalationData);
-        // InstalationGroup
-      }
-    } catch (err) {
-      console.log(err);
+
+  const handleSelectAllCity = () => {
+    setselectAllCity(!selectAllCity);
+  
+    if (!selectAllCity) {
+      const allCitiesSet = new Set();
+  
+      RecceData?.filter((recceItem) => 
+        recceItem._id?.includes(selectedOutletIds)
+      ).forEach((ele) =>
+        ele.outletName?.forEach((outlet) => {
+          const lowercaseCity = outlet?.OutletCity?.toLowerCase();
+          if (lowercaseCity && !allCitiesSet.has(lowercaseCity)) {
+            allCitiesSet.add(lowercaseCity);
+          }
+        })
+      );
+  
+      const updatedCheckboxes = [
+        ...new Set([...selectedCheckboxes1, ...Array.from(allCitiesSet)]),
+      ];
+  
+      setselectedCity(Array.from(allCitiesSet).join(","));
+      setselectedCheckboxes1(updatedCheckboxes);
+    } else {
+      setselectedCheckboxes1([]);
+      setselectedCity("");
+    }
+  };
+  
+  
+  const handleSelectAllClientName = () => {
+    setselectAllClients(!selectAllClients);
+
+    if (!selectAllClients) {
+      const allClientsSet = new Set();
+      const updatedCheckboxes = RecceData?.map((recceItem, index) => {
+        let lowebrand = recceItem?.BrandName?.toLowerCase();
+        if (lowebrand && !allClientsSet.has(lowebrand)) {
+          allClientsSet.add(lowebrand);
+        }
+        return `${lowebrand}_${index}_${recceItem._id}`;
+      });
+
+      setSelectedBrandNames(Array.from(allClientsSet).join(", "));
+      setSelectedCheckboxes(updatedCheckboxes);
+    } else {
+      setSelectedCheckboxes([]);
+      setSelectedBrandNames("");
     }
   };
 
@@ -425,9 +449,7 @@ export default function JobManagement() {
     vendor,
     selecteZone,
     selectedCity
-    // instalationlength
   ) => {
-    console.log(vendor, "vendor");
     try {
       if (!assign) {
         alert("Please select a zone.");
@@ -458,10 +480,10 @@ export default function JobManagement() {
         );
 
         updatedRecceData.push(...filteredData);
-        console.log("vendor", vendor);
+
         const config = {
           url: `/api/recce/recce/updateinstaltion/${recceId}/${vendor}`,
-          baseURL: "http://api.srimagicprintz.com",
+          baseURL: "http://localhost:8001",
           method: "put",
           headers: { "Content-Type": "application/json" },
           data: { RecceData: updatedRecceData },
@@ -469,11 +491,17 @@ export default function JobManagement() {
 
         const res = await axios(config);
 
-        if (res.status === 200) {
-          alert(`${jobType} assigned to: group of ${vendor} vendor`);
-        } else {
-          alert(`Failed to assign ${jobType} to: group of ${vendor} vendor`);
-        }
+        vendorData
+          .filter((ele) => ele._id === vendor)
+          .map((vonf) => {
+            if (res.status === 200) {
+              alert(`${jobType} assigned to:   ${vonf.VendorFirstName} vendor`);
+            } else {
+              alert(
+                `Failed to assign ${jobType} to:  ${vonf.VendorFirstName} vendor`
+              );
+            }
+          });
       }
       alert("Successfully linked vendors to recce items");
 
@@ -503,7 +531,7 @@ export default function JobManagement() {
     const selectedCities = updatedCheckboxes.join(", ");
     setselectedCity(selectedCities);
   };
-
+  const allCitiesSet = new Set();
   return (
     <>
       <Header />
@@ -576,45 +604,6 @@ export default function JobManagement() {
                           </Form.Select>
                         </Form.Group>
                       </Col>
-                      {/* <Col>
-                      <Form.Group
-                        md="5"
-                        className="mb-3"
-                        controlId="exampleForm.ControlInput1"
-                      >
-                        <Form.Label>Brand Name</Form.Label>
-
-                        <Form.Select
-                          value={selectedClientId}
-                          onChange={(e) =>
-                            handleClientNameChange(e.target.value)
-                          }
-                        >
-                          <option>Choose..</option>
-
-                          {RecceData.map((item) => {
-                            const desiredClient = ClientInfo?.client?.find(
-                              (client) => client._id === item.BrandName
-                            );
-
-                            if (processedBrandIds.has(desiredClient?._id)) {
-                              return null;
-                            }
-
-                            processedBrandIds.add(desiredClient?._id);
-
-                            return (
-                              <option
-                                key={desiredClient?._id}
-                                value={desiredClient?._id}
-                              >
-                                {desiredClient?.clientsBrand}
-                              </option>
-                            );
-                          })}
-                        </Form.Select>
-                      </Form.Group>
-                    </Col> */}
 
                       <Col>
                         <Form.Group
@@ -642,23 +631,20 @@ export default function JobManagement() {
                                 }}
                                 className="col-md-2 m-auto shadow-sm p-3 mb-5 bg-white rounded"
                               >
-                                <div>
-                                  <div className="row">
-                                    <p
-                                      className="cureor"
-                                      onClick={handleSelectClientName}
-                                      style={{ borderBottom: "1px solid grey" }}
-                                    >
-                                      <CheckIcon />
-                                      Apply selection
-                                    </p>
-                                  </div>
-                                  {RecceData?.map((ele, index) => {
-                                    // const desiredClient =
-                                    //   ClientInfo?.client?.find(
-                                    //     (client) => client._id === ele.BrandName
-                                    //   );
+                                <div className="row">
+                                  <span className="col-md-1 m-auto">
+                                    <Form.Check
+                                      checked={selectAllClients}
+                                      onClick={handleSelectAllClientName}
+                                    />
+                                  </span>
+                                  <Form.Label className="col-md-8 p-0 m-0 m-auto">
+                                    Select All
+                                  </Form.Label>
+                                </div>
 
+                                <div className="row">
+                                  {RecceData?.map((ele, index) => {
                                     return (
                                       <div
                                         className="row m-auto"
@@ -670,9 +656,12 @@ export default function JobManagement() {
                                             type="checkbox"
                                             className="me-3 d-inline"
                                             value={`${ele.BrandName}_${index}`}
-                                            checked={selectedCheckboxes.includes(
-                                              `${ele.BrandName}_${index}_${ele._id}`
-                                            )}
+                                            checked={
+                                              selectAllClients ||
+                                              selectedCheckboxes?.includes(
+                                                `${ele.BrandName}_${index}_${ele._id}`
+                                              )
+                                            }
                                             onChange={(event) => {
                                               handleCheckboxChange(
                                                 event,
@@ -695,7 +684,14 @@ export default function JobManagement() {
                                       </div>
                                     );
                                   })}
-                                </div>{" "}
+                                  <p
+                                    className="cureor m-auto "
+                                    onClick={handleSelectClientName}
+                                    style={{ borderTop: "1px solid grey" }}
+                                  >
+                                    Apply selection <CheckIcon />
+                                  </p>
+                                </div>
                               </div>
                             ) : null}
                           </>
@@ -703,39 +699,6 @@ export default function JobManagement() {
                       </Col>
                     </Row>
                     <Row>
-                      {/* <Col>
-                        <Form.Group
-                          md="5"
-                          className="mb-3"
-                          controlId="exampleForm.ControlInput1"
-                        >
-                          <Form.Label>Select City</Form.Label>
-
-                          <Form.Select
-                            value={selectedCity}
-                            as="checkbox"
-                            onChange={(e) => {
-                              const selectedValue = e.target.value;
-
-                              setselectedCity(selectedValue);
-                            }}
-                          >
-                            <option value="Select All">Select All</option>
-                            {RecceData?.map((recceItem, index) =>
-                              recceItem?.outletName?.map(
-                                (outlet, outletArray) => (
-                                  <>
-                                    <option value={outlet?.OutletCity}>
-                                      {outlet?.OutletCity?.toLowerCase()}
-                                    </option>
-                                  </>
-                                )
-                              )
-                            )}
-                          </Form.Select>
-                        </Form.Group>
-                      </Col> */}
-
                       <Col>
                         <Form.Group
                           md="5"
@@ -749,7 +712,7 @@ export default function JobManagement() {
                               <Form.Control
                                 placeholder="select city "
                                 value={selectedCity}
-                                onClick={() => setcityNames(!cityNames)}
+                                onClick={() => setcityNames(true)}
                                 readOnly
                               />
                             </div>
@@ -762,55 +725,87 @@ export default function JobManagement() {
                                 }}
                                 className="col-md-2 m-auto shadow-sm p-3 mb-5 bg-white rounded"
                               >
+                                {selectedOutletIds.length === 0 ? null : (
+                                  <div className="row">
+                                    <span className="col-md-1 m-auto">
+                                      <Form.Check
+                                        checked={selectAllCity}
+                                        onClick={handleSelectAllCity}
+                                      />
+                                    </span>
+                                    <Form.Label className="col-md-8 p-0 m-0 m-auto">
+                                      Select All
+                                    </Form.Label>
+                                  </div>
+                                )}
                                 <div>
-                                  {RecceData?.map((recceItem, index) => {
-                                    const uniqueCitiesSet = new Set();
+                                  {selectedOutletIds.length === 0 ? (
+                                    <span className="mt-3">
+                                      Please Select Clients
+                                    </span>
+                                  ) : (
+                                    RecceData?.filter((recceItem, recceIndex) =>
+                                      recceItem?._id?.includes(
+                                        selectedOutletIds
+                                      )
+                                    )?.map((recceItem, recceIndex) => (
+                                      <div key={recceIndex}>
+                                        {recceItem?.outletName?.map(
+                                          (outlet, outletIndex) => {
+                                            const lowercaseCity =
+                                              outlet?.OutletCity?.toLowerCase();
+                                            if (
+                                              lowercaseCity &&
+                                              !allCitiesSet.has(lowercaseCity)
+                                            ) {
+                                              allCitiesSet.add(lowercaseCity);
 
-                                    return recceItem?.outletName?.map(
-                                      (outlet, outletArray) => {
-                                        const city =
-                                          outlet?.OutletCity?.toLowerCase();
-
-                                        if (!uniqueCitiesSet.has(city)) {
-                                          uniqueCitiesSet.add(city);
-
-                                          return (
-                                            <div
-                                              className="row m-auto"
-                                              key={index}
-                                              style={{ zIndex: "100" }}
-                                            >
-                                              <Form.Label>
-                                                <Form.Check
-                                                  type="checkbox"
-                                                  className="me-3 d-inline"
-                                                  value={city}
-                                                  checked={selectedCheckboxes1.includes(
-                                                    city
-                                                  )}
-                                                  onChange={(event) => {
-                                                    handleCheckboxChange1(
-                                                      event,
-                                                      city
-                                                    );
-                                                    setselectedOutletcity(
-                                                      event,
-                                                      city
-                                                    );
-                                                  }}
-                                                />
-
-                                                <p className="d-inline">
-                                                  {city}
-                                                </p>
-                                              </Form.Label>
-                                            </div>
-                                          );
-                                        }
-                                      }
-                                    );
-                                  })}
+                                              return (
+                                                <div
+                                                  className="row m-auto"
+                                                  key={`${recceIndex}_${lowercaseCity}`}
+                                                  style={{ zIndex: "100" }}
+                                                >
+                                                  <Form.Label>
+                                                    <Form.Check
+                                                      type="checkbox"
+                                                      className="me-3 d-inline"
+                                                      value={lowercaseCity}
+                                                      checked={selectedCheckboxes1?.includes(
+                                                        lowercaseCity
+                                                      )}
+                                                      onChange={(event) => {
+                                                        handleCheckboxChange1(
+                                                          event,
+                                                          lowercaseCity
+                                                        );
+                                                        setselectedOutletcity(
+                                                          event,
+                                                          lowercaseCity
+                                                        );
+                                                      }}
+                                                    />
+                                                    <p className="d-inline">
+                                                      {outlet?.OutletCity}
+                                                    </p>
+                                                  </Form.Label>
+                                                </div>
+                                              );
+                                            }
+                                            return null;
+                                          }
+                                        )}
+                                      </div>
+                                    ))
+                                  )}
                                 </div>
+                                <p
+                                  className="cureor m-auto "
+                                  onClick={() => setcityNames(false)}
+                                  style={{ borderTop: "1px solid grey" }}
+                                >
+                                  Apply selection <CheckIcon />
+                                </p>
                               </div>
                             ) : null}
                           </>
@@ -1116,7 +1111,7 @@ export default function JobManagement() {
                                   borderRadius: "100%",
                                 }}
                                 className="m-auto"
-                                src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
+                                src={`http://localhost:8001/VendorImage/${ele.VendorImage}`}
                                 alt=""
                               />
                             ) : (
@@ -1502,9 +1497,6 @@ export default function JobManagement() {
                       <tbody>
                         {RecceData?.map((recceItem, index) =>
                           recceItem?.outletName.map((outlet, outletArray) => {
-                            // const desiredClient = ClientInfo?.client?.find(
-                            //   (client) => client._id === recceItem.BrandName
-                            // );
                             let JobNob = 0;
                             RecceData?.forEach((recceItem, recceIndex) => {
                               recceItem?.outletName?.forEach((item) => {
@@ -1735,7 +1727,7 @@ export default function JobManagement() {
                                   borderRadius: "100%",
                                 }}
                                 className="m-auto"
-                                src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
+                                src={`http://localhost:8001/VendorImage/${ele.VendorImage}`}
                                 alt=""
                               />
                             ) : (

@@ -10,6 +10,37 @@
   font-family: "Poppins", "Montserrat";
   font-size: 14px;
 }
+.row {
+  display: flex;
+  align-items: center;
+}
+
+.borderlef {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+span.border-line {
+  border-left: 1px solid black;
+  height: 70px;
+  margin-left: 20px;
+}
+.borderlef1 {
+  display: flex;
+  align-items: center;
+  align-items: center;
+}
+
+.border-line2 {
+  border-bottom: 1px solid black;
+  width: 60px;
+}
+
+.subct {
+  font-weight: bolder;
+  color: #068fff;
+}
 .c1 {
   background-color: #fff306;
 }
@@ -141,7 +172,9 @@ body {
 main {
   width: 100%;
 }
-
+.poppinclr {
+  background-color: #06ffde17;
+}
 .img {
   display: flex;
   padding: 10px;
@@ -365,7 +398,9 @@ body {
   padding: 3px 5px;
   width: 20%;
 }
-
+.banrrad {
+  border-radius: 20px;
+}
 .first {
   padding-right: 10px !important;
 }
@@ -477,3 +512,10 @@ table td {
   font-size: 56px !important;
   /* color: black; */
 }
+
+.Invoice {
+  /* Example styles */
+  padding: 20px;
+  border: 1px solid #ccc;
+}
+

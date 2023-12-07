@@ -13,10 +13,10 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import moment from "moment";
 import axios from "axios";
 import RunningWithErrorsIcon from "@mui/icons-material/RunningWithErrors";
-import ArrowCircleDownIcon from "@mui/icons-material/ArrowCircleDown";
+
 import Form from "react-bootstrap/Form";
-import TuneIcon from "@mui/icons-material/Tune";
-import { selectClasses } from "@mui/material";
+
+
 
 const StatusColor = {
   Pending: { backgroundColor: "#F4E869" },
@@ -60,7 +60,7 @@ export default function Overview() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         const recceData = res.data.RecceData || [];
@@ -132,7 +132,7 @@ export default function Overview() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -148,7 +148,7 @@ export default function Overview() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://localhost:8001/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setTotalAddClients(res.data.client);

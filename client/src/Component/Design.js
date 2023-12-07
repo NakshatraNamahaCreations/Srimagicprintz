@@ -54,18 +54,21 @@ export default function Design() {
 
   const [fabricationneed, setFabricationneed] = useState("");
   const [selectedRecceItems1, setSelectedRecceItems1] = useState([]);
+
+  const [selectedRecceItems, setSelectedRecceItems] = useState([]);
   const [designStatus, setdesignStatus] = useState("");
   const [selectAll, setSelectAll] = useState(false);
-  const [selectrecceStatus, setSelectRecceStatus] = useState(null);
+  const [OutletDoneData, setOutletDoneData] = useState(null);
   useEffect(() => {
     getAllRecce();
     getAllClientsInfo();
+    getAllOutlets();
   }, []);
 
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -74,6 +77,17 @@ export default function Design() {
       console.error(err);
     }
   };
+  const getAllOutlets = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8001/api/getalloutlets`);
+      if (res.status === 200) {
+        setOutletDoneData(res?.data?.outletData);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
     const filteredClients = () => {
       let results = [...recceData];
@@ -204,54 +218,63 @@ export default function Design() {
   ]);
 
   const handleExportPDF = () => {
+    if (!selectedRecceItems1 || selectedRecceItems1.length === 0) {
+      alert("Please select at least one record to export");
+      return;
+    }
+
+    if (!filteredData) {
+      alert("No data available for export");
+      return;
+    }
+
     const pdf = new jsPDF();
     const tableColumn = [
       "SI.No",
       "Shop Name",
-      "Vendor Name",
       "Contact",
-      "Area",
+      "Address",
       "City",
-      "Pincode",
       "Zone",
       "Date",
       "Status",
-      "Hight",
-      "Width",
-      "Category",
     ];
-    const tableData = displayedData.map((item, index) => {
-      const selectedVendorId = item?.vendor?.[0];
-      const selectedVendor = vendordata?.find(
-        (vendor) => vendor?._id === selectedVendorId
-      );
-      const selectedCategoryId = item?.category?.[0];
-      const category = CategoryData?.find(
-        (ele) => ele?._id === selectedCategoryId
-      );
 
-      return [
-        index + 1,
-        item.ShopName,
-        selectedVendor ? selectedVendor.VendorFirstName : "",
-        item.ContactNumber,
-        item.Area,
-        item.City,
-        item.Pincode,
-        item.Zone,
-        item.createdAt
-          ? new Date(item.createdAt).toISOString().slice(0, 10)
-          : "",
-        item.Status,
-        item.height,
-        item.width,
-        category ? category?.categoryName : "",
-      ];
-    });
+    let serialNumber = 0;
+
+    const tableData = selectedRecceItems1.flatMap((outletidd) =>
+      filteredData.flatMap((Ele) =>
+        Ele?.outletName
+          ?.filter(
+            (outle) =>
+              outle?._id === outletidd &&
+              outle?.RecceStatus?.includes("Completed")
+          )
+          .map((item) => ({
+            siNo: ++serialNumber,
+            shopName: item.ShopName,
+            contact: item.OutletContactNumber,
+            address: item.OutletAddress,
+            city: item.OutletCity,
+            zone: item.OutletZone,
+            date: item.createdAt
+              ? new Date(item.createdAt).toISOString().slice(0, 10)
+              : "",
+            status: item.RecceStatus,
+            // height: item.height,
+            // width: item.width,
+          }))
+      )
+    );
+
+    if (tableData.length === 0) {
+      alert("No data available for the selected records");
+      return;
+    }
 
     pdf.autoTable({
       head: [tableColumn],
-      body: tableData,
+      body: tableData.map((item) => Object.values(item)),
       startY: 20,
       styles: {
         fontSize: 6,
@@ -259,8 +282,7 @@ export default function Design() {
       columnStyles: {
         0: { cellWidth: 10 },
       },
-
-      bodyStyles: { borderColor: "black", borderRight: "1px solid black" },
+      bodyStyles: { borderColor: "black", border: "1px solid black" },
     });
 
     pdf.save("exported_data.pdf");
@@ -322,7 +344,7 @@ export default function Design() {
       const config = {
         url: `/recce/recce/updatereccedata/${RecceIndex}/${getreccedata._id}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -344,34 +366,6 @@ export default function Design() {
       );
     }
   };
-
-  // const handlesendPrinting = async () => {
-  //   for (const recceId of selectedRecceItems) {
-  //     const recceData = filteredData.find((item) => item._id === recceId);
-
-  //     if (
-  //       recceData.Designstatus === "Completed" &&
-  //       recceData.designupload !== null
-  //     ) {
-  //       try {
-  //         const response = await axios.post(
-  //           `http://api.srimagicprintz.com/api/recce/recce/getdesigncompletedid/${recceData._id}`
-  //         );
-
-  //         if (response.status === 200) {
-  //           alert(`Successfully sent recce to design`);
-  //           window.location.href = "/Printing";
-  //         } else {
-  //           alert(`Failed to send design to printing`);
-  //         }
-  //       } catch (err) {
-  //         alert(`Please Complete design or fill all data`);
-  //       }
-  //     } else {
-  //       alert(`Design  not completed yet`);
-  //     }
-  //   }
-  // };
 
   let serialNumber = 0;
   let rowsDisplayed = 0;
@@ -397,7 +391,7 @@ export default function Design() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://localhost:8001/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -426,10 +420,12 @@ export default function Design() {
     setSelectAll(!selectAll);
 
     if (!selectAll) {
-      const allOutletIds = filteredData.flatMap((item) =>
-        item?.outletName.map((outlet) => outlet._id)
-      );
-      setSelectedRecceItems1(allOutletIds);
+      let Data = filteredData
+        ?.flatMap((Ele) =>
+          Ele?.outletName?.filter((outle) => outle?.RecceStatus === "Completed")
+        )
+        .map((ele) => ele._id);
+      setSelectedRecceItems1(Data);
     } else {
       setSelectedRecceItems1([]);
     }
@@ -451,7 +447,7 @@ export default function Design() {
             const config = {
               url: `/recce/recce/updatereccedata/${recceid._id}/${outlet._id}`,
               method: "put",
-              baseURL: "http://api.srimagicprintz.com/api",
+              baseURL: "http://localhost:8001/api",
               headers: { "Content-Type": "multipart/form-data" },
               data: formdata,
             };
@@ -483,81 +479,6 @@ export default function Design() {
 
       {!SelecteddesignIndex ? (
         <div className="row  m-auto containerPadding">
-          {/* <div className="row ">
-            <Col className="col-md-1 ">
-              <Form.Control
-                as="select"
-                value={rowsPerPage1}
-                onChange={handleRowsPerPageChange}
-              >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={30}>30</option>
-                <option value={50}>50</option>
-                <option value={80}>80</option>
-                <option value={100}>100</option>
-                <option value={140}>140</option>
-                <option value={200}>200</option>
-                <option value={300}>300</option>
-                <option value={400}>400</option>
-                <option value={600}>600</option>
-                <option value={700}>700</option>
-                <option value={1000}>1000</option>
-                <option value={1500}>1500</option>
-                <option value={10000}>10000</option>
-              </Form.Control>
-            </Col>
-            <Col className="col-md-5">
-              <div className="row">
-                <div className="col-md-5 ">
-                  <Form.Control
-                    type="date"
-                    value={filterStartDate}
-                    onChange={handleFilterStartDateChange}
-                  />
-                </div>
-                <div className="col-md-5 ">
-                  <Form.Control
-                    type="date"
-                    value={filterEndDate}
-                    onChange={handleFilterEndDateChange}
-                  />
-                </div>
-                <div className="col-md-2 ">
-                  <Button onClick={handleClearDateFilters}>Clear</Button>
-                </div>
-              </div>
-            </Col>
-            <Col className="col-md-1">
-              <Button onClick={handleExportPDF}> Download</Button>
-            </Col>
-            <Col className="col-md-3">
-              <div className="row">
-                <div className="col-md-10 p-2">
-                  <Form.Label>Approval For Fabrication</Form.Label>
-                  <Form.Select
-                    className="shadow-none p-3 mb-5 bg-light rounded"
-                    value={fabricationneed}
-                    onChange={(e) => {
-                      const selectedValue = e.target.value;
-                      if (selectedValue !== "Choose...") {
-                        setFabricationneed(selectedValue);
-                      }
-                    }}
-                  >
-                    <option>Choose...</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </Form.Select>{" "}
-                </div>
-                <div className="col-md-2 mt-4">
-                  <Button className="row mt-2" onClick={handleUpdate1}>
-                    Save
-                  </Button>
-                </div>
-              </div>
-            </Col>
-          </div> */}
           <div className="row mt-3 m-3 m-auto">
             <div className="col-md-8">
               <div className="row ">

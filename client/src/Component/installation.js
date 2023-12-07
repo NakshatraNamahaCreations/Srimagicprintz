@@ -43,18 +43,20 @@ export default function Installation() {
   const [selctedVendor, setselctedVendor] = useState(null);
   const [vendordata, setVendorData] = useState([]);
   const handleClose1 = () => setShow(false);
-
+  const [selctedStatus, setSelectedStatus] = useState("--Select All--");
+  const [OutletDoneData, setOutletDoneData] = useState([]);
   useEffect(() => {
     getAllRecce();
     getAllClientsInfo();
     getAllInstalation();
     getAllVendorInfo();
+    getAllOutlets();
   }, []);
 
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         // const filteredRecceData = res.data.RecceData.filter(
@@ -78,11 +80,21 @@ export default function Installation() {
     };
     filteredClients();
   }, [recceData, rowsPerPage]);
-
+  const getAllOutlets = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8001/api/getalloutlets`);
+      if (res.status === 200) {
+        setOutletDoneData(res?.data?.outletData);
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+    }
+  };
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://localhost:8001/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -94,7 +106,7 @@ export default function Installation() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -109,7 +121,7 @@ export default function Installation() {
   };
   const getAllInstalation = async () => {
     try {
-      let res = await axios.get("http://api.srimagicprintz.com/api/getgroup");
+      let res = await axios.get("http://localhost:8001/api/getgroup");
       if (res.status === 200) {
         let instalationData = res?.data?.instalation?.flatMap((ele) => ele);
         setInstaLationGroups(instalationData);
@@ -120,54 +132,66 @@ export default function Installation() {
     }
   };
   const handleExportPDF = () => {
+    if (!selectedRecceItems1 || selectedRecceItems1.length === 0) {
+      alert("Please select at least one record to export");
+      return;
+    }
+
+    if (!filteredData) {
+      alert("No data available for export");
+      return;
+    }
+
     const pdf = new jsPDF();
     const tableColumn = [
       "SI.No",
       "Shop Name",
-      "Vendor Name",
       "Contact",
-      "Area",
+      "Address",
       "City",
-      "Pincode",
       "Zone",
       "Date",
       "Status",
-      "Hight",
-      "Width",
-      "Category",
     ];
-    const tableData = displayedData.map((item, index) => {
-      const selectedVendorId = item?.vendor?.[0];
-      // const selectedVendor = vendordata?.find(
-      //   (vendor) => vendor?._id === selectedVendorId
-      // );
-      const selectedCategoryId = item?.category?.[0];
-      // const category = CategoryData?.find(
-      //   (ele) => ele?._id === selectedCategoryId
-      // );
 
-      return [
-        index + 1,
-        item.ShopName,
-        // selectedVendor ? selectedVendor.VendorFirstName : "",
-        item.ContactNumber,
-        item.Area,
-        item.City,
-        item.Pincode,
-        item.Zone,
-        item.createdAt
-          ? new Date(item.createdAt).toISOString().slice(0, 10)
-          : "",
-        item.Status,
-        item.height,
-        item.width,
-        // category ? category?.categoryName : "",
-      ];
-    });
+    let serialNumber = 0;
+
+    const tableData = selectedRecceItems1.flatMap((outletidd) =>
+      filteredData.flatMap((Ele) =>
+        Ele?.outletName
+          ?.filter(
+            (outle) =>
+              outle?._id === outletidd &&
+              outle?.Designstatus?.includes("Completed") &&
+              outle?.OutlateFabricationDeliveryType?.includes(
+                "Go to installation"
+              )
+          )
+          .map((item) => ({
+            siNo: ++serialNumber,
+            shopName: item.ShopName,
+            contact: item.OutletContactNumber,
+            address: item.OutletAddress,
+            city: item.OutletCity,
+            zone: item.OutletZone,
+            date: item.createdAt
+              ? new Date(item.createdAt).toISOString().slice(0, 10)
+              : "",
+            status: item.RecceStatus,
+            // height: item.height,
+            // width: item.width,
+          }))
+      )
+    );
+
+    if (tableData.length === 0) {
+      alert("No data available for the selected records");
+      return;
+    }
 
     pdf.autoTable({
       head: [tableColumn],
-      body: tableData,
+      body: tableData.map((item) => Object.values(item)),
       startY: 20,
       styles: {
         fontSize: 6,
@@ -175,8 +199,7 @@ export default function Installation() {
       columnStyles: {
         0: { cellWidth: 10 },
       },
-
-      bodyStyles: { borderColor: "black", borderRight: "1px solid black" },
+      bodyStyles: { borderColor: "black", border: "1px solid black" },
     });
 
     pdf.save("exported_data.pdf");
@@ -222,8 +245,8 @@ export default function Installation() {
   let rowsDisplayed = 0;
   const [rowsPerPage1, setRowsPerPage1] = useState(5);
 
-  const [PrintData, setPrintData] = useState(null);
-  const [selectedPrint, setSelectedPrint] = useState(false);
+  // const [PrintData, setPrintData] = useState(null);
+  // const [selectedPrint, setSelectedPrint] = useState(false);
 
   const handleOutletToggleSelect = (receeid, outletId) => {
     let updatedSelectedRecceItems;
@@ -268,7 +291,7 @@ export default function Installation() {
         const config = {
           url: `/recce/recce/updatereccedata/${RecceId}/${outletid}`,
           method: "put",
-          baseURL: "http://api.srimagicprintz.com/api",
+          baseURL: "http://localhost:8001/api",
           headers: { "Content-Type": "multipart/form-data" },
           data: formdata,
         };
@@ -293,8 +316,8 @@ export default function Installation() {
   };
 
   const selectedv = vendordata?.find((vendor) => vendor._id === selctedVendor);
-  async function AssignVendor(selectedv) {
-    console.log(selectedv, "selectedv");
+
+  const AssignVendor = async (selectedv) => {
     try {
       const updatedRecceData = [];
 
@@ -302,8 +325,7 @@ export default function Installation() {
         for (const recceid of filteredData) {
           const filteredData1 = recceid.outletName.filter((outlet) => {
             if (outlateid === outlet._id) {
-              // Set InstalationGroups to the _id of the selected installation group
-              outlet.InstalationGroup = selectedv;
+              outlet.InstalationGroup = selectedv._id;
             }
             return outlet;
           });
@@ -311,8 +333,8 @@ export default function Installation() {
           updatedRecceData.push(...filteredData1);
 
           const config = {
-            url: `/api/recce/recce/updateinstaltion/${outlateid}/${selectedv}`,
-            baseURL: "http://api.srimagicprintz.com",
+            url: `/api/recce/recce/updateinstaltion/${outlateid}/${selectedv._id}`,
+            baseURL: "http://localhost:8001",
             method: "put",
             headers: { "Content-Type": "application/json" },
             data: { reccedata: updatedRecceData },
@@ -320,17 +342,18 @@ export default function Installation() {
 
           const res = await axios(config);
 
-          if (res.status === 200) {
-            // alert(`Recce Assign to ${selectedInstalationGroups[0]?.length}`);
-            alert("Succesfully assigned Installation to group");
-            window.location.reload();
+          if (res.status !== 200) {
+            throw new Error(`Failed to update outlet: ${res.status}`);
           }
         }
       }
+
+      alert(`Installation assigned to: ${selectedv.VendorFirstName}`);
+      window.location.reload();
     } catch (error) {
       alert("Error while updating outlet:", error.message);
     }
-  }
+  };
 
   const updateVendor = async () => {
     if (window.confirm(`Are you sure you want to update clients data?`)) {
@@ -345,6 +368,57 @@ export default function Installation() {
   const handleAssignVendor = async () => {
     setShow(true);
   };
+  const [FilteredDatabystat, setFilteredDatabystat] = useState([]);
+
+  useEffect(() => {
+    const filteredDataByStatus =
+      selctedStatus === "--Select All--"
+        ? recceData
+        : recceData?.map((recceItem) => {
+            const outletNameArray = recceItem?.outletName;
+            if (Array.isArray(outletNameArray)) {
+              const filteredOutlets = outletNameArray.filter((outlet) =>
+                outlet?.installationSTatus?.includes(selctedStatus)
+              );
+              return { ...recceItem, outletName: filteredOutlets };
+            }
+            return recceItem;
+          });
+    setFilteredDatabystat(filteredDataByStatus);
+  }, [selctedStatus, recceData]);
+  const [OutletId, setOutletId] = useState(null);
+
+  const [ShowOutletId, setShowOutletId] = useState(false);
+  const handleEdit = (outlet) => {
+    setOutletId(outlet);
+    setShowOutletId(true);
+  };
+
+  const mergedArray = OutletDoneData.filter(
+    (Ele) => Ele?.outletShopId === OutletId
+  )
+    .map((board) => {
+      // Transform OutletDoneData to match the structure of recceData
+      // Add a property, e.g., isOutletDone: true, to distinguish between OutletDoneData and recceData
+
+      return {
+        ...board,
+        isOutletDone: true,
+      };
+    })
+    .concat(
+      recceData
+        ?.map((recceItem, index) =>
+          recceItem?.outletName
+            ?.filter((item) => item._id === OutletId)
+            .map((outlet) => ({
+              ...outlet,
+              isOutletDone: false,
+            }))
+        )
+        .flat()
+    );
+
   return (
     <>
       <Header />
@@ -385,7 +459,7 @@ export default function Installation() {
           </Button>
         </Modal.Footer>
       </Modal>
-      {!selectedPrint ? (
+      {!ShowOutletId ? (
         <div className="row  m-auto containerPadding">
           <div className="row mt-2 mb-4">
             <div className="col-md-6">
@@ -512,6 +586,29 @@ export default function Installation() {
                 </>
               ) : null}
             </div>
+
+            <div className="col-md-3 mt-3">
+              <label className="mb-2">Select Status</label>
+              <Form.Select
+                className="row "
+                value={selctedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+              >
+                <option>--Select All--</option>
+                <option value="Completed" className="cureor">
+                  Completed
+                </option>
+                <option value="Proccesing" className="cureor">
+                  Proccesing
+                </option>
+                <option value="Pending" className="cureor">
+                  Pending
+                </option>
+                <option value="Cancelled" className="cureor">
+                  Cancelled
+                </option>
+              </Form.Select>
+            </div>
           </div>
 
           <div className="row">
@@ -543,41 +640,49 @@ export default function Installation() {
                   <th className="th_s p-1">FL Board</th>
                   <th className="th_s p-1">GSB</th>
                   <th className="th_s p-1">Inshop</th>
-                  <th className="th_s p-1">Category</th>
-                  <th className="th_s p-1">Hight</th>
-                  <th className="th_s p-1">Width</th>
+                  {/* <th className="th_s p-1">Category</th>
+                  <th className="th_s p-1">Hight</th>*/}
+                  <th className="th_s p-1">Vendor</th>
                   <th className="th_s p-1">Date</th>
                   <th className="th_s p-1">Status</th>
+                  <th className="th_s p-1">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredData?.map((recceItem, index) =>
-                  recceItem?.outletName.map((outlet, outletArray) => {
-                    if (rowsDisplayed < rowsPerPage1) {
-                      const pincodePattern = /\b\d{6}\b/;
+                {FilteredDatabystat?.map((recceItem, index) =>
+                  recceItem?.outletName
+                    .filter((ele, outletArray) =>
+                      ele?.OutlateFabricationDeliveryType?.includes(
+                        "Go to installation"
+                      )
+                    )
+                    .map((outlet) => {
+                      if (rowsDisplayed < rowsPerPage1) {
+                        const pincodePattern = /\b\d{6}\b/;
 
-                      let JobNob = 0;
+                        let JobNob = 0;
 
-                      filteredData?.forEach((recceItem, recceIndex) => {
-                        recceItem?.outletName?.forEach((item) => {
-                          if (outlet._id === item._id) {
-                            JobNob = recceIndex + 1;
-                          }
+                        FilteredDatabystat?.forEach((recceItem, recceIndex) => {
+                          recceItem?.outletName?.forEach((item) => {
+                            if (outlet._id === item._id) {
+                              JobNob = recceIndex + 1;
+                            }
+                          });
                         });
-                      });
-                      const address = outlet?.OutletAddress;
-                      const extractedPincode = address?.match(pincodePattern);
+                        const address = outlet?.OutletAddress;
+                        const extractedPincode = address?.match(pincodePattern);
+                        const selectedVendorId = outlet?.InstalationGroup;
 
-                      if (extractedPincode) {
-                        outlet.OutletPincode = extractedPincode[0];
-                      }
-                      if (
-                        outlet?.OutlateFabricationDeliveryType?.includes(
-                          "Go to installation"
-                        )
-                      ) {
+                        const vendor = vendordata?.find(
+                          (ele) => ele?._id === selectedVendorId
+                        );
+                        if (extractedPincode) {
+                          outlet.OutletPincode = extractedPincode[0];
+                        }
+
                         serialNumber++;
                         rowsDisplayed++;
+
                         return (
                           <tr className="tr_C" key={serialNumber}>
                             <td className="td_S p-1">
@@ -617,14 +722,9 @@ export default function Installation() {
                             <td className="td_S p-1">{outlet?.FLBoard}</td>
                             <td className="td_S p-1">{outlet?.GSB}</td>
                             <td className="td_S p-1">{outlet?.Inshop}</td>
-                            <td className="td_S p-1">{outlet?.Category}</td>
+
                             <td className="td_S p-1">
-                              {outlet?.height}
-                              {outlet?.unit}
-                            </td>
-                            <td className="td_S p-1">
-                              {outlet?.width}
-                              {outlet?.unit}
+                              {vendor?.VendorFirstName}
                             </td>
                             <td className="td_S p-2 text-nowrap text-center">
                               {recceItem.createdAt
@@ -636,12 +736,20 @@ export default function Installation() {
                             <td className="td_S ">
                               {outlet?.installationSTatus}
                             </td>
+                            <td
+                              className="td_S "
+                              variant="info "
+                              onClick={() => {
+                                handleEdit(outlet._id);
+                              }}
+                              style={{ cursor: "pointer", color: "skyblue" }}
+                            >
+                              view
+                            </td>
                           </tr>
                         );
                       }
-                    }
-                    return null;
-                  })
+                    })
                 )}
               </tbody>
             </table>
@@ -652,62 +760,158 @@ export default function Installation() {
           <div className="row">
             <div className="col-md-1">
               <ArrowCircleLeftIcon
-                onClick={(e) => setSelectedPrint(false)}
+                onClick={() => setShowOutletId(false)}
                 style={{ color: "#068FFF" }}
               />{" "}
             </div>
-          </div>
-          <div className="col-md-8">
-            <p>
-              <span className="cl"> Shop Name:</span>
-              <span>{PrintData.ShopName}</span>
-            </p>
-            <p>
-              <span className="cl"> Partner Code:</span>
-              <span> {PrintData.PartnerCode}</span>
-            </p>
-            <p>
-              <span className="cl"> Category :</span>
-              <span> {PrintData.Category}</span>
-            </p>
-            <p>
-              <span className="cl">Outlet Pincode :</span>
-              <span> {PrintData.OutletPincode}</span>
-            </p>
-            <p>
-              <span className="cl"> Inshop :</span>
-              <span>
-                {PrintData.Inshop === "Y" || "y" ? PrintData.Inshop : "No"}
-              </span>
-            </p>
-            <p>
-              <span className="cl"> GSB :</span>
-              <span>{PrintData.GSB === "Y" || "y" ? PrintData.GSB : "No"}</span>
-            </p>
-            <p>
-              <span className="cl"> FLBoard :</span>
-              <span>
-                {PrintData.FLBoard === "Y" ? PrintData.FLBoard : "No"}
-              </span>
-            </p>
-            <p>
-              <span className="cl"> Hight:</span>
-              <span>
-                {PrintData.Height}
-                {PrintData.unit}
-              </span>
-            </p>
-            <p>
-              <span className="cl"> Width :</span>
-              <span>
-                {PrintData.width}
-                {PrintData.unit}
-              </span>
-            </p>
-            <p>
-              <span className="cl"> GST Number :</span>
-              <span>{PrintData.GSTNumber}</span>
-            </p>
+          </div>{" "}
+          <div className="row">
+            {mergedArray.map((item, index) => (
+              <div className="col-md-6" key={index}>
+                {!item.isOutletDone ? (
+                  <>
+                    <div className="row">
+                      {OutletDoneData.filter(
+                        (Ele) => Ele?.outletShopId === OutletId
+                      ).map((board) => {
+                        return (
+                          <>
+                            <div className="col-md-12 ">
+                              <p className="poppinfnt ">
+                                <span className="me-2 subct">
+                                  {" "}
+                                  Outlet ShopName :
+                                </span>{" "}
+                                {board.outletShopName.charAt(0).toUpperCase() +
+                                  board.outletShopName.slice(1)}
+                              </p>
+                              <p className="poppinfnt ">
+                                <span className="me-2 subct">Board Type :</span>
+                                {board.boardType.charAt(0).toUpperCase() +
+                                  board.boardType.slice(1)}
+                              </p>
+
+                              <p className="poppinfnt ">
+                                <span className="me-2 subct">Category :</span>{" "}
+                                {board.category}
+                              </p>
+
+                              <p className="poppinfnt ">
+                                <span className="me-2 subct">GST Number :</span>{" "}
+                                {board.gstNumber}
+                              </p>
+
+                              <div className="row">
+                                <img
+                                  width={200}
+                                  height={200}
+                                  className="col-md-8 banrrad"
+                                  alt=""
+                                  src={`http://api.srimagicprintz.com/Outlet/${board.ouletInstallationImage}`}
+                                />
+                                <div className="col-md-1 borderlef">
+                                  <span className="border-line"></span>
+                                  <span className="poppinfnt ms-5 me-3">
+                                    {board.height}
+                                  </span>
+                                  <span className="poppinfnt ms-5 me-3">
+                                    {board.unitsOfMeasurment}
+                                  </span>
+                                  <span className="border-line"></span>
+                                </div>
+                              </div>
+
+                              <div className=" mt-2 m-auto mb-2 borderlef1 ">
+                                <span className="border-line2"></span>
+                                <span className=" poppinfnt ms-2 me-1 ">
+                                  {board.width}
+                                </span>
+                                <span className="poppinfnt  me-2">
+                                  {board.unitsOfMeasurment}
+                                </span>
+                                <span className=" border-line2"></span>
+                              </div>
+                              <p className="poppinfnt ">
+                                <span className="me-2 subct">Remark :</span>{" "}
+                                {board.installationCommentOrNote}
+                              </p>
+                            </div>
+                            <hr></hr>{" "}
+                          </>
+                        );
+                      })}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {recceData?.map((recceItem, index) =>
+                      recceItem?.outletName
+                        ?.filter((item) => item._id === OutletId)
+                        .map((outlet) => (
+                          <>
+                            <p>
+                              <span className="cl"> Shop Name:</span>
+                              <span>{outlet.ShopName}</span>
+                            </p>
+                            <p>
+                              <span className="cl"> Partner Code:</span>
+                              <span> {outlet.PartnerCode}</span>
+                            </p>
+                            <p>
+                              <span className="cl"> Category :</span>
+                              <span> {outlet.Category}</span>
+                            </p>
+                            <p>
+                              <span className="cl">Outlet Pincode :</span>
+                              <span> {outlet.OutletPincode}</span>
+                            </p>
+                            <p>
+                              <span className="cl"> Inshop :</span>
+                              <span>
+                                {outlet.Inshop === "Y" || outlet.Inshop === "y"
+                                  ? "Yes"
+                                  : "No"}
+                              </span>
+                            </p>
+                            <p>
+                              <span className="cl"> GSB :</span>
+                              <span>
+                                {outlet.GSB === "Y" || outlet.GSB === "y"
+                                  ? "Yes"
+                                  : "No"}
+                              </span>
+                            </p>
+                            <p>
+                              <span className="cl"> FLBoard :</span>
+                              <span>
+                                {outlet.FLBoard === "Y" ? "Yes" : "No"}
+                              </span>
+                            </p>
+                            <p>
+                              <span className="cl"> Height:</span>
+                              <span>
+                                {outlet.Height}
+                                {outlet.unit}
+                              </span>
+                            </p>
+                            <p>
+                              <span className="cl"> Width :</span>
+                              <span>
+                                {outlet.width}
+                                {outlet.unit}
+                              </span>
+                            </p>
+                            <p>
+                              <span className="cl"> GST Number :</span>
+                              <span>{outlet.GSTNumber}</span>
+                            </p>
+                          </>
+                        ))
+                    )}
+                  </>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}

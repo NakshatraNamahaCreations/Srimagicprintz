@@ -17,11 +17,11 @@ export const Login = () => {
     e.preventDefault();
     try {
       const config = {
-        url: "/auth/auth/login",
+        url: "/loginuser",
         method: "POST",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         data: {
-          email: email,
+          loginnameOrEmail: email,
           password: password,
         },
       };
@@ -66,10 +66,7 @@ export const Login = () => {
               </Row>
               {Visibility ? (
                 <>
-                  <Row
-                    className="mb-3  m-auto"
-                    style={{ position: "relative" }}
-                  >
+                  <Row className="mb-3  m-auto">
                     {" "}
                     <Form.Label>
                       Password <span style={{ color: "red" }}>*</span>
@@ -79,39 +76,43 @@ export const Login = () => {
                       type="text"
                       placeholder="Enter your password "
                     />
+                    <div
+                      style={{
+                        position: "absoulte",
+                        bottom: "32px",
+                        right: "-88%",
+                      }}
+                    >
+                      <VisibilityIcon onClick={handleVisibilityof} />
+                    </div>
                   </Row>
-                  <div
-                    style={{
-                      position: "relative",
-                      bottom: "12%",
-                      right: "-88%",
-                    }}
-                  >
-                    <VisibilityIcon onClick={handleVisibilityof} />
-                  </div>
                 </>
               ) : (
                 <>
                   <Row className="mb-3  m-auto">
                     {" "}
                     <Form.Label>
-                      Password <span style={{ color: "red" }}>*</span>
+                      Password{" "}
+                      <span style={{ color: "red", position: "absolute" }}>
+                        *
+                      </span>
                     </Form.Label>
                     <Form.Control
                       onChange={(e) => setPassword(e.target.value)}
                       type="password"
                       placeholder="Enter your password"
                     />
+                    <div
+                      style={{
+                        position: "relative",
+                        bottom: "32px",
+                        top: "-89%",
+                        right: "-88%",
+                      }}
+                    >
+                      <VisibilityOffIcon onClick={handleVisibility} />
+                    </div>
                   </Row>
-                  <div
-                    style={{
-                      position: "relative",
-                      bottom: "12%",
-                      right: "-88%",
-                    }}
-                  >
-                    <VisibilityOffIcon onClick={handleVisibility} />
-                  </div>
                 </>
               )}
 

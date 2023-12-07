@@ -18,6 +18,8 @@ const QuotationModel = new mongoose.Schema(
     GrandTotal: { type: Number },
     ReeceId: { type: Object },
     outletid: { type: Array },
+    boardIdd: { type: Array },
+    rowIdentifier:{type:Array}
   },
   { timestamps: true }
 );

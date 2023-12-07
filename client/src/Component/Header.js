@@ -10,7 +10,7 @@ function Header() {
   const { notifications } = useGlobalNotification();
   const user = JSON.parse(localStorage.getItem("userData"));
 
-  const userName = user?.name;
+  const userName = user?.displayname;
   const Name = userName?.charAt(0).toUpperCase() + userName?.substr(1);
 
   const location = useLocation();
@@ -112,7 +112,7 @@ function Header() {
                     width={"35px"}
                     height={"35px"}
                     style={{ borderRadius: "100px" }}
-                    src={`http://api.srimagicprintz.com/ProfileImage/${user?.profileImage}`}
+                    src={`http://localhost:8001/ProfileImage/${user?.profileImage}`}
                     alt=""
                   />
 

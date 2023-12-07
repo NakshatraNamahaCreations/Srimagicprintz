@@ -24,7 +24,7 @@ function BillingEstimate() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         let recceData = res.data.RecceData.filter((ele) => ele._id === id);
@@ -39,7 +39,7 @@ function BillingEstimate() {
   const [QuotationData, setQuotationData] = useState([]);
   const getQuotation = async () => {
     try {
-      const res = await axios.get("http://api.srimagicprintz.com/api/getquotation");
+      const res = await axios.get("http://localhost:8001/api/getquotation");
       if (res.status === 200) {
         let quotation = res.data.data;
         let filtered = quotation.filter((ele) => ele.ReeceId === id);
@@ -49,10 +49,11 @@ function BillingEstimate() {
       console.error(err);
     }
   };
-  let TotalAmount = 0;
-  let selectedGSTRate = 0;
-  let Rof = 0;
-  let GrandTotal = 0;
+
+  let TotalAmount2 = 0;
+  let selectedGSTRate2 = 0;
+  let Rof2 = 0;
+  let GrandTotal2 = 0;
 
   const generatePDF = () => {
     const element = document.querySelector(".quotation");
@@ -60,7 +61,6 @@ function BillingEstimate() {
     table.style.overflowX = "auto";
     table.style.width = "100%";
     table.style.maxWidth = "none";
-    // table.style.border = "1px solid black";
 
     html2canvas(element).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
@@ -86,16 +86,7 @@ function BillingEstimate() {
             />
           </a>
         </div>
-        {/* <div className="row">
-          <Form.Group className="col-md-3 ">
-            <Form.Label>Add Rate</Form.Label>
-            <Form.Control value={"23"} />
-          </Form.Group>{" "}
-          <Form.Group className="col-md-3">
-            <Form.Label>Add Amount</Form.Label>
-            <Form.Control value={"245"} />
-          </Form.Group>{" "}
-        </div> */}
+
         <div className="containerPadding mt-3 quotation">
           <Table bordered className="table">
             <thead>
@@ -138,12 +129,12 @@ function BillingEstimate() {
                       filteredOutlet?.transportationRate[outletIndex];
                     let transportationcost =
                       filteredOutlet?.transportationcost[outletIndex];
-                    TotalAmount = filteredOutlet?.TotalAmount;
+                    TotalAmount2 = filteredOutlet?.TotalAmount;
 
-                    selectedGSTRate = filteredOutlet?.GST;
-                    Rof = filteredOutlet?.ROF;
+                    selectedGSTRate2 = filteredOutlet?.GST;
+                    Rof2 = filteredOutlet?.ROF;
 
-                    GrandTotal = Number(filteredOutlet?.GrandTotal.toFixed(2));
+                    GrandTotal2 = Number(filteredOutlet?.GrandTotal.toFixed(2));
 
                     return recceData?.flatMap((receeitem) =>
                       receeitem?.outletName
@@ -196,7 +187,7 @@ function BillingEstimate() {
                   <td className="thstyle poppinfnt" colSpan={"12"}></td>
                   <td className="thstyle poppinfnt bold">Total Amount</td>
                   <td className="thstyle poppinfnt bold">
-                    {TotalAmount.toLocaleString("en-IN", {
+                    {TotalAmount2.toLocaleString("en-IN", {
                       style: "currency",
                       currency: "INR",
                     })}
@@ -205,18 +196,18 @@ function BillingEstimate() {
                 <tr>
                   <td className="thstyle poppinfnt" colSpan={"12"}></td>
                   <td className="thstyle poppinfnt bold">GST @ </td>
-                  <td className="thstyle poppinfnt bold">{selectedGSTRate}</td>
+                  <td className="thstyle poppinfnt bold">{selectedGSTRate2}</td>
                 </tr>
 
                 <tr>
                   <td className="thstyle poppinfnt" colSpan={"12"}></td>
                   <td className="thstyle poppinfnt bold">rof</td>
-                  <td className="thstyle poppinfnt bold">{Rof}</td>
+                  <td className="thstyle poppinfnt bold">{Rof2}</td>
                 </tr>
                 <tr>
                   <td className="thstyle poppinfnt" colSpan={"12"}></td>
                   <td className="thstyle poppinfnt bold">Grand Total</td>
-                  <td className="thstyle poppinfnt bold">{GrandTotal}</td>
+                  <td className="thstyle poppinfnt bold">{GrandTotal2}</td>
                 </tr>
               </>
             </tbody>

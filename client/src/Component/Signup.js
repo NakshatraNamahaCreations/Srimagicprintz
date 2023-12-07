@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -12,58 +12,61 @@ export function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [cpassword, setcpassword] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
-  const [profileImage, setProfileImage] = useState(null);
+  const [profimg, setprofimg] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setProfileImage(file);
-
-    if (file) {
+  useEffect(() => {
+    if (profimg) {
       const reader = new FileReader();
 
       reader.onloadend = () => {
         setImagePreview(reader.result);
       };
 
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(profimg);
     } else {
       setImagePreview("");
     }
-  };
+  }, []);
 
+  const formdata = new FormData();
   const signupUser = async (e) => {
     e.preventDefault();
+    if (!name || !mobileNumber || !email || !password || !cpassword) {
+      alert("Enter all fields");
+    }
+    if (password !== cpassword) {
+      alert("Password doestn't matched");
+    } else {
+      formdata.append("loginnameOrEmail", email);
+      formdata.append("password", password);
+      formdata.append("displayname", name);
+      formdata.append("contactno", mobileNumber);
+      formdata.append("confirmPassword", cpassword);
+      formdata.append("profileImage", profimg);
 
-    const formData = new FormData();
-    formData.append("email", email);
-    formData.append("password", password);
-    formData.append("name", name);
-    formData.append("mobileNumber", mobileNumber);
-    formData.append("profileImage", profileImage);
-
-    try {
-      const config = {
-        url: "/auth/auth/signup",
-        method: "POST",
-        baseURL: "http://api.srimagicprintz.com/api",
-        data: formData,
-      };
-
-      let res = await axios(config);
-
-      if (res.status === 200) {
-        alert("Signup success");
-        window.location.assign("/");
-      } else {
-        alert("Email or Mobile already exists");
+      try {
+        const config = {
+          url: "/adduser",
+          baseURL: "http://localhost:8001/api",
+          method: "post",
+          headers: { "content-type": "multipart/form-data" },
+          data: formdata,
+        };
+        await axios(config).then(function (response) {
+          if (response.status === 200) {
+            alert("Account Created");
+            // window.location.assign("/Users");
+          }
+        });
+      } catch (error) {
+        console.error(error);
+        alert("Not Added");
       }
-    } catch (err) {
-      alert("Failed to signup", err);
     }
   };
-
   return (
     <>
       <div className="row m-auto mt-5 p-2">
@@ -97,7 +100,7 @@ export function Signup() {
                   </Form.Label>
                   <Form.Control
                     name="image"
-                    onChange={handleImageChange}
+                    onChange={(e) => setprofimg(e.target.files[0])}
                     id="file-upload"
                     type="file"
                     accept="image/*"
@@ -145,6 +148,18 @@ export function Signup() {
                 />
               </Form.Group>
               <Form.Group as={Col} md="6">
+                <Form.Label>Confirm Password</Form.Label>
+                <Form.Control
+                  name="cpassword"
+                  id="cpassword"
+                  value={cpassword}
+                  onChange={(e) => setcpassword(e.target.value)}
+                  required
+                  type="text"
+                  placeholder="confirm password"
+                />
+              </Form.Group>
+              <Form.Group as={Col} md="12">
                 <Form.Label>Email</Form.Label>
                 <Form.Control
                   name="email"

@@ -55,7 +55,7 @@ export default function Trackassignedjob() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -354,7 +354,7 @@ export default function Trackassignedjob() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -394,7 +394,7 @@ export default function Trackassignedjob() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://localhost:8001/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -430,83 +430,16 @@ export default function Trackassignedjob() {
     }
   });
 
+
+
+ 
   return (
     <>
       <Header />
 
       {!SelecteddesignIndex ? (
         <div className="row  m-auto containerPadding">
-          {/* <div className="row ">
-            <Col className="col-md-1 mb-3">
-              <Form.Control
-                as="select"
-                value={rowsPerPage1}
-                onChange={handleRowsPerPageChange}
-              >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={30}>30</option>
-                <option value={50}>50</option>
-                <option value={80}>80</option>
-                <option value={100}>100</option>
-                <option value={140}>140</option>
-                <option value={200}>200</option>
-                <option value={300}>300</option>
-                <option value={400}>400</option>
-                <option value={600}>600</option>
-                <option value={700}>700</option>
-                <option value={1000}>1000</option>
-                <option value={1500}>1500</option>
-                <option value={10000}>10000</option>
-              </Form.Control>
-            </Col>
-            <Col className="col-md-5">
-              <div className="row">
-                <div className="col-md-5 ">
-                  <Form.Control
-                    type="date"
-                    value={filterStartDate}
-                    onChange={handleFilterStartDateChange}
-                  />
-                </div>
-                <div className="col-md-5 ">
-                  <Form.Control
-                    type="date"
-                    value={filterEndDate}
-                    onChange={handleFilterEndDateChange}
-                  />
-                </div>
-                <div className="col-md-2 ">
-                  <Button onClick={handleClearDateFilters}>Clear</Button>
-                </div>
-              </div>
-            </Col>
-            <Col className="col-md-1">
-              <Button onClick={handleExportPDF}> Download</Button>
-            </Col>
-            <Col className="col-md-1">
-              {moreoption ? (
-                <>
-                  <p
-                    className="mroe m-auto"
-                    onClick={() => setselectAction(!selectAction)}
-                    style={{
-                      border: "1px solid white",
-                      width: "38px",
-                      height: "38px",
-                      textAlign: "center",
-                      borderRadius: "100px",
-                      backgroundColor: "#F5F5F5",
-                    }}
-                  >
-                    <span className="text-center">
-                      <MoreVertIcon />
-                    </span>
-                  </p>
-                </>
-              ) : null}
-            </Col>
-          </div> */}
+        
           <div className="row mb-4">
             <div className="col-md-3 ">
               <div className="col-md-8  mb-2">
@@ -590,9 +523,9 @@ export default function Trackassignedjob() {
                   <th className="th_s p-1">FL Board</th>
                   <th className="th_s p-1">GSB</th>
                   <th className="th_s p-1">Inshop</th>
-                  <th className="th_s p-1">Category</th>
-                  <th className="th_s p-1">Hight</th>
-                  <th className="th_s p-1">Width</th>
+                  <th className="th_s p-1">Status</th>
+                  {/*<th className="th_s p-1">Hight</th>
+                  <th className="th_s p-1">Width</th> */}
                   <th className="th_s p-1">Date</th>
                   <th className="th_s p-1">Action</th>
                 </tr>
@@ -604,9 +537,6 @@ export default function Trackassignedjob() {
                       const pincodePattern = /\b\d{6}\b/;
 
                       let JobNob = 0;
-                      // const desiredClient = ClientInfo?.client?.find(
-                      //   (client) => client._id === recceItem.BrandName
-                      // );
 
                       filteredData?.forEach((recceItem, recceIndex) => {
                         recceItem?.outletName?.forEach((item) => {
@@ -663,15 +593,44 @@ export default function Trackassignedjob() {
                           <td className="td_S p-1">{outlet?.FLBoard}</td>
                           <td className="td_S p-1">{outlet?.GSB}</td>
                           <td className="td_S p-1">{outlet?.Inshop}</td>
-                          <td className="td_S p-1">{outlet?.Category}</td>
                           <td className="td_S p-1">
+                            <p className="p-0 m-0">
+                              {" "}
+                              <span style={{ color: "green" }}>Recce</span>{" "}
+                              {outlet.RecceStatus}
+                            </p>
+                            <p className="p-0 m-0">
+                              <span style={{ color: "green" }}>Design</span>{" "}
+                              {outlet.Designstatus}
+                            </p>{" "}
+                            <p className="p-0 m-0">
+                              {" "}
+                              <span style={{ color: "green" }}>
+                                Printing
+                              </span>{" "}
+                              {outlet.printingStatus}
+                            </p>
+                            <p className="p-0 m-0">
+                              <span style={{ color: "green" }}>
+                                Fabricationn
+                              </span>{" "}
+                              {outlet.fabricationstatus}
+                            </p>{" "}
+                            <p className="p-0 m-0">
+                              <span style={{ color: "green" }}>
+                                Installation
+                              </span>{" "}
+                              {outlet.installationSTatus}
+                            </p>
+                          </td>
+                          {/* <td className="td_S p-1">
                             {outlet?.height}
                             {outlet?.unit}
                           </td>
                           <td className="td_S p-1">
                             {outlet?.width}
                             {outlet?.unit}
-                          </td>
+                          </td> */}
                           <td className="td_S p-2 text-nowrap text-center">
                             {recceItem.createdAt
                               ? new Date(recceItem.createdAt)

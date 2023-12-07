@@ -14,43 +14,26 @@ import CheckIcon from "@mui/icons-material/Check";
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 
 export default function Reports() {
-  const ApiURL = process.env.REACT_APP_API_URL;
   const [recceData, setRecceData] = useState([]);
-  const [searchshopName, setSearchshopName] = useState("");
-  const [searcharea, setSearcharea] = useState("");
-  const [searchcity, setSearchcity] = useState("");
-  const [searchcontactNumber, setSearchcontactNumber] = useState("");
-  const [searchpincode, setSearchpincode] = useState("");
-  const [searchzone, setSearchzone] = useState("");
-  const [searchdate, setSearchDate] = useState("");
-  const [searchstatus, setSearchStatus] = useState("");
-  const [searchVendorName, setSearchVendorName] = useState("");
-  const [searchSINO, setSearchSINO] = useState("");
 
   const [displayedData, setDisplayedData] = useState([]);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [SearchCategory, setSearchCategory] = useState("");
+
   const [CategoryData, setCategoryData] = useState(null);
-  const [vendordata, setVendorData] = useState(null);
+
   const [getreccedata, setgetreccedata] = useState("");
   const [SelecteddesignIndex, setSelectedDesignIndex] = useState(false);
-  const [SearchclientName, setSearchclientName] = useState("");
-  const [searchdatastatus, setSearchdatastatus] = useState("");
+
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
   const [moreoption, setmoreoption] = useState(false);
   const [selectedRecceItems, setSelectedRecceItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [selectedClientName, setSelectedClientName] = useState(null);
-  const [report, setReport] = useState(false);
-  const [selectedcategory, setselectedcategory] = useState("");
+
   const [rowsPerPage1, setRowsPerPage1] = useState(5);
   const [selectedBrandNames, setSelectedBrandNames] = useState("");
-  // const searchReport = () => {
-  //   setReport(!report);
-  // };
+  const [selectedDepartment, setSelectedDepartment] = useState([]);
   const [ClientInfo, setClientInfo] = useState([]);
+
   useEffect(() => {
     getAllRecce();
     getAllClientsInfo();
@@ -59,7 +42,7 @@ export default function Reports() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://localhost:8001/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -71,7 +54,7 @@ export default function Reports() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
+        "http://localhost:8001/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -85,7 +68,7 @@ export default function Reports() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -94,159 +77,10 @@ export default function Reports() {
       console.error(err);
     }
   };
-  useEffect(() => {
-    const filteredClients = () => {
-      let results = [...recceData];
 
-      if (searchSINO) {
-        results = results.filter((item, index) => {
-          return (index + 1).toString().includes(searchSINO);
-        });
-      }
-
-      if (SearchCategory) {
-        results = results.filter((item) => {
-          const categoryid = item?.category?.[0];
-          const selectedcategory = CategoryData?.find(
-            (ele) => ele._id === categoryid
-          );
-
-          return (
-            selectedcategory &&
-            selectedcategory.categoryName
-              .toLowerCase()
-              .includes(SearchCategory.toLowerCase())
-          );
-        });
-      }
-
-      if (SearchclientName) {
-        results = results.filter((item) =>
-          item.ClientName?.toLowerCase().includes(
-            SearchclientName.toLowerCase()
-          )
-        );
-      }
-      if (searchshopName) {
-        results = results.filter((item) =>
-          item.ShopName?.toLowerCase().includes(searchshopName.toLowerCase())
-        );
-      }
-      if (searchcontactNumber) {
-        results = results.filter((item) => {
-          const contactNumber1 =
-            item.ContactNumber && item.ContactNumber.toString();
-          return contactNumber1?.includes(searchcontactNumber);
-        });
-      }
-      if (searcharea) {
-        const searchTerm = searcharea.toLowerCase();
-        results = results.filter((item) => {
-          const area = item.Area?.toLowerCase();
-          return (
-            area.indexOf(searchTerm) !== -1 || area.indexOf(searchTerm) !== -1
-          );
-        });
-      }
-      if (searchcity) {
-        const searchTerm = searchcity.toLowerCase();
-        results = results.filter((item) => {
-          const city = item.City?.toLowerCase();
-
-          return (
-            city.indexOf(searchTerm) !== -1 || city.indexOf(searchTerm) !== -1
-          );
-        });
-      }
-
-      if (searchzone) {
-        results = results.filter((item) => {
-          const Zone1 = item.Zone && item.Zone.toString();
-          return Zone1?.includes(searchzone);
-        });
-      }
-      if (searchpincode) {
-        results = results.filter((item) => {
-          const Pincode1 = item.Pincode && item.Pincode.toString();
-          return Pincode1?.includes(searchpincode);
-        });
-      }
-
-      if (searchdate) {
-        const searchDate = new Date(searchdate);
-
-        if (!isNaN(searchDate)) {
-          results = results.filter((item) => {
-            if (!item.createdAt) {
-              return false;
-            }
-
-            const createdAtDate = new Date(item.createdAt);
-
-            // Compare date components (year, month, day)
-            return (
-              createdAtDate.getFullYear() === searchDate.getFullYear() &&
-              createdAtDate.getMonth() === searchDate.getMonth() &&
-              createdAtDate.getDate() === searchDate.getDate()
-            );
-          });
-        }
-      }
-
-      if (searchdatastatus) {
-        results = results.filter((item) => {
-          const status1 = item.datastatus && item.datastatus.toString();
-          return status1?.includes(searchdatastatus);
-        });
-      }
-
-      const startIndex = (currentPage - 1) * rowsPerPage;
-      const endIndex = Math.min(startIndex + rowsPerPage, results.length);
-      const dataToDisplay = results.slice(startIndex, endIndex);
-      setDisplayedData(dataToDisplay);
-    };
-    filteredClients();
-  }, [
-    recceData,
-    SearchclientName,
-    searchshopName,
-    searchVendorName,
-    searchcontactNumber,
-    searcharea,
-    searchcity,
-    searchpincode,
-    searchzone,
-    searchdate,
-    searchdatastatus,
-    searchSINO,
-    rowsPerPage,
-  ]);
   const [brandName, setbrandName] = useState(false);
+  const [departmentName, setdepartmentName] = useState(false);
 
-  const [filter, setFilter] = useState("All");
-
-  const filterDate = (data) => {
-    return data?.filter((item) => {
-      const createdAtDate = moment(item.createdAt, "YYYY-MM-DD");
-      const startDate = filterStartDate
-        ? moment(filterStartDate, "YYYY-MM-DD")
-        : null;
-      const endDate = filterEndDate
-        ? moment(filterEndDate, "YYYY-MM-DD")
-        : null;
-
-      if (startDate && !createdAtDate.isSameOrAfter(startDate)) {
-        return false;
-      }
-
-      if (endDate && !createdAtDate.isSameOrBefore(endDate)) {
-        return false;
-      }
-
-      return true;
-    });
-  };
-  const filteredData = filterDate(displayedData);
   const handleToggleSelect = (itemId) => {
     let updatedSelectedRecceItems;
 
@@ -274,6 +108,7 @@ export default function Reports() {
     setmoreoption(!selectAll);
   };
   let serialNumber;
+
   const handleRowsPerPageChange = (e) => {
     const newRowsPerPage = parseInt(e.target.value);
     setRowsPerPage1(newRowsPerPage);
@@ -281,127 +116,9 @@ export default function Reports() {
     rowsDisplayed = 0;
   };
   let rowsDisplayed = 0;
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-
-  const createdAt = getreccedata.createdAt;
-  let monthName = "";
-
-  if (createdAt) {
-    const date = new Date(createdAt);
-    const monthNumber = date.getMonth();
-    monthName = monthNames[monthNumber];
-  }
 
   const [selectedCheckboxes, setSelectedCheckboxes] = useState([]);
-
-  const handleCheckboxChange = (event) => {
-    const { value } = event.target;
-    if (selectedCheckboxes.includes(value)) {
-      setSelectedCheckboxes(
-        selectedCheckboxes.filter((item) => item !== value)
-      );
-    } else {
-      setSelectedCheckboxes([...selectedCheckboxes, value]);
-    }
-  };
-
-  // const handleSelectClientName = () => {
-  //   setbrandName(!brandName);
-  // };
-  const handleFilterChange = (event) => {
-    const selectedFilter = event.target.value;
-    setFilter(selectedFilter);
-  };
-
-  const filteredData1 = (selecteddate) => {
-    if (filter === "All") {
-      return recceData;
-    }
-
-    const now = moment();
-
-    switch (filter) {
-      case "Today":
-        return recceData.filter((item) =>
-          moment(item.createdAt, "YYYY-MM-DD").isSame(now, "day")
-        );
-      case "Yesterday":
-        return recceData.filter((item) =>
-          moment(item.createdAt, "YYYY-MM-DD").isSame(
-            now.clone().subtract(1, "days"),
-            "day"
-          )
-        );
-      case "ThisWeek":
-        return recceData.filter((item) =>
-          moment(item.createdAt, "YYYY-MM-DD").isBetween(
-            now.clone().startOf("week"),
-            now,
-            undefined,
-            "[]"
-          )
-        );
-      case "LastWeek":
-        return recceData.filter((item) =>
-          moment(item.createdAt, "YYYY-MM-DD").isBetween(
-            now.clone().subtract(1, "weeks").startOf("week"),
-            now.clone().subtract(1, "weeks").endOf("week"),
-            undefined,
-            "[]"
-          )
-        );
-      case "ThisMonth":
-        return recceData.filter((item) =>
-          moment(item.createdAt, "YYYY-MM-DD").isBetween(
-            now.clone().startOf("month"),
-            now,
-            undefined,
-            "[]"
-          )
-        );
-      case "LastMonth":
-        return recceData.filter((item) =>
-          moment(item.createdAt, "YYYY-MM-DD").isBetween(
-            now.clone().subtract(1, "months").startOf("month"),
-            now.clone().subtract(1, "months").endOf("month"),
-            undefined,
-            "[]"
-          )
-        );
-      default:
-        return recceData;
-    }
-  };
-  console.log(selectedCheckboxes, "selectedCheckboxes");
-  const searchReport = (selectedDate) => {
-    const selectedIds = selectedCheckboxes.map((ele) => {
-      const parts = ele.split("_");
-      return parts[1];
-    });
-
-    const filteredDataByDate = filteredData1(selectedDate);
-
-    // Filter recceData based on selectedIds
-    const filteredRecceData = filteredDataByDate.filter((item) =>
-      selectedIds.some((id) => id === item._id)
-    );
-
-    setSelectedDesignIndex(!SelecteddesignIndex);
-    setDisplayedData(filteredRecceData);
-  };
+  const [selectedCheckboxesDep, setSelectedCheckboxesDep] = useState([]);
 
   const handleSelectClientName1 = () => {
     const selectedBrandNames = selectedCheckboxes.map((value) => {
@@ -416,6 +133,7 @@ export default function Reports() {
     setSelectedBrandNames(selectedBrandNames.join(", "));
     setbrandName(!brandName);
   };
+
   const handleCheckboxChange1 = (event, brandName, recceItemId) => {
     const updatedCheckboxes = event.target.checked
       ? [...selectedCheckboxes, `${brandName}_${recceItemId}`]
@@ -426,11 +144,190 @@ export default function Reports() {
     setSelectedCheckboxes(updatedCheckboxes);
   };
 
+  const handleCheckboxChangeDepart = (event, depart) => {
+    const updatedCheckboxesd = event.target.checked
+      ? [...selectedCheckboxesDep, depart]
+      : selectedCheckboxesDep.filter((checkbox) => !checkbox.includes(depart));
+
+    setSelectedCheckboxesDep(updatedCheckboxesd);
+  };
+
+  const department = [
+    "Recce",
+    "Design",
+    "Printing",
+    "Fabrication",
+    "Installation",
+  ];
+
+  const handleSelectDepartment = () => {
+    const selectedDepartNames = selectedCheckboxesDep.map((value) => {
+      const [department] = value.split("_");
+      return department;
+    });
+    setSelectedDepartment([selectedDepartNames.join(", ")]);
+    setdepartmentName(!departmentName);
+  };
+
+  const handleFilterStartDateChange = (event) => {
+    setFilterStartDate(event.target.value);
+  };
+
+  const handleFilterEndDateChange = (event) => {
+    setFilterEndDate(event.target.value);
+  };
+  const handleClearDateFilters = () => {
+    setFilterStartDate("");
+    setFilterEndDate("");
+  };
+
+  const filterAndSearchData = (
+    filterStartDate,
+    filterEndDate,
+    selectedCheckboxes,
+    selectedDepartment
+  ) => {
+    if (!Array.isArray(recceData)) {
+      console.error("Invalid data format: recceData is not an array.");
+      return [];
+    }
+
+    const selectedIds = selectedCheckboxes?.map((ele) => ele.split("_")[1]);
+
+    const filteredRecceDataWithDates = recceData.flatMap((recce) => {
+      return recce.outletName.filter((item) => {
+        const createdAtDate = moment(
+          item.createdAt ?? "",
+          ["YYYY-MM-DDTHH:mm:ss.SSSZ", "YYYY-MM-DD"],
+          true
+        );
+
+        const startDate = filterStartDate
+          ? moment(filterStartDate, "YYYY-MM-DD", true)
+          : null;
+        const endDate = filterEndDate
+          ? moment(filterEndDate, "YYYY-MM-DD", true)
+          : null;
+
+        const isDateInRange =
+          (!startDate || createdAtDate.isSameOrAfter(startDate)) &&
+          (!endDate || createdAtDate.isSameOrBefore(endDate));
+
+        const isSelectedId = selectedIds.includes(recce._id);
+
+        return isDateInRange && isSelectedId;
+      });
+    });
+
+    const filteredData = filteredRecceDataWithDates.filter((outlet) => {
+      let shouldInclude = false;
+
+      for (const department of selectedDepartment) {
+        switch (department) {
+          case "Recce":
+            shouldInclude = true;
+            break;
+          case "Design":
+            shouldInclude = outlet?.RecceStatus?.includes("Completed");
+            break;
+          case "Printing":
+            shouldInclude = outlet?.RecceStatus?.includes("Completed");
+            break;
+          case "Fabrication":
+            shouldInclude = outlet?.OutlateFabricationNeed?.includes("Yes");
+            break;
+          case "Installation":
+            shouldInclude = outlet?.OutlateFabricationNeed?.includes("Yes");
+            break;
+          default:
+            shouldInclude = true;
+            break;
+        }
+
+        if (shouldInclude) {
+          break;
+        }
+      }
+
+      return shouldInclude;
+    });
+
+    setSelectedDesignIndex(!SelecteddesignIndex);
+    setDisplayedData(filteredData);
+  };
+
+  const handleExportPDF = () => {
+    if (!selectedRecceItems || selectedRecceItems?.length === 0) {
+      alert("Please select at least one record to export");
+      return;
+    }
+
+    if (!recceData) {
+      alert("No data available for export");
+      return;
+    }
+
+    const pdf = new jsPDF();
+    const tableColumn = [
+      "SI.No",
+      "Shop Name",
+      "Contact",
+      "Address",
+      "City",
+      "Zone",
+      "Date",
+      "Status",
+    ];
+
+    let serialNumber = 0;
+
+    const tableData = selectedRecceItems?.flatMap((outletidd) =>
+      recceData.flatMap((Ele) =>
+        Ele?.outletName
+          ?.filter((outle) => outle?._id === outletidd)
+          .map((item) => ({
+            siNo: ++serialNumber,
+            shopName: item.ShopName,
+            contact: item.OutletContactNumber,
+            address: item.OutletAddress,
+            city: item.OutletCity,
+            zone: item.OutletZone,
+            date: item.createdAt
+              ? new Date(item.createdAt).toISOString().slice(0, 10)
+              : "",
+            status: item.RecceStatus,
+            // height: item.height,
+            // width: item.width,
+          }))
+      )
+    );
+
+    if (tableData.length === 0) {
+      alert("No data available for the selected records");
+      return;
+    }
+
+    pdf.autoTable({
+      head: [tableColumn],
+      body: tableData?.map((item) => Object?.values(item)),
+      startY: 20,
+      styles: {
+        fontSize: 6,
+      },
+      columnStyles: {
+        0: { cellWidth: 10 },
+      },
+      bodyStyles: { borderColor: "black", border: "1px solid black" },
+    });
+
+    pdf.save("exported_data.pdf");
+  };
+
   return (
     <>
       <Header />
       {SelecteddesignIndex ? (
-        <div className="row  m-auto containerPadding">
+        <div className="row  m-auto ">
           <div className="row mb-3">
             <div>
               <ArrowCircleLeftIcon
@@ -463,121 +360,14 @@ export default function Reports() {
                 <option value={10000}>10000</option>
               </Form.Control>
             </div>
+            <Col className="col-md-1">
+              <Button onClick={handleExportPDF}> Download</Button>
+            </Col>
           </div>
 
           <div className="row ">
             <table>
               <thead className="t-c">
-                <tr className="tr2">
-                  <th className="p-1"></th>
-                  <th className="p-1"></th>
-
-                  <th className="p-1"></th>
-                  <th className="p-1"></th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder="Shop name"
-                      value={searchshopName}
-                      onChange={(e) => setSearchshopName(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    <input
-                      className="col-md-1"
-                      placeholder="owner name"
-                      value={SearchclientName}
-                      onChange={(e) => setSearchclientName(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-
-                  <th></th>
-                  <th className="p-1">
-                    <input
-                      className="col-md-1"
-                      placeholder="Contact"
-                      value={searchcontactNumber}
-                      onChange={(e) => setSearchcontactNumber(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    <input
-                      className="col-md-1"
-                      placeholder=" zone"
-                      value={searchzone}
-                      onChange={(e) => setSearchzone(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-
-                  <th>
-                    <input
-                      className="col-md-1"
-                      placeholder=" pincode"
-                      value={searchpincode}
-                      onChange={(e) => setSearchpincode(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-
-                  <th className="p-1">
-                    <input
-                      className="col-md-1"
-                      placeholder=" city"
-                      value={searchcity}
-                      onChange={(e) => setSearchcity(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-                  <th className="p-1"></th>
-
-                  <th className="p-1"></th>
-                  <th className="p-1"> </th>
-                  <th className="p-1">
-                    <input
-                      className="col-md-1"
-                      placeholder=" category"
-                      value={SearchCategory}
-                      onChange={(e) => setSearchCategory(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-                  <th className="p-1"></th>
-                  <th className="p-1"></th>
-                  <th className="p-1">
-                    <input
-                      className="col-md-1"
-                      placeholder="Vendor name"
-                      value={searchVendorName}
-                      onChange={(e) => setSearchVendorName(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    <input
-                      className="col-md-1"
-                      placeholder=" date"
-                      value={searchdate}
-                      onChange={(e) => setSearchDate(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-                  <th className="p-1">
-                    {" "}
-                    <input
-                      className="col-md-1"
-                      placeholder=" status"
-                      value={searchdatastatus}
-                      onChange={(e) => setSearchdatastatus(e.target.value)}
-                      style={{ width: "55px" }}
-                    />
-                  </th>
-                </tr>
-
                 <tr>
                   <th className="th_s ">
                     <input
@@ -593,7 +383,7 @@ export default function Reports() {
                   </th>
                   <th className="th_s ">SI.No</th>
                   <th className="th_s ">Job.No</th>
-                  <th className="th_s ">Brand </th>
+
                   <th className="th_s ">Shop Name</th>
                   <th className="th_s ">Client Name</th>
                   <th className="th_s ">State</th>
@@ -604,105 +394,91 @@ export default function Reports() {
                   <th className="th_s ">FL Board</th>
                   <th className="th_s ">GSB</th>
                   <th className="th_s ">Inshop</th>
-                  <th className="th_s ">Category</th>
-                  <th className="th_s ">Height</th>
-                  <th className="th_s ">Width</th>
-                  <th className="th_s ">Vendor Name</th>
+
                   <th className="th_s ">Date</th>
                   <th className="th_s ">Status</th>
                 </tr>
               </thead>
 
               <tbody>
-                {displayedData?.map((recceItem, index) =>
-                  recceItem?.outletName?.map((outlet, outletArray) => {
-                    if (rowsDisplayed < rowsPerPage1) {
-                      // const selectedVendorId = outlet?.vendor;
-                      // const vendor = selectedVendorId
-                      //   ? vendordata?.find(
-                      //       (ele) => ele?._id === selectedVendorId
-                      //     )
-                      //   : null;
-                      let JobNob = 0;
-                      const desiredClient = ClientInfo?.client?.find(
-                        (client) => client._id === recceItem.BrandName
-                      );
-                      recceData?.forEach((recceItem, recceIndex) => {
-                        recceItem?.outletName?.forEach((item) => {
-                          if (outlet._id === item._id) {
-                            JobNob = recceIndex + 1;
+                {recceData?.map((recceItem) =>
+                  recceItem?.outletName?.flatMap((item, outletIndex) => {
+                    return displayedData
+                      .filter((ele) => ele._id === item._id)
+                      .map((outlet) => {
+                        if (rowsDisplayed < rowsPerPage1) {
+                          let JobNob = 0;
+
+                          recceData?.forEach((recceItem, recceIndex) => {
+                            recceItem?.outletName?.forEach((item) => {
+                              if (outlet._id === item._id) {
+                                JobNob = recceIndex + 1;
+                              }
+                            });
+                          });
+                          rowsDisplayed++;
+                          const pincodePattern = /\b\d{6}\b/;
+
+                          const address = outlet?.OutletAddress;
+                          const extractedPincode =
+                            address?.match(pincodePattern);
+
+                          if (extractedPincode) {
+                            outlet.OutletPincode = extractedPincode[0];
                           }
-                        });
+
+                          return (
+                            <tr className="tr_C" key={outlet._id}>
+                              <td className="td_S p-1">
+                                <input
+                                  style={{
+                                    width: "15px",
+                                    height: "15px",
+                                    marginRight: "5px",
+                                  }}
+                                  type="checkbox"
+                                  checked={selectedRecceItems.includes(
+                                    outlet._id
+                                  )}
+                                  onChange={() =>
+                                    handleToggleSelect(outlet._id)
+                                  }
+                                />
+                              </td>
+                              <td className="td_S p-1">{outletIndex + 1}</td>
+                              <td className="td_S p-1">Job{JobNob}</td>
+
+                              <td className="td_S p-1">{outlet.ShopName}</td>
+                              <td className="td_S p-1">
+                                {recceItem.BrandName}
+                              </td>
+                              <td className="td_S p-1">{outlet.State}</td>
+                              <td className="td_S p-1">
+                                {outlet.OutletContactNumber}
+                              </td>
+
+                              <td className="td_S p-1">{outlet.OutletZone}</td>
+                              <td className="td_S p-1">
+                                {extractedPincode ? extractedPincode[0] : ""}
+                              </td>
+                              <td className="td_S p-1">{outlet.OutletCity}</td>
+                              <td className="td_S p-1">{outlet.FLBoard}</td>
+                              <td className="td_S p-1">{outlet.GSB}</td>
+                              <td className="td_S p-1">{outlet.Inshop}</td>
+
+                              <td className="td_S ">
+                                {recceItem.createdAt
+                                  ? new Date(recceItem.createdAt)
+                                      .toISOString()
+                                      .slice(0, 10)
+                                  : ""}
+                              </td>
+                              <td className="td_S p-1">{outlet.RecceStatus}</td>
+                            </tr>
+                          );
+                        }
+                        return null;
                       });
-                      rowsDisplayed++;
-                      const pincodePattern = /\b\d{6}\b/;
-
-                      const address = outlet?.OutletAddress;
-                      const extractedPincode = address?.match(pincodePattern);
-
-                      if (extractedPincode) {
-                        outlet.OutletPincode = extractedPincode[0];
-                      }
-
-                      return (
-                        <tr className="tr_C" key={outlet._id}>
-                          <td className="td_S p-1">
-                            <input
-                              style={{
-                                width: "15px",
-                                height: "15px",
-                                marginRight: "5px",
-                              }}
-                              type="checkbox"
-                              checked={selectedRecceItems.includes(outlet._id)}
-                              onChange={() => handleToggleSelect(outlet._id)}
-                            />
-                          </td>
-                          <td className="td_S p-1">{outletArray + 1}</td>
-                          <td className="td_S p-1">Job{JobNob}</td>
-                          <td className="td_S p-1">
-                            {desiredClient?.clientsBrand}
-                          </td>
-                          <td className="td_S p-1">{outlet.ShopName}</td>
-                          <td className="td_S p-1">{outlet.ClientName}</td>
-                          <td className="td_S p-1">{outlet.State}</td>
-                          <td className="td_S p-1">
-                            {outlet.OutletContactNumber}
-                          </td>
-
-                          <td className="td_S p-1">{outlet.OutletZone}</td>
-                          <td className="td_S p-1">
-                            {extractedPincode ? extractedPincode[0] : ""}
-                          </td>
-                          <td className="td_S p-1">{outlet.OutletCity}</td>
-                          <td className="td_S p-1">{outlet.FLBoard}</td>
-                          <td className="td_S p-1">{outlet.GSB}</td>
-                          <td className="td_S p-1">{outlet.Inshop}</td>
-                          <td className="td_S p-1">{outlet.Category}</td>
-                          <td className="td_S p-1">
-                            {outlet.height}
-                            {outlet.unit}
-                          </td>
-                          <td className="td_S p-1">
-                            {outlet.width}
-                            {outlet.unit}
-                          </td>
-
-                          {/* <td className="td_S p-1">
-                            {vendor?.VendorFirstName}
-                          </td> */}
-                          <td className="td_S ">
-                            {recceItem.createdAt
-                              ? new Date(recceItem.createdAt)
-                                  .toISOString()
-                                  .slice(0, 10)
-                              : ""}
-                          </td>
-                          <td className="td_S p-1">{outlet.RecceStatus}</td>
-                        </tr>
-                      );
-                    }
-                    return null;
                   })
                 )}
               </tbody>
@@ -710,103 +486,177 @@ export default function Reports() {
           </div>
         </div>
       ) : (
-        <div className="row m-auto containerPadding">
-          <Form className="col-md-10 m-auto">
-            <Row>
-              <Col className="col-md-4 mb-2 m-auto">
-                {" "}
-                <>
-                  <Form.Label>Select Clients name</Form.Label>
-                  <div>
-                    <Form.Control
-                      placeholder="select clients name"
-                      value={selectedBrandNames}
-                      onClick={() => setbrandName(!brandName)}
-                      readOnly
-                    />
-                  </div>
+        <div className="row m-auto mt-2 ">
+          <Row>
+            <Col className="col-md-3 mb-2 m-auto">
+              {" "}
+              <>
+                <Form.Label>Select Department </Form.Label>
+                <div>
+                  <Form.Control
+                    placeholder="Select departments"
+                    value={selectedDepartment}
+                    onClick={() => setdepartmentName(!departmentName)}
+                    readOnly
+                  />
+                </div>
 
-                  {brandName ? (
-                    <div
-                      style={{
-                        position: "absolute",
-                        width: "14.2rem",
-                      }}
-                      className="col-md-2 m-auto shadow-sm p-3 mb-5 bg-white rounded"
-                    >
-                      <div>
-                        <div className="row">
-                          <p
-                            className="cureor"
-                            onClick={handleSelectClientName1}
-                            style={{ borderBottom: "1px solid grey" }}
+                {departmentName ? (
+                  <div
+                    style={{
+                      position: "absolute",
+                      width: "14.2rem",
+                    }}
+                    className="col-md-2 m-auto shadow-sm p-3 mb-5 bg-white rounded"
+                  >
+                    <div>
+                      <div className="row">
+                        <p
+                          className="cureor"
+                          onClick={handleSelectDepartment}
+                          style={{ borderBottom: "1px solid grey" }}
+                        >
+                          <CheckIcon />
+                          Apply selection
+                        </p>
+                      </div>
+                      {department?.map((ele, index) => {
+                        return (
+                          <div
+                            className="row m-auto"
+                            key={index}
+                            style={{ zIndex: "100" }}
                           >
-                            <CheckIcon />
-                            Apply selection
-                          </p>
-                        </div>
-                        {recceData?.map((ele, index) => {
-                          const desiredClient = ClientInfo?.client?.find(
-                            (client) => client._id === ele.BrandName
-                          );
+                            <Form.Label>
+                              <Form.Check
+                                type="checkbox"
+                                className="me-3 d-inline"
+                                value={ele}
+                                checked={selectedCheckboxesDep.includes(ele)}
+                                onChange={(event) => {
+                                  handleCheckboxChangeDepart(event, ele);
+                                }}
+                              />
 
-                          return (
-                            <div
-                              className="row m-auto"
-                              key={index}
-                              style={{ zIndex: "100" }}
-                            >
-                              <Form.Label>
-                                <Form.Check
-                                  type="checkbox"
-                                  className="me-3 d-inline"
-                                  value={`${ele.BrandName}_${index}`}
-                                  checked={selectedCheckboxes.includes(
-                                    `${ele.BrandName}_${ele._id}`
-                                  )}
-                                  onChange={(event) => {
-                                    handleCheckboxChange1(
-                                      event,
-                                      ele.BrandName,
+                              <p className="d-inline">{ele}</p>
+                            </Form.Label>
+                          </div>
+                        );
+                      })}
+                    </div>{" "}
+                  </div>
+                ) : null}
+              </>
+            </Col>
+            <Col className="col-md-3 mb-2 m-auto">
+              {" "}
+              <>
+                <Form.Label>Select Clients name</Form.Label>
+                <div>
+                  <Form.Control
+                    placeholder="select clients name"
+                    value={selectedBrandNames}
+                    onClick={() => setbrandName(!brandName)}
+                    readOnly
+                  />
+                </div>
 
-                                      ele._id
-                                    );
-                                  }}
-                                />
+                {brandName ? (
+                  <div
+                    style={{
+                      position: "absolute",
+                      width: "14.2rem",
+                    }}
+                    className="col-md-2 m-auto shadow-sm p-3 mb-5 bg-white rounded"
+                  >
+                    <div>
+                      <div className="row">
+                        <p
+                          className="cureor"
+                          onClick={handleSelectClientName1}
+                          style={{ borderBottom: "1px solid grey" }}
+                        >
+                          <CheckIcon />
+                          Apply selection
+                        </p>
+                      </div>
+                      {recceData?.map((ele, index) => {
+                        return (
+                          <div
+                            className="row m-auto"
+                            key={index}
+                            style={{ zIndex: "100" }}
+                          >
+                            <Form.Label>
+                              <Form.Check
+                                type="checkbox"
+                                className="me-3 d-inline"
+                                value={`${ele.BrandName}_${index}`}
+                                checked={selectedCheckboxes.includes(
+                                  `${ele.BrandName}_${ele._id}`
+                                )}
+                                onChange={(event) => {
+                                  handleCheckboxChange1(
+                                    event,
+                                    ele.BrandName,
+                                    ele._id
+                                  );
+                                }}
+                              />
 
-                                <p className="d-inline">
-                                  <span className="me-3"> Job {index + 1}</span>
-                                  {desiredClient?.clientsBrand}
-                                </p>
-                              </Form.Label>
-                            </div>
-                          );
-                        })}
-                      </div>{" "}
-                    </div>
-                  ) : null}
-                </>
-              </Col>
-              <Col className="col-md-4 mb-2 m-auto">
-                <Form.Label>Report's</Form.Label>
-                <Form.Select onChange={handleFilterChange}>
-                  <option value="All">All</option>
-                  <option value="Today">Today</option>
-                  <option value="Yesterday">Yesterday</option>
-                  <option value="ThisWeek">This Week</option>
-                  <option value="LastWeek">Last Week</option>
-                  <option value="ThisMonth">This Month</option>
-                  <option value="LastMonth">Last Month</option>
-                </Form.Select>
-              </Col>
-            </Row>
+                              <p className="d-inline">
+                                <span className="me-3"> Job {index + 1}</span>
+                                {ele.BrandName}
+                              </p>
+                            </Form.Label>
+                          </div>
+                        );
+                      })}
+                    </div>{" "}
+                  </div>
+                ) : null}
+              </>
+            </Col>
+            <Col className="col-md-6 mb-2 m-auto">
+              <div className="row">
+                <label className="col-md-5   mb-2">Start Date:</label>
+                <label className="col-md-6  mb-2">End Date:</label>
+                <div className="col-md-4 ">
+                  <Form.Control
+                    type="date"
+                    value={filterStartDate}
+                    onChange={handleFilterStartDateChange}
+                  />
+                </div>
+                <div className="col-md-4 ">
+                  <Form.Control
+                    type="date"
+                    value={filterEndDate}
+                    onChange={handleFilterEndDateChange}
+                  />
+                </div>
+                <div className="col-md-2 ">
+                  <Button onClick={handleClearDateFilters}>Clear</Button>
+                </div>
+              </div>
+            </Col>
+          </Row>
 
-            <Row className="mt-5">
-              <Button onClick={searchReport} className="col-md-2 m-auto ">
-                Report
-              </Button>
-            </Row>
-          </Form>{" "}
+          <Row className="mt-5">
+            <Button
+              onClick={() =>
+                filterAndSearchData(
+                  filterStartDate,
+                  filterEndDate,
+                  selectedCheckboxes,
+                  selectedDepartment
+                )
+              }
+              className="col-md-2 m-auto "
+            >
+              Report
+            </Button>
+          </Row>
         </div>
       )}
     </>

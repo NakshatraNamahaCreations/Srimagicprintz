@@ -6,10 +6,11 @@ const outLetBoardManagement = require("../../Controllers/reccemanagement/outletU
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "Public/Outlet");
+    cb(null, path.join(__dirname, "../../Public/Outlet"));
   },
-  filename: function (req, file, cb) {
-    cb(null, file.fieldname + "-" + Date.now());
+  filename: (req, file, cb) => {
+    const uniqueFileName = Date.now() + "_" + file.originalname;
+    cb(null, uniqueFileName);
   },
 });
 

@@ -7,7 +7,8 @@ const multer = require("multer");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../../Public/ClientImage"));
+    cb(null, path.join
+      (__dirname, "../../Public/ClientImage"));
   },
   filename: (req, file, cb) => {
     const uniqueFileName = Date.now() + "_" + file.originalname;

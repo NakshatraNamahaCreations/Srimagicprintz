@@ -18,7 +18,7 @@ export default function Marketing() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/marketingClient/marketingcliend/getmarketingclient"
+        "http://localhost:8001/api/marketingClient/marketingcliend/getmarketingclient"
       );
       if (res.status === 200) {
         setMAddClients(res.data.mclient);
@@ -48,7 +48,7 @@ export default function Marketing() {
       const config = {
         url: `/marketingClient/marketingcliend/updatemarketingdata/${MclientId}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: "http://localhost:8001/api",
         headers: { "Content-Type": "application/json" },
         data: { msaveMeetingTime: sheduledDate },
       };
@@ -299,78 +299,83 @@ export default function Marketing() {
       ) : (
         <>
           <div className="row  m-auto">
-            <div className="col-md-6">
-              <div className="col-md-6 mt-3">
-                <img
-                  width={"50px"}
-                  height={"50px"}
-                  style={{
-                    borderRadius: "100%",
-                  }}
-                 src={`http://api.srimagicprintz.com
-/marketing/${getMclient.mClientImage}`}
-                  alt=""
-                />
+            <div className="col-md-8">
+              <div className="row">
+                <div className="col-md-6 mt-3">
+                  <img
+                    width={"50px"}
+                    height={"50px"}
+                    style={{
+                      borderRadius: "100%",
+                    }}
+                    src={`http://localhost:8001/marketing/${getMclient.mClientImage}`}
+                    alt=""
+                  />
+                </div>
+              </div>{" "}
+              <div className="row">
+                <div className="col-md-8">
+                  <p>
+                    <span className="clr me-2">Name :</span>{" "}
+                    <span>{getMclient?.mclientsName}</span>{" "}
+                  </p>
+                  <p>
+                    <span className="clr me-2">Sales Exicutive Name :</span>{" "}
+                    <span>{getMclient?.msaleexecutive}</span>{" "}
+                  </p>
+                  <p>
+                    <span className="clr me-2">Client Added Date :</span>{" "}
+                    <span>
+                      {getMclient?.createdAt
+                        ? new Date(getMclient.createdAt)
+                            .toISOString()
+                            .slice(0, 10)
+                        : ""}
+                    </span>{" "}
+                  </p>
+                  <p>
+                    <span className="clr me-2">Number :</span>{" "}
+                    <span>{getMclient?.mClientsContactNumber1}</span>
+                  </p>
+                  <p>
+                    <span className="clr me-2">Business Name :</span>
+                    <span>{getMclient?.mClientBusinessName}</span>
+                  </p>
+                  <p>
+                    {" "}
+                    <span className="clr me-2">Email :</span>
+                    <span>{getMclient?.mClientsEmail}</span>
+                  </p>
+                  <p>
+                    {" "}
+                    <span className="clr me-2">Pincode :</span>
+                    <span>{getMclient?.mPincode}</span>
+                  </p>
+                  <p>
+                    {" "}
+                    <span className="clr me-2">Zone :</span>
+                    <span>{getMclient?.mZone}</span>
+                  </p>
+                  <p>
+                    {" "}
+                    <span className="clr me-2">Address :</span>
+                    <span>{getMclient?.mClientAddress}</span>
+                  </p>
+                  <span>Meeting Sheduled at : {saveDate}</span>
+                </div>
               </div>
-              <div className="col-md-8">
-                <p>
-                  <span className="clr me-2">Name :</span>{" "}
-                  <span>{getMclient?.mclientsName}</span>{" "}
-                </p>
-                <p>
-                  <span className="clr me-2">Sales Exicutive Name :</span>{" "}
-                  <span>{getMclient?.msaleexecutive}</span>{" "}
-                </p>
-                <p>
-                  <span className="clr me-2">Client Added Date :</span>{" "}
-                  <span>
-                    {getMclient?.createdAt
-                      ? new Date(getMclient.createdAt)
-                          .toISOString()
-                          .slice(0, 10)
-                      : ""}
-                  </span>{" "}
-                </p>
-                <p>
-                  <span className="clr me-2">Number :</span>{" "}
-                  <span>{getMclient?.mClientsContactNumber1}</span>
-                </p>
-                <p>
-                  <span className="clr me-2">Business Name :</span>
-                  <span>{getMclient?.mClientBusinessName}</span>
-                </p>
-                <p>
-                  {" "}
-                  <span className="clr me-2">Email :</span>
-                  <span>{getMclient?.mClientsEmail}</span>
-                </p>
-                <p>
-                  {" "}
-                  <span className="clr me-2">Pincode :</span>
-                  <span>{getMclient?.mPincode}</span>
-                </p>
-                <p>
-                  {" "}
-                  <span className="clr me-2">Zone :</span>
-                  <span>{getMclient?.mZone}</span>
-                </p>
-                <p>
-                  {" "}
-                  <span className="clr me-2">Address :</span>
-                  <span>{getMclient?.mClientAddress}</span>
-                </p>
-                <span>Meeting Sheduled at : {saveDate}</span>
+              <div className="row mt-3">
+                <Button className="col-md-3 m-1 c_W" onClick={creatMeeting}>
+                  <VideoCallIcon />
+                  New meeting
+                </Button>
+                <Button className="col-md-3 m-1 c_W" onClick={updateShedule}>
+                  Save meeting
+                </Button>
+                <Button href="/Marketingshedule" className="col-md-3 m-1 c_W">
+                  Sheduled Meeting
+                </Button>
               </div>
-              <Button className="col-md-4 m-1 c_W" onClick={creatMeeting}>
-                <VideoCallIcon />
-                New meeting
-              </Button>
-              <Button className="col-md-4 m-1 c_W" onClick={updateShedule}>
-                Save meeting
-              </Button> 
-              <Button href="/Marketingshedule" className="col-md-4 m-1 c_W" >
-                Sheduled Meeting
-              </Button>
               <div className={!shedule ? " hide" : ""}>
                 <Card className="col-md-6">
                   <p>
@@ -399,12 +404,10 @@ export default function Marketing() {
                 </Card>
               </div>{" "}
             </div>
-            <div className="col-md-6 text-end ">
-              <div className="col-md-12 m-auto">
-                <div className="row m-auto">
-                  <span className="col-md-12 m-auto">
-                    Share link to Clients
-                  </span>
+            <div className="col-md-4 text-end ">
+              <div className="col-md-12 ">
+                <div className="row ">
+                  <span className="col-md-12 ">Share link to Clients</span>
                   <i
                     onClick={() => setToggleLink(!togglelink)}
                     className="col-md-12 "

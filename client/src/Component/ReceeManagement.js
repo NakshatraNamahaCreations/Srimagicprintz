@@ -15,11 +15,12 @@ import { CSVLink, CSVDownload } from "react-csv";
 import * as XLSX from "xlsx";
 import axios from "axios";
 import pptxgen from "pptxgenjs";
-
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import moment from "moment";
 import { saveAs } from "file-saver";
-
+import HeightIcon from "@mui/icons-material/Height";
 const ExcelJS = require("exceljs");
 
 export default function ReceeManagement() {
@@ -122,10 +123,10 @@ export default function ReceeManagement() {
   useEffect(() => {
     getLengthOfStatus();
   }, [reccedata]);
-  //http://api.srimagicprintz.com/api
+  //http://localhost:8001/api
   const getAllOutlets = async () => {
     try {
-      const res = await axios.get(`http://api.srimagicprintz.com/api/getalloutlets`);
+      const res = await axios.get(`http://localhost:8001/api/getalloutlets`);
       if (res.status === 200) {
         setOutletDoneData(res?.data?.outletData);
       }
@@ -140,7 +141,7 @@ export default function ReceeManagement() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        "http://localhost:8001/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -154,7 +155,7 @@ export default function ReceeManagement() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -183,130 +184,13 @@ export default function ReceeManagement() {
     const filteredClients = () => {
       let results = [...reccedata];
 
-      // if (searchSINO) {
-      //   results = results.filter((item, index) => {
-      //     return (index + 1).toString().includes(searchSINO);
-      //   });
-      // }
-
-      // if (SearchCategory) {
-      //   results = results.filter((item) => {
-      //     const categoryid = item?.category?.[0];
-      //     const selectedcategory = CategoryData?.find(
-      //       (ele) => ele._id === categoryid
-      //     );
-
-      //     return (
-      //       selectedcategory &&
-      //       selectedcategory.categoryName
-      //         .toLowerCase()
-      //         .includes(SearchCategory.toLowerCase())
-      //     );
-      //   });
-      // }
-
-      // if (SearchclientName) {
-      //   results = results.filter((item) =>
-      //     item.ClientName?.toLowerCase().includes(
-      //       SearchclientName.toLowerCase()
-      //     )
-      //   );
-      // }
-      // if (searchshopName) {
-      //   results = results.filter((item) =>
-      //     item.ShopName?.toLowerCase().includes(searchshopName.toLowerCase())
-      //   );
-      // }
-      // if (searchcontactNumber) {
-      //   results = results.filter((item) => {
-      //     const contactNumber1 =
-      //       item.ContactNumber && item.ContactNumber.toString();
-      //     return contactNumber1?.includes(searchcontactNumber);
-      //   });
-      // }
-      // if (searcharea) {
-      //   const searchTerm = searcharea.toLowerCase();
-      //   results = results.filter((item) => {
-      //     const area = item.Area?.toLowerCase();
-      //     return (
-      //       area.indexOf(searchTerm) !== -1 || city.indexOf(searchTerm) !== -1
-      //     );
-      //   });
-      // }
-      // if (searchcity) {
-      //   const searchTerm = searchcity.toLowerCase();
-      //   results = results.filter((item) => {
-      //     const city = item.City?.toLowerCase();
-
-      //     return (
-      //       area.indexOf(searchTerm) !== -1 || city.indexOf(searchTerm) !== -1
-      //     );
-      //   });
-      // }
-
-      // if (searchzone) {
-      //   results = results.filter((item) => {
-      //     const Zone1 = item.Zone && item.Zone.toString();
-      //     return Zone1?.includes(searchzone);
-      //   });
-      // }
-      // if (searchpincode) {
-      //   results = results.filter((item) => {
-      //     const Pincode1 = item.Pincode && item.Pincode.toString();
-      //     return Pincode1?.includes(searchpincode);
-      //   });
-      // }
-
-      // if (searchdate) {
-      //   const searchDate = new Date(searchdate);
-
-      //   if (!isNaN(searchDate)) {
-      //     results = results.filter((item) => {
-      //       if (!item.createdAt) {
-      //         return false;
-      //       }
-
-      //       const createdAtDate = new Date(item.createdAt);
-
-      //       // Compare date components (year, month, day)
-      //       return (
-      //         createdAtDate.getFullYear() === searchDate.getFullYear() &&
-      //         createdAtDate.getMonth() === searchDate.getMonth() &&
-      //         createdAtDate.getDate() === searchDate.getDate()
-      //       );
-      //     });
-      //   }
-      // }
-
-      // if (searchdatastatus) {
-      //   results = results.filter((item) => {
-      //     const status1 = item.datastatus && item.datastatus.toString();
-      //     return status1?.includes(searchdatastatus);
-      //   });
-      // }
-
       const startIndex = (currentPage - 1) * rowsPerPage;
       const endIndex = Math.min(startIndex + rowsPerPage, results.length);
       const dataToDisplay = results.slice(startIndex, endIndex);
       setDisplayedData(dataToDisplay);
     };
     filteredClients();
-  }, [
-    reccedata,
-    // SearchclientName,
-    // searchshopName,
-    // searchVendorName,
-    // searchcontactNumber,
-    // searcharea,
-    // searchcity,
-    // searchpincode,
-    // searchzone,
-    // searchdate,
-    // searchdatastatus,
-    // searchSINO,
-    // currentPage,
-    rowsPerPage,
-  ]);
+  }, [reccedata, rowsPerPage]);
 
   useEffect(() => {
     if (recceexcel && importXLSheet.length === 0) {
@@ -374,7 +258,7 @@ export default function ReceeManagement() {
           const outletNames = flattenOutletNames(filteredData);
 
           const res = await axios.post(
-            `http://api.srimagicprintz.com/api/recce/recce/addreccesviaexcelesheet/${outlateid}`,
+            `http://localhost:8001/api/recce/recce/addreccesviaexcelesheet/${outlateid}`,
             { outletName: outletNames },
             {
               headers: {
@@ -439,54 +323,6 @@ export default function ReceeManagement() {
     const files = event.target.files;
     setDesignImages(files);
   };
-  // const updateRecceData = async () => {
-  //   const formdata = new FormData();
-  //   if ("reccedesign") {
-  //     for (const image of designImages) {
-  //       formdata.append("designimage", image);
-  //     }
-  //   }
-
-  //   formdata.append("Area", Editarea || editRecceData.Area);
-  //   formdata.append("ClientName", Editclient || editRecceData.ClientName);
-  //   formdata.append("City", EditCity || editRecceData.City);
-  //   formdata.append(
-  //     "ContactNumber",
-  //     EditContactNumber || editRecceData.ContactNumber
-  //   );
-  //   formdata.append("Pincode", EditPincode || editRecceData.Pincode);
-  //   formdata.append("Zone", EditZone || editRecceData.Zone);
-  //   formdata.append("recceUnit", EditrecceUnit || editRecceData.recceUnit);
-  //   formdata.append("category", selectedcategory || editRecceData.category);
-  //   formdata.append("datastatus", Editdatastatus || editRecceData.datastatus);
-
-  //   formdata.append("reccehight", Editreccehight || editRecceData.reccehight);
-
-  //   formdata.append("reccewidth", Editreccewidth || editRecceData.reccewidth);
-
-  //   formdata.append("ShopName", Editshopname || editRecceData.ShopName);
-  //   try {
-  //     const recceId = editRecceData._id;
-  //     const config = {
-  //       url: `/recce/recce/updatereccedata/${recceId}`,
-  //       method: "put",
-  //       baseURL: "http://api.srimagicprintz.com/api",
-  //       headers: { "Content-Type": "application/json" },
-
-  //       data: formdata,
-  //     };
-
-  //     const res = await axios(config);
-
-  //     if (res.status === 200) {
-  //       alert("Successfully linked vendor to recce");
-  //       setSelectedIndex(null);
-  //       window.location.reload();
-  //     }
-  //   } catch (err) {
-  //     alert("Not able to add", err);
-  //   }
-  // };
 
   const handleVendorEdit = (recceid) => {
     const recceTobeedit = filteredData.find((recce) => recce._id === recceid);
@@ -501,69 +337,102 @@ export default function ReceeManagement() {
   };
 
   const handleDownload = () => {
-    const wb = XLSX.utils.book_new();
-    const wsData = [
-      [
-        "SNo",
-        "ShopName",
-        "ClientName",
-        "State",
-        "OutletContactNumber",
-        "OutletZone",
-        "OutletCity",
-        "FLBoard",
-        "GSB",
-        "Inshop",
+    if (!selectedRecceItems || selectedRecceItems.length === 0) {
+      alert("Please select at least one record to export");
+      return;
+    } else {
+      const pdf = new jsPDF();
+      const tableColumn = [
+        "SI.No",
+        "Shop Name",
+        "Client Name",
+        "Job No",
+        "Contact",
+        "Address",
+        "City",
+        "Zone",
+        "Date",
+        "Status",
+        "Height",
+        "Width",
         "Category",
-        "height",
-        "unit",
-        "width",
-        "unit",
-        "vendor",
-        "RecceStatus",
-      ],
-    ];
+      ];
 
-    wsData.push([
-      SNo,
-      ShopName,
-      ClientName,
-      State,
-      OutletContactNumber,
-      OutletZone,
-      OutletCity,
-      FLBoard,
-      GSB,
-      Inshop,
-      Category,
-      height,
-      unit,
-      width,
-      unit,
-      vendor,
-      RecceStatus,
-    ]);
+      let serialNumber = 0;
+      let JobNob = 0;
 
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
+      const tableData = selectedRecceItems.flatMap((outletId) =>
+        displayedData
+          ?.filter((recce) => recce?._id === outletId)
+          .flatMap((recceItem) =>
+            recceItem?.outletName.map((outlet) => {
+              reccedata?.forEach((recceItem, recceIndex) => {
+                recceItem?.outletName?.forEach((rece) => {
+                  if (outletId === rece._id) {
+                    JobNob = recceIndex + 1;
+                  }
+                });
+              });
 
-    const headerCellStyle = {
-      fill: { fgColor: { rgb: "FFFF00" } },
-      font: { bold: true },
-    };
+              let outletDimensions = findOutletDimensions(
+                OutletDoneData,
+                outlet._id
+              );
 
-    ["A1", "B1", "C1", "D1", "E1", "F1"].forEach((cell) => {
-      ws[cell].s = headerCellStyle;
-    });
+              return {
+                siNo: ++serialNumber,
+                shopName: outlet.ShopName,
+                Clientname: recceItem.BrandName,
+                jobNo: `JOB ${JobNob}`,
+                contact: outlet.OutletContactNumber,
+                address: outlet.OutletAddress,
+                city: outlet.OutletCity,
+                zone: outlet.OutletZone,
+                date: outlet.createdAt
+                  ? new Date(outlet.createdAt).toISOString().slice(0, 10)
+                  : "",
+                status: outlet.RecceStatus,
+                height: outletDimensions.height,
+                width: outletDimensions.width,
+                Category: outletDimensions.category,
+              };
+            })
+          )
+      );
 
-    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+      function findOutletDimensions(OutletDoneData, outletId) {
+        const outletDimensions = OutletDoneData.find((ele) =>
+          ele?.outletShopId.includes(outletId)
+        );
 
-    XLSX.writeFile(wb, "recce.xlsx");
+        return {
+          height: outletDimensions ? outletDimensions.height : "",
+          width: outletDimensions ? outletDimensions.width : "",
+          category: outletDimensions ? outletDimensions.category : "",
+        };
+      }
+
+      pdf.autoTable({
+        head: [tableColumn],
+        body: tableData.map((item) => Object.values(item)),
+        startY: 20,
+        styles: {
+          fontSize: 6,
+        },
+        columnStyles: {
+          0: { cellWidth: 10 },
+        },
+        bodyStyles: { borderColor: "black", border: "1px solid black" },
+      });
+
+      pdf.save("exported_data.pdf");
+    }
   };
 
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
+        "http://localhost:8001/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -652,7 +521,7 @@ export default function ReceeManagement() {
         const config = {
           url: `/recce/recce/updatereccedata/${getVendorName._id}/${outletid}`,
           method: "put",
-          baseURL: "http://api.srimagicprintz.com/api",
+          baseURL: "http://localhost:8001/api",
           headers: { "Content-Type": "multipart/form-data" },
           data: formdata,
         };
@@ -694,7 +563,7 @@ export default function ReceeManagement() {
 
         const config = {
           url: `/api/recce/recce/outletupdate/${recceId}/${selectedv?._id}`,
-          baseURL: "http://api.srimagicprintz.com",
+          baseURL: "http://localhost:8001",
           method: "put",
           headers: { "Content-Type": "application/json" },
           data: { reccedata: updatedRecceData },
@@ -795,40 +664,6 @@ export default function ReceeManagement() {
     (vendor) => vendor?._id === getVendorName?._id
   );
 
-  // useEffect(() => {
-  //   const filteredClients = () => {
-  //     if (SearchclientName) {
-  //       filteredData1?.flatMap((ele) =>
-  //         ele.outletName?.flatMap((item) =>
-  //           item.filter(
-  //             (data) =>
-  //               !SearchclientName ||
-  //               (data?.clientName &&
-  //                 data?.clientName
-  //                   .toLowerCase()
-  //                   .includes(SearchclientName?.toLowerCase()))
-  //           )
-  //         )
-  //       );
-  //     }
-  //   };
-  //   filteredClients();
-  // }, [
-  //   filteredData1,
-  //   SearchclientName,
-  //   searchshopName,
-  //   searchVendorName,
-  //   searchcontactNumber,
-  //   searcharea,
-  //   searchcity,
-  //   searchpincode,
-  //   searchzone,
-  //   searchdate,
-  //   searchdatastatus,
-  //   searchSINO,
-  //   rowsPerPage,
-  // ]);
-
   const getLengthOfStatus = () => {
     const statusCounts = {
       completed: 0,
@@ -875,9 +710,14 @@ export default function ReceeManagement() {
   function convertToFeet(value, unit) {
     if (unit === "inch") {
       return Math.round(value / 12);
-    } else if (unit === "cm") {
+    } else if (unit === "Centimeter") {
       return Math.round(value * 0.0328084);
+    } else if (unit === "Meter") {
+      return Math.round(value * 3.28084);
+    } else if (unit === "Feet") {
+      return value;
     } else {
+      console.error("Unknown unit: " + unit);
       return value;
     }
   }
@@ -912,21 +752,35 @@ export default function ReceeManagement() {
           }
 
           if (outlet.RecceStatus?.includes("Completed")) {
-            const rHeightInFeet = convertToFeet(outlet.height, outlet.unit);
-            const rWidthInFeet = convertToFeet(outlet.width, outlet.unit);
-            extractedData.push({
-              "Outlet Name": outlet.ShopName,
-              "Outlate Name": outlet.ShopName,
-              "Outlet Address": outlet.OutletAddress,
-              "Outlet Contact Number": outlet.OutletContactNumber,
-              "GST Number": outlet.GSTNumber,
-              "Media .": outlet.Category,
-              "A Height": outlet.height,
-              "A Width": outlet.width,
-              "No.Quantity": outlet.Qty,
-              "R Height": rHeightInFeet,
-              "R Width": rWidthInFeet,
-            });
+            const OutletDoned = OutletDoneData.filter(
+              (Ele) => Ele?.outletShopId === outlet._id
+            );
+
+            for (const outl of OutletDoned) {
+              extractedData.push({
+                "Outlate Name": outlet.ShopName || null,
+                "Outlet Address": outlet.OutletAddress || null,
+                "Outlet Contact Number": outlet.OutletContactNumber || null,
+                "Board Type": outl.boardType,
+                "GST Number": !outlet.GSTNumber
+                  ? outl.gstNumber
+                  : outlet.GSTNumber,
+                "Media .": outl.category || null,
+                "A Height": `${outl.height} ${outl.unitsOfMeasurment} ` || null,
+                "A Width": `${outl.width} ${outl.unitsOfMeasurment} ` || null,
+                "No.Quantity": outl.quantity || null,
+                "R Height":
+                  `${convertToFeet(
+                    outl.height,
+                    outl.unitsOfMeasurment
+                  )} feet ` || null,
+                "R Width":
+                  `${convertToFeet(
+                    outl.width,
+                    outl.unitsOfMeasurment
+                  )} feet ` || null,
+              });
+            }
           }
         });
 
@@ -934,6 +788,7 @@ export default function ReceeManagement() {
           "Outlate Name",
           "Outlet Address",
           "Outlet Contact Number",
+          "Board Type",
           "GST Number",
           "Media .",
           "A Height",
@@ -947,7 +802,7 @@ export default function ReceeManagement() {
         worksheet.getColumn(3).width = 20;
         worksheet.getColumn(4).width = 20;
         worksheet.getColumn(5).width = 15;
-        worksheet.getColumn(6).width = 8;
+        worksheet.getColumn(6).width = 35;
         worksheet.getColumn(7).width = 8;
         worksheet.getColumn(8).width = 8;
         worksheet.getColumn(9).width = 8;
@@ -958,6 +813,7 @@ export default function ReceeManagement() {
             dataItem["Outlate Name"],
             dataItem["Outlet Address"],
             dataItem["Outlet Contact Number"],
+            dataItem["Board Type"],
             dataItem["GST Number"],
             dataItem["Media ."],
             dataItem["A Height"],
@@ -1039,7 +895,7 @@ export default function ReceeManagement() {
 
   const handlePPT = () => {
     const pptx = new pptxgen();
-
+    console.log("Starting handlePPT");
     if (selectedRecceItems.length === 0 || filteredData.length === 0) {
       alert("Please import outlet or select a brand");
       return;
@@ -1065,97 +921,126 @@ export default function ReceeManagement() {
           }
 
           if (outlet.RecceStatus?.includes("Completed")) {
-            const width = outlet.width || 1;
-            const height = outlet.height || 1;
-            const rHeightInFeet = convertToFeet(height, outlet.unit);
-            const rWidthInFeet = convertToFeet(width, outlet.unit);
-            const media = outlet.Category || "";
+            const OutletDoned = OutletDoneData.filter(
+              (Ele) => Ele?.outletShopId === outlet._id
+            );
+            for (const outl of OutletDoned) {
+              const width = outl.width || 1;
+              const height = outl.height || 1;
+              const rHeightInFeet = convertToFeet(
+                height,
+                outl.unitsOfMeasurment
+              );
+              const rWidthInFeet = convertToFeet(width, outl.unitsOfMeasurment);
+              const media = outl.category || "";
 
-            const slide = pptx.addSlide();
+              const slide = pptx.addSlide();
 
-            slide.addText(`Outlet Name: ${outlet.ShopName}`, {
-              x: 1,
-              y: 0.3,
-              w: "100%",
-              fontSize: 12,
-            });
+              slide.addText(`Outlet Name: ${outlet.ShopName}`, {
+                x: 1,
+                y: 0.3,
+                w: "100%",
+                fontSize: 12,
+              });
 
-            slide.addText(`Address: ${outlet.OutletAddress}`, {
-              x: 1,
-              y: 0.6,
-              w: "100%",
-              fontSize: 12,
-            });
-            const formattedDimensions = `H${Math.round(
-              rHeightInFeet
-            )}XW${Math.round(rWidthInFeet)}`;
-            const imageUrls = ["url1.jpg", "url2.jpg", "url3.jpg"];
-            const imageWidth = "30%";
+              slide.addText(`Address: ${outlet.OutletAddress}`, {
+                x: 1,
+                y: 0.6,
+                w: "100%",
+                fontSize: 12,
+              });
+              const formattedDimensions = `H${Math.round(
+                rHeightInFeet
+              )}XW${Math.round(rWidthInFeet)}`;
+              // const imageUrls = ["url1.jpg", "url2.jpg", "url3.jpg"];
+              const imageWidth = "30%";
 
-            const centerX = "35%";
+              const centerX = "35%";
 
-            const centerY = "30%";
+              const centerY = "30%";
 
-            let currentX = centerX;
-            for (const imageUrl of imageUrls) {
+              let currentX = centerX;
+
+              const fullImageUrl = `http://api.srimagicprintz.com/Outlet/${outl.ouletBannerImage}`;
+
               slide.addImage({
-                path: imageUrl,
+                path: fullImageUrl,
                 x: currentX,
                 y: centerY,
                 w: imageWidth,
               });
               currentX = `+=35%`;
+
+              slide.addText(formattedDimensions, {
+                x: 1,
+                y: "90%",
+                w: "100%",
+                fontSize: 12,
+              });
+
+              slide.addText(`Category: ${media}`, {
+                x: 1,
+                y: "95%",
+                w: "100%",
+                fontSize: 12,
+                align: "left",
+              });
             }
-
-            slide.addText(formattedDimensions, {
-              x: 1,
-              y: "90%",
-              w: "100%",
-              fontSize: 12,
-            });
-
-            slide.addText(`Category: ${media}`, {
-              x: 1,
-              y: "95%",
-              w: "100%",
-              fontSize: 12,
-              align: "left",
-            });
           }
         }
+
+        pptx.write("blob").then((blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.style.display = "none";
+          a.href = url;
+          a.download = "presentation.pptx";
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+        });
+        // pptx.write("blob").then((blob) => {
+        //   const url = window.URL.createObjectURL(blob);
+        //   const a = document.createElement("a");
+        //   a.style.display = "none";
+        //   a.href = url;
+        //   a.download = "presentation.pptx";
+        //   document.body.appendChild(a);
+        //   a.click();
+        //   window.URL.revokeObjectURL(url);
+        // });
       }
-      pptx.write("blob").then((blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.style.display = "none";
-        a.href = url;
-        a.download = "presentation.pptx";
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-      });
-      // pptx.write("blob").then((blob) => {
-      //   const url = window.URL.createObjectURL(blob);
-      //   const a = document.createElement("a");
-      //   a.style.display = "none";
-      //   a.href = url;
-      //   a.download = "presentation.pptx";
-      //   document.body.appendChild(a);
-      //   a.click();
-      //   window.URL.revokeObjectURL(url);
-      // });
     } catch (err) {
       console.error("Error:", err);
-      alert("An error occurred. Please try again.");
+      alert(`An error occurred: ${err.message}`);
     }
   };
 
   const handleEstimate = () => {
     const extractedData = [];
-
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Extracted Data");
+    const headerRow = worksheet.getRow(1);
+    headerRow.height = 10 / 9;
+    worksheet.getColumn(1).width = 20;
+    worksheet.getColumn(2).width = 35;
+    worksheet.getColumn(3).width = 20;
+    worksheet.getColumn(4).width = 20;
+    worksheet.getColumn(5).width = 15;
+    worksheet.getColumn(6).width = 35;
+    worksheet.getColumn(7).width = 8;
+    worksheet.getColumn(8).width = 8;
+    worksheet.getColumn(9).width = 8;
+    worksheet.getColumn(10).width = 8;
+    worksheet.getColumn(11).width = 8;
+    worksheet.getColumn(12).width = 8;
+    worksheet.getColumn(13).width = 10;
+    worksheet.getColumn(14).width = 10;
+    worksheet.getColumn(15).width = 20;
 
+    headerRow.eachCell({ includeEmpty: false }, (cell) => {
+      cell.alignment = { wrapText: true };
+    });
     if (selectedRecceItems.length === 0 || filteredData.length === 0) {
       alert("Please import outlet or select brand");
       return;
@@ -1180,28 +1065,43 @@ export default function ReceeManagement() {
           }
 
           if (outlet.RecceStatus?.includes("Completed")) {
-            const rHeightInFeet = convertToFeet(outlet.height, outlet.unit);
-            const rWidthInFeet = convertToFeet(outlet.width, outlet.unit);
-            extractedData.push({
-              "Outlet Name": outlet.ShopName,
-              "Outlet Address": outlet.OutletAddress,
-              "Outlet Contact Number": outlet.OutletContactNumber,
-              "GST Number": outlet.GSTNumber,
-              "GSB/inshop": outlet.GSB || outlet.Inshop,
-              "No.Quantity": outlet.No_Quantity || 0,
-              "Media .": outlet.Category,
-              Height: rHeightInFeet || 0,
-              Width: rWidthInFeet || 0,
-              SFT: outlet.SFT,
-              "Production Rate": outlet.ProductionRate,
-              "Production Cost": outlet.ProductionCost,
-              "Installation Rate": outlet.InstallationRate,
-              "Installation Cost": outlet.InstallationCost,
-              "transportation rate": outlet.transportationRate,
-              "transportation cost": outlet.transportationcost,
-              "Production Cost + Installation Cost + transportation cost":
-                0 + 18 + 0,
-            });
+            const OutletDoned = OutletDoneData.filter(
+              (Ele) => Ele?.outletShopId === outlet._id
+            );
+            for (const outl of OutletDoned) {
+              const rHeightInFeet = convertToFeet(
+                outl.height,
+                outl.unitsOfMeasurment
+              );
+              const rWidthInFeet = convertToFeet(
+                outl.width,
+                outl.unitsOfMeasurment
+              );
+              extractedData.push({
+                "Outlet Name": outlet.ShopName,
+                "Outlet Address": outlet.OutletAddress,
+                "Board Type": outl.boardType,
+                "Outlet Contact Number": outlet.OutletContactNumber,
+                "GST Number": !outlet.GSTNumber
+                  ? outl.gstNumber
+                  : outlet.GSTNumber,
+                "Media .": outl.category,
+                "GSB/inshop": outlet.GSB || outlet.Inshop,
+                "No.Quantity": outl.quantity || 0,
+
+                Height: rHeightInFeet || 0,
+                Width: rWidthInFeet || 0,
+                SFT: outlet.SFT,
+                "Production Rate": outlet.ProductionRate,
+                "Production Cost": outlet.ProductionCost,
+                "Installation Rate": outlet.InstallationRate,
+                "Installation Cost": outlet.InstallationCost,
+                "transportation rate": outlet.transportationRate,
+                "transportation cost": outlet.transportationcost,
+                "Production Cost + Installation Cost + transportation cost":
+                  0 + 18 + 0,
+              });
+            }
           }
         });
 
@@ -1219,13 +1119,14 @@ export default function ReceeManagement() {
           "Production Cost + Installation Cost + transportation cost": `O${thirdRow}`,
         });
 
-        console.log("extractedData", extractedData);
         const headerRow = worksheet.addRow([
           "Outlet Name",
           "Outlet Address",
+          "Board Type",
           "Outlet Contact Number",
           "GST Number",
           "Media .",
+          "GSB/inshop",
           "No.Quantity",
           "Height",
           "Width",
@@ -1238,29 +1139,15 @@ export default function ReceeManagement() {
           "Production Cost + Installation Cost + transportation cost",
         ]);
 
-        worksheet.getColumn(1).width = 20;
-        worksheet.getColumn(2).width = 30;
-        worksheet.getColumn(3).width = 20;
-        worksheet.getColumn(4).width = 20;
-        worksheet.getColumn(5).width = 15;
-        worksheet.getColumn(6).width = 8;
-        worksheet.getColumn(7).width = 8;
-        worksheet.getColumn(8).width = 8;
-        worksheet.getColumn(9).width = 8;
-        worksheet.getColumn(10).width = 8;
-        worksheet.getColumn(11).width = 8;
-        worksheet.getColumn(12).width = 8;
-        worksheet.getColumn(13).width = 10;
-        worksheet.getColumn(14).width = 10;
-        worksheet.getColumn(15).width = 20;
-
         extractedData.forEach((dataItem) => {
           const row = worksheet.addRow([
             dataItem["Outlet Name"],
             dataItem["Outlet Address"],
+            dataItem["Board Type"],
             dataItem["Outlet Contact Number"],
             dataItem["GST Number"],
             dataItem["Media ."],
+            dataItem["GSB/inshop"],
             dataItem["No.Quantity"],
             dataItem["Height"],
             dataItem["Width"],
@@ -1293,7 +1180,6 @@ export default function ReceeManagement() {
           };
           cell.font = {
             size: 12,
-            // bold: true,
           };
         });
 
@@ -1307,7 +1193,6 @@ export default function ReceeManagement() {
 
         const lastRowNumber = worksheet.rowCount;
         for (let i = extractedData.length; i <= lastRowNumber; i++) {
-          // Check if the cell is already merged before merging
           const cellA = worksheet.getCell(`A${i}`);
           const cellB = worksheet.getCell(`B${i}`);
           if (!cellA.isMerged) {
@@ -1316,7 +1201,6 @@ export default function ReceeManagement() {
           if (!cellB.isMerged) {
             worksheet.mergeCells(`B${i}:C${i}`);
           }
-          // Continue with other columns as needed
         }
       }
       workbook.xlsx
@@ -1351,7 +1235,7 @@ export default function ReceeManagement() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        "http://localhost:8001/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -1733,7 +1617,7 @@ export default function ReceeManagement() {
               <table>
                 <thead className="t-c">
                   <tr>
-                    <th className="th_s poppinfnt ">
+                    <th className="th_s poppinfnt p-2">
                       <input
                         type="checkbox"
                         style={{
@@ -1745,13 +1629,13 @@ export default function ReceeManagement() {
                         onChange={handleSelectAllChange}
                       />
                     </th>
-                    <th className="th_s poppinfnt ">SI.No.</th>
-                    <th className="th_s poppinfnt ">Job.No.</th>
-                    <th className="th_s poppinfnt ">Client Name </th>
-                    <th className="th_s poppinfnt ">Contact Number</th>
-                    <th className="th_s poppinfnt "> Date</th>
-                    <th className="th_s poppinfnt ">Action</th>
-                    <th className="th_s poppinfnt ">Outlate</th>
+                    <th className="th_s poppinfnt p-2">SI.No.</th>
+                    <th className="th_s poppinfnt p-2">Job.No.</th>
+                    <th className="th_s poppinfnt p-2">Client Name </th>
+                    <th className="th_s poppinfnt p-2">Contact Number</th>
+                    <th className="th_s poppinfnt p-2"> Date</th>
+                    <th className="th_s poppinfnt p-2">Action</th>
+                    <th className="th_s poppinfnt p-2">Outlate</th>
                   </tr>
                 </thead>
 
@@ -2027,12 +1911,12 @@ export default function ReceeManagement() {
                       </p>
 
                       <p>
-                        <Button
+                        {/* <Button
                           className="m-2"
                           onClick={() => handleVendorEdit(getVendorName._id)}
                         >
                           Edit
-                        </Button>
+                        </Button> */}
                       </p>
                     </div>
                   </div>
@@ -2040,28 +1924,91 @@ export default function ReceeManagement() {
                   <>
                     {viewOutletBoards ? (
                       <>
-                        {OutletDoneData.filter(
-                          (Ele) => Ele?.outletShopId === viewOutletBoardsIdd
-                        ).map((board) => {
-                          return (
-                            <>
-                              <div className="col-md-4 ">
-                                <p>outletShopName : {board.outletShopName}</p>
-                                <p>boardType : {board.boardType}</p>
-                                {console.log(board)}
-                                <p>category : {board.category}</p>
-                                <p>gstNumber : {board.gstNumber}</p>
-                                <img
-                                  src={`http://api.srimagicprintz.com/api/getalloutlets/Outlet/${board.ouletBannerImage}`}
-                                />
+                        <div className="col-md-1 mb-3">
+                          <ArrowCircleLeftIcon
+                            onClick={() => setViewOutletBoard(false)}
+                            style={{ color: "#068FFF", cursor: "pointer" }}
+                          />
+                        </div>
+                        <div className="row">
+                          {OutletDoneData.filter(
+                            (Ele) => Ele?.outletShopId === viewOutletBoardsIdd
+                          ).map((board) => {
+                            return (
+                              <>
+                                <div className="col-md-4 ">
+                                  <p className="poppinfnt ">
+                                    <span className="me-2 subct">
+                                      {" "}
+                                      Outlet ShopName :
+                                    </span>{" "}
+                                    {board.outletShopName
+                                      .charAt(0)
+                                      .toUpperCase() +
+                                      board.outletShopName.slice(1)}
+                                  </p>
+                                  <p className="poppinfnt ">
+                                    <span className="me-2 subct">
+                                      Board Type :
+                                    </span>
+                                    {board.boardType.charAt(0).toUpperCase() +
+                                      board.boardType.slice(1)}
+                                  </p>
 
-                                <p>width : {board.width}</p>
-                                <p>height : {board.height}</p>
-                              </div>
-                              <hr></hr>{" "}
-                            </>
-                          );
-                        })}
+                                  <p className="poppinfnt ">
+                                    <span className="me-2 subct">
+                                      Category :
+                                    </span>{" "}
+                                    {board.category}
+                                  </p>
+
+                                  <p className="poppinfnt ">
+                                    <span className="me-2 subct">
+                                      GST Number :
+                                    </span>{" "}
+                                    {board.gstNumber}
+                                  </p>
+
+                                  <div className="row">
+                                    <img
+                                      width={200}
+                                      height={200}
+                                      className="col-md-8 banrrad"
+                                      alt=""
+                                      src={`http://api.srimagicprintz.com/Outlet/${board.ouletBannerImage}`}
+                                    />
+                                    <div className="col-md-1 borderlef">
+                                      <span className="border-line"></span>
+                                      <span className="poppinfnt ms-5 me-3">
+                                        {board.height}
+                                      </span>
+                                      <span className="poppinfnt ms-5 me-3">
+                                        {board.unitsOfMeasurment}
+                                      </span>
+                                      <span className="border-line"></span>
+                                    </div>
+                                  </div>
+
+                                  <div className=" mt-2 m-auto mb-2 borderlef1 ">
+                                    <span className="border-line2"></span>
+                                    <span className=" poppinfnt ms-2 me-1 ">
+                                      {board.width}
+                                    </span>
+                                    <span className="poppinfnt  me-2">
+                                      {board.unitsOfMeasurment}
+                                    </span>
+                                    <span className=" border-line2"></span>
+                                  </div>
+                                  <p className="poppinfnt ">
+                                    <span className="me-2 subct">Remark :</span>{" "}
+                                    {board.remark}
+                                  </p>
+                                </div>
+                                <hr></hr>{" "}
+                              </>
+                            );
+                          })}
+                        </div>
                       </>
                     ) : (
                       <>
@@ -2257,12 +2204,6 @@ export default function ReceeManagement() {
                               <th className="th_s poppinfnt p-1">FL Board</th>
                               <th className="th_s poppinfnt p-1">GSB</th>
                               <th className="th_s poppinfnt p-1">Inshop</th>
-                              <th className="th_s poppinfnt p-1">Category</th>
-                              <th className="th_s poppinfnt p-1">
-                                SubCategory
-                              </th>
-                              <th className="th_s poppinfnt p-1">Height</th>
-                              <th className="th_s poppinfnt p-1">Width</th>
                               <th className="th_s poppinfnt p-1">
                                 Vendor Name
                               </th>
@@ -2270,7 +2211,7 @@ export default function ReceeManagement() {
                               <th className="th_s poppinfnt p-1">
                                 Assigned Date
                               </th>
-                              <th className="th_s poppinfnt p-1">Remarks</th>
+
                               <th className="th_s poppinfnt p-1">Status</th>
                               <th className="th_s poppinfnt p-1">Action</th>
                             </tr>
@@ -2309,27 +2250,6 @@ export default function ReceeManagement() {
                                       outlet.OutletPincode =
                                         extractedPincode[0];
                                     }
-
-                                    // const isMatchingCondition =
-                                    //   OutletDoneData?.vendorId === vendor?._id &&
-                                    //   OutletDoneData.outletObejctId === outlet._id &&
-                                    //   OutletDoneData.outletRecceIdId ===
-                                    //     recceItem._id;
-                                    // let isMatchingCondition =
-                                    //   OutletDoneData.filter((ele) => {
-                                    //     return (
-                                    //       ele?.outletShopId === outlet?._id
-                                    //     );
-                                    //   });
-                                    // console.log(RecceMeasurement, "RecceMeasurement");
-                                    // // outletShopId
-                                    // isMatchingCondition.map((Ele) => {
-                                    //   console.log(Ele.height, "Ele.height");
-                                    // });
-                                    // console.log(
-                                    //   isMatchingCondition,
-                                    //   "isMatchingCondition"
-                                    // );
 
                                     return (
                                       <tr className="tr_C" key={outlet._id}>
@@ -2394,26 +2314,6 @@ export default function ReceeManagement() {
                                         <td className="td_S poppinfnt p-1">
                                           {outlet.Inshop}
                                         </td>
-                                        <td className="td_S poppinfnt p-1">
-                                          {/* {isMatchingCondition &&
-                                            OutletDoneData?.category} */}
-                                        </td>
-                                        <td className="td_S poppinfnt p-1">
-                                          {/* {isMatchingCondition &&
-                                            OutletDoneData?.subCategoryName} */}
-                                        </td>
-                                        <td className="td_S poppinfnt p-1">
-                                          {/* {isMatchingCondition &&
-                                            OutletDoneData?.height}{" "}
-                                          {isMatchingCondition &&
-                                            OutletDoneData?.unitsOfMeasurment} */}
-                                        </td>
-                                        <td className="td_S poppinfnt p-1">
-                                          {/* {isMatchingCondition &&
-                                            OutletDoneData?.width}
-                                          {isMatchingCondition &&
-                                            OutletDoneData?.unitsOfMeasurment} */}
-                                        </td>
 
                                         <td className="td_S poppinfnt p-1">
                                           {vendor?.VendorFirstName}
@@ -2432,10 +2332,6 @@ export default function ReceeManagement() {
                                                 "DD MMMM YYYY"
                                               )
                                             : ""}
-                                        </td>
-                                        <td className="td_S poppinfnt p-1">
-                                          {/* {isMatchingCondition &&
-                                            OutletDoneData?.remark} */}
                                         </td>
 
                                         <td className="td_S poppinfnt p-1">

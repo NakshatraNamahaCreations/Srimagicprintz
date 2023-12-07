@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
@@ -15,7 +15,7 @@ import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import DescriptionIcon from "@mui/icons-material/Description";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
-import SettingsApplicationsIcon from "@mui/icons-material/SettingsApplications";
+import axios from "axios";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import PublicIcon from "@mui/icons-material/Public";
 import { useLocation } from "react-router-dom";
@@ -36,7 +36,7 @@ const navData = [
   {
     id: 2,
     icon: <BarChartIcon />,
-    text: " Vendor Management",
+    text: "Vendor Management",
     link: "/VendorManageMent",
   },
   {
@@ -130,6 +130,60 @@ const Sidenav1 = () => {
   const toggleOpen = () => {
     setOpen(!open);
   };
+  const logindata = localStorage.getItem("userData");
+  const giveaccessData = JSON.parse(logindata);
+  const [userdata, setuserdata] = useState([]);
+  const idd = giveaccessData ? giveaccessData : null;
+  useEffect(() => {
+    getuser();
+  }, []);
+  const getuser = async () => {
+    let res = await axios.get("http://localhost:8001/api/getuser");
+    if ((res.status = 200)) {
+      console.log(res.data.masteruser);
+      setuserdata(res.data?.masteruser);
+      // setfilterdata(res.data?.masteruser);
+    }
+  };
+  let userPermissions = userdata.filter((user) => user._id === idd._id);
+
+  let permissions = {};
+  if (userPermissions.length > 0) {
+    permissions = userPermissions[0];
+  }
+
+  const filteredNavData = navData.filter((item) => {
+    switch (item.text) {
+      case "Category Management":
+        return permissions.categoryMamgement;
+      case "Vendor Management":
+        return permissions.vendor;
+      case "Clients Management":
+        return permissions.client;
+      case "Job Management":
+        return permissions.jobmangement;
+      case "Recee Management":
+        return permissions.Recce;
+      case "Design Management":
+        return permissions.Design;
+      case "Printing Management":
+        return permissions.printing;
+      case "Fabrication ":
+        return permissions.fabrication;
+      case "Installation ":
+        return permissions.installation;
+      case "Marketing ":
+        return permissions.marketing;
+      case " Track Assigned Jobs":
+        return permissions.trackjob;
+      case "Reports":
+        return permissions.reports;
+      case "Billing Management":
+        return permissions.billing;
+      default:
+        return true;
+    }
+  });
 
   return (
     <div className={open ? "sidenav" : "sidenavClosed"}>
@@ -140,6 +194,7 @@ const Sidenav1 = () => {
           <KeyboardDoubleArrowRightIcon />
         )}
       </button>
+
       <div className="row ul_list">
         <li
           style={{
@@ -170,20 +225,25 @@ const Sidenav1 = () => {
             </h6>
           </NavLink>
         </li>
-        {navData.map((item) => (
-          <li key={item.id}>
-            <NavLink
-              className={isActive(item.link) ? "sideitem active" : "sideitem "}
-              activeClassName="active"
-              to={item.link}
-            >
-              {item.icon}
-              <span className={open ? "linkText " : "linkTextClosed active"}>
-                {item.text}
-              </span>
-            </NavLink>
-          </li>
-        ))}
+
+        {filteredNavData.map((item) => {
+          return (
+            <li key={item.id}>
+              <NavLink
+                className={
+                  isActive(item.link) ? "sideitem active" : "sideitem "
+                }
+                activeClassName="active"
+                to={item.link}
+              >
+                {item.icon}
+                <span className={open ? "linkText " : "linkTextClosed active"}>
+                  {item.text}
+                </span>
+              </NavLink>
+            </li>
+          );
+        })}
       </div>
     </div>
   );

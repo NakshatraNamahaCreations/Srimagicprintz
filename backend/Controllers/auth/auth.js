@@ -56,7 +56,7 @@ class Authentication {
         } else {
           const passcheck = await bcrypt.compare(password, data.password);
           if (passcheck) {
-            // await authModel.findOneAndUpdate({ email }, { status: "Online" });
+            
             return res
               .status(200)
               .json({ Success: "Login successful", user: data });
