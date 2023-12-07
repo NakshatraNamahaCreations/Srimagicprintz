@@ -238,7 +238,7 @@ function Estimate() {
   const getQuotation = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:8001/api/getquotation");
+      const res = await axios.get("http://api.srimagicprintz.com/api/getquotation");
       if (res.status === 200) {
         let quotation = res.data.data;
         let filtered = quotation.filter((ele) => ele.ReeceId === idd);

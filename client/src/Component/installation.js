@@ -56,7 +56,7 @@ export default function Installation() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8001/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         // const filteredRecceData = res.data.RecceData.filter(
@@ -82,7 +82,7 @@ export default function Installation() {
   }, [recceData, rowsPerPage]);
   const getAllOutlets = async () => {
     try {
-      const res = await axios.get(`http://localhost:8001/api/getalloutlets`);
+      const res = await axios.get(`http://api.srimagicprintz.com/api/getalloutlets`);
       if (res.status === 200) {
         setOutletDoneData(res?.data?.outletData);
       }
@@ -94,7 +94,7 @@ export default function Installation() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8001/api/Client/clients/getallclient"
+        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -106,7 +106,7 @@ export default function Installation() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -121,7 +121,7 @@ export default function Installation() {
   };
   const getAllInstalation = async () => {
     try {
-      let res = await axios.get("http://localhost:8001/api/getgroup");
+      let res = await axios.get("http://api.srimagicprintz.com/api/getgroup");
       if (res.status === 200) {
         let instalationData = res?.data?.instalation?.flatMap((ele) => ele);
         setInstaLationGroups(instalationData);
@@ -291,7 +291,7 @@ export default function Installation() {
         const config = {
           url: `/recce/recce/updatereccedata/${RecceId}/${outletid}`,
           method: "put",
-          baseURL: "http://localhost:8001/api",
+          baseURL: "http://api.srimagicprintz.com/api",
           headers: { "Content-Type": "multipart/form-data" },
           data: formdata,
         };
@@ -334,7 +334,7 @@ export default function Installation() {
 
           const config = {
             url: `/api/recce/recce/updateinstaltion/${outlateid}/${selectedv._id}`,
-            baseURL: "http://localhost:8001",
+            baseURL: "http://api.srimagicprintz.com",
             method: "put",
             headers: { "Content-Type": "application/json" },
             data: { reccedata: updatedRecceData },

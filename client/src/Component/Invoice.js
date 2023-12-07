@@ -52,7 +52,7 @@ export default function Invoice() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -80,7 +80,9 @@ export default function Invoice() {
   };
   const getQuotation = async () => {
     try {
-      const res = await axios.get("http://localhost:8001/api/getquotation");
+      const res = await axios.get(
+        "http://api.srimagicprintz.com/api/getquotation"
+      );
       if (res.status === 200) {
         let quotation = res.data.data;
         let filtered = quotation.filter((ele) => ele.ReeceId === idd);
@@ -93,7 +95,7 @@ export default function Invoice() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8001/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         let recceData = res.data.RecceData.filter((ele) => ele._id === idd);
@@ -107,7 +109,7 @@ export default function Invoice() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8001/api/Client/clients/getallclient"
+        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -160,7 +162,7 @@ export default function Invoice() {
           <img
             width={"200px"}
             height={"100px"}
-            src="http://localhost:3000/Assests/images.jpg"
+            src="../Assests/images.jpg"
             alt=""
           />
         </div>
@@ -421,7 +423,8 @@ export default function Invoice() {
 
                           const areaInSquareFeet = heightInFeet * widthInFeet;
                           const roundedArea = Math.round(areaInSquareFeet);
-                          GrandTotal += Amount[quotatinIndex] * outletDone.length
+                          GrandTotal +=
+                            Amount[quotatinIndex] * outletDone.length;
                           return (
                             <>
                               <tr key={`${innerIndex}-${outletIndex}-${index}`}>
@@ -504,7 +507,7 @@ export default function Invoice() {
                 </td>
 
                 <td colSpan={"3"} className="b-text ">
-                 {GrandTotal}
+                  {GrandTotal}
                 </td>
               </tr>
             </tbody>

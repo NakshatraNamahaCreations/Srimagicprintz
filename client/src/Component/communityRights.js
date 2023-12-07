@@ -49,7 +49,7 @@ function Userrights() {
       const config = {
         url: `/giveaccess/${data._id}`,
         method: "post",
-        baseURL: "http://localhost:8001/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         // data: formdata,
         headers: { "content-type": "application/json" },
         data: {

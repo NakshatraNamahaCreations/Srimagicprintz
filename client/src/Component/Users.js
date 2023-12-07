@@ -61,7 +61,7 @@ function UserData() {
         const config = {
           url: "/adduser",
           method: "post",
-          baseURL: "http://localhost:8001/api",
+          baseURL: "http://api.srimagicprintz.com/api",
           // data: formdata,
           headers: { "content-type": "application/json" },
           data: {
@@ -91,7 +91,7 @@ function UserData() {
   }, []);
 
   const getuser = async () => {
-    let res = await axios.get("http://localhost:8001/api/getuser");
+    let res = await axios.get("http://api.srimagicprintz.com/api/getuser");
     if ((res.status = 200)) {
       console.log(res.data.masteruser);
       setuserdata(res.data?.masteruser);
@@ -106,7 +106,7 @@ function UserData() {
       const config = {
         url: `/edituser/${data._id}`,
         method: "post",
-        baseURL: "http://localhost:8001/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: { "content-type": "application/json" },
         data: {
           userid: data._id,
@@ -135,7 +135,7 @@ function UserData() {
   const deleteuser = async (id) => {
     axios({
       method: "post",
-      url: "http://localhost:8001/api/deleteuser/" + id,
+      url: "http://api.srimagicprintz.com/api/deleteuser/" + id,
     })
       .then(function (response) {
         //handle success
@@ -156,7 +156,7 @@ function UserData() {
       const config = {
         url: `/changepassword/${data._id}`,
         method: "post",
-        baseURL: "http://localhost:8001/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: { "content-type": "application/json" },
         data: {
           oldPassword: oldPassword,

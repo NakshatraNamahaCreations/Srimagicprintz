@@ -138,7 +138,7 @@ const Sidenav1 = () => {
     getuser();
   }, []);
   const getuser = async () => {
-    let res = await axios.get("http://localhost:8001/api/getuser");
+    let res = await axios.get("http://api.srimagicprintz.com/api/getuser");
     if ((res.status = 200)) {
       console.log(res.data.masteruser);
       setuserdata(res.data?.masteruser);

@@ -19,7 +19,7 @@ export const Login = () => {
       const config = {
         url: "/loginuser",
         method: "POST",
-        baseURL: "http://localhost:8001/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         data: {
           loginnameOrEmail: email,
           password: password,

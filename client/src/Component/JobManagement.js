@@ -69,7 +69,7 @@ export default function JobManagement() {
   const getAllCategory = async () => {
     try {
       const res = await fetch(
-        "http://localhost:8001/api/Product/category/getcategory"
+        "http://api.srimagicprintz.com/api/Product/category/getcategory"
       );
       if (res.ok) {
         const data = await res.json();
@@ -85,7 +85,7 @@ export default function JobManagement() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8001/api/recce/recce/getallrecce"
+        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -103,7 +103,7 @@ export default function JobManagement() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8001/api/Vendor/vendorInfo/getvendorinfo"
+        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
       );
 
       if (response.status === 200) {
@@ -159,7 +159,7 @@ export default function JobManagement() {
 
         const config = {
           url: `/api/recce/recce/outletupdate/${recceId}/${vendordata?._id}`,
-          baseURL: "http://localhost:8001",
+          baseURL: "http://api.srimagicprintz.com",
           method: "put",
           headers: { "Content-Type": "application/json" },
           data: { RecceData: updatedRecceData },
@@ -205,7 +205,7 @@ export default function JobManagement() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8001/api/Client/clients/getallclient"
+        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -260,7 +260,7 @@ export default function JobManagement() {
       const config = {
         url: `/recce/recce/updatereccedata/${RecceIndex}/${PrintData._id}`,
         method: "put",
-        baseURL: "http://localhost:8001/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -483,7 +483,7 @@ export default function JobManagement() {
 
         const config = {
           url: `/api/recce/recce/updateinstaltion/${recceId}/${vendor}`,
-          baseURL: "http://localhost:8001",
+          baseURL: "http://api.srimagicprintz.com",
           method: "put",
           headers: { "Content-Type": "application/json" },
           data: { RecceData: updatedRecceData },
@@ -1111,7 +1111,7 @@ export default function JobManagement() {
                                   borderRadius: "100%",
                                 }}
                                 className="m-auto"
-                                src={`http://localhost:8001/VendorImage/${ele.VendorImage}`}
+                                src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
                                 alt=""
                               />
                             ) : (
@@ -1727,7 +1727,7 @@ export default function JobManagement() {
                                   borderRadius: "100%",
                                 }}
                                 className="m-auto"
-                                src={`http://localhost:8001/VendorImage/${ele.VendorImage}`}
+                                src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
                                 alt=""
                               />
                             ) : (

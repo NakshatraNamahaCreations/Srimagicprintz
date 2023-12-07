@@ -50,7 +50,7 @@ export function Signup() {
       try {
         const config = {
           url: "/adduser",
-          baseURL: "http://localhost:8001/api",
+          baseURL: "http://api.srimagicprintz.com/api",
           method: "post",
           headers: { "content-type": "multipart/form-data" },
           data: formdata,

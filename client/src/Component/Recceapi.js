@@ -28,7 +28,7 @@ export default function ReceeManagementApi() {
     try {
       const config = {
         url: "/recce/recce/addrecce",
-        baseURL: "http://localhost:8001/api",
+        baseURL: "http://api.srimagicprintz.com/api",
         method: "post",
         headers: { "Content-Type": "application/json" },
         data: {
@@ -64,7 +64,7 @@ export default function ReceeManagementApi() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8001/api/Client/clients/getallclient"
+        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
       );
       if (res.status === 200) {
         setClientInfo(res.data);
