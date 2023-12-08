@@ -1,4 +1,5 @@
 const outletBoardModal = require("../../Model/Reccemanagement/outletUpload");
+const { mongoose } = require("mongoose");
 
 class outLetBoardManagement {
   async addOutlet(req, res) {
@@ -144,6 +145,63 @@ class outLetBoardManagement {
         .json({ error: "Can't upload the image! Try again later" });
     }
   }
+  // 01-12-2023
+  async uploadInstallationImage(req, res) {
+    try {
+      const shopId = req.params.id;
+      // const { jobStatus } = req.body;
+      const file = req.file?.filename;
+
+      const findJob = await outletBoardModal.findOne({ _id: shopId });
+      if (!findJob) {
+        return res.status(404).json({ error: "No such record found" });
+      }
+      // if (jobStatus) findJob.jobStatus = true;
+      if (file) findJob.ouletInstallationImage = file;
+
+      const updatedJob = await findJob.save();
+      console.log("Uploaded", updatedJob);
+      return res.status(200).json({
+        message: "Updated",
+        date: updatedJob,
+      });
+    } catch (error) {
+      console.log("error", error);
+      return res
+        .status(500)
+        .json({ error: "Can't upload the image! Try again later" });
+    }
+  }
+
+  // 02-12-2023
+
+  async addInstallation(req, res) {
+    try {
+      const outletId = new mongoose.Types.ObjectId(req.params.id);
+      const { installationCommentOrNote } = req.body;
+      const addInstallations = await outletBoardModal.findOne({
+        _id: outletId,
+      });
+      if (!addInstallations) {
+        return res.status(404).json({ error: "No such record found" });
+      }
+      if (installationCommentOrNote)
+        addInstallations.installationCommentOrNote = installationCommentOrNote;
+
+      addInstallations.installationStatus = true;
+      const updateInstallations = await addInstallations.save();
+      console.log("updated job", updateInstallations);
+      return res.status(200).json({
+        message: "Installation updated successfully",
+        date: updateInstallations,
+      });
+    } catch (error) {
+      console.log("error", error);
+      return res
+        .status(500)
+        .json({ error: "Unable to update the details! Try again later" });
+    }
+  }
 
   // async completeJob(req, res) {
   //   try {
@@ -255,21 +313,23 @@ class outLetBoardManagement {
   async completeJob(req, res) {
     try {
       const { jobStatus, shopIds } = req.body;
-  
+
       // Add validation for required fields
       if (!jobStatus || !Array.isArray(shopIds) || shopIds.length === 0) {
         return res.status(400).json({ error: "Invalid request data" });
       }
-  
+
       const updateJobStatus = await outletBoardModal.updateMany(
         { _id: { $in: shopIds } },
         { $set: { jobStatus } }
       );
-  
+
       console.log("updateJobStatus", updateJobStatus);
-  
+
       if (updateJobStatus.nModified === 0) {
-        return res.status(404).json({ error: "Shops not found or no changes made" });
+        return res
+          .status(404)
+          .json({ error: "Shops not found or no changes made" });
       } else {
         return res.status(200).send({
           statusCode: 200,
@@ -280,7 +340,9 @@ class outLetBoardManagement {
       }
     } catch (error) {
       console.log("error", error);
-      return res.status(500).json({ error: "Can't able to complete the job! Try again" });
+      return res
+        .status(500)
+        .json({ error: "Can't able to complete the job! Try again" });
     }
   }
 

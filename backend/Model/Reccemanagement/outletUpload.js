@@ -17,6 +17,9 @@ const outletBoardUpload = new mongoose.Schema(
     gstNumber: String,
     vendorId: String,
     vendorName: String,
+    ouletInstallationImage: String, //01-12-2023
+    installationCommentOrNote: String, //02-12-2023
+    installationStatus: Boolean, //02-12-2023
   },
 
   { timestamps: true }

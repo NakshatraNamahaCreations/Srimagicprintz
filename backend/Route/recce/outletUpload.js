@@ -51,5 +51,11 @@ router.put(
 );
 router.patch("/completejob", outLetBoardManagement.completeJob);
 router.delete("/deletejob/:id", outLetBoardManagement.deleteJob);
+router.put(
+  "/uploadinstallationimage/:id",
+  upload.single("ouletInstallationImage"),
+  outLetBoardManagement.uploadInstallationImage
+);
+router.put("/addinstallations/:id", outLetBoardManagement.addInstallation);
 
 module.exports = router;
