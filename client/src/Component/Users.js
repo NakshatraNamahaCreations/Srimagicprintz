@@ -18,6 +18,8 @@ const active = {
 const inactive = { color: "black", backgroundColor: "white" };
 
 function UserData() {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [selected, setSelected] = useState(0);
   const [displayname, setdisplayname] = useState("");
   const [contactno, setcontactno] = useState("");
@@ -35,7 +37,7 @@ function UserData() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newConfirmpassword, setNewConfirmPassword] = useState("");
-
+  const [profimg, setprofimg] = useState("");
   const apiURL = process.env.REACT_APP_API_URL;
 
   const [show, setShow] = useState(false);
@@ -49,7 +51,9 @@ function UserData() {
   };
 
   // add new user========
+
   const AddNewUser = async (e) => {
+    const formdata = new FormData();
     e.preventDefault();
     if (!displayname || !contactno || !nameOrEmail || !password || !cpassword) {
       alert("Enter all fields");
@@ -57,30 +61,33 @@ function UserData() {
     if (password !== cpassword) {
       alert("Password doestn't matched");
     } else {
+      formdata.append("loginnameOrEmail", nameOrEmail);
+      formdata.append("password", password);
+      formdata.append("displayname", displayname);
+      formdata.append("contactno", contactno);
+      formdata.append("confirmPassword", cpassword);
+      formdata.append("primages", profimg);
+
       try {
         const config = {
           url: "/adduser",
+          baseURL: ApiURL,
           method: "post",
-          baseURL: "http://api.srimagicprintz.com/api",
-          // data: formdata,
-          headers: { "content-type": "application/json" },
-          data: {
-            displayname: displayname,
-            contactno: contactno,
-            loginnameOrEmail: nameOrEmail,
-            password: password,
-            confirmPassword: cpassword,
-          },
+          headers: { "content-type": "multipart/form-data" },
+          data: formdata,
         };
-        await axios(config).then(function (response) {
-          if (response.status === 200) {
-            alert("Account Created");
-            window.location.assign("/Users");
-          }
-        });
+        let response = await axios(config);
+
+        if (response.status === 200) {
+          alert("Account Created");
+          setSelected(0);
+        } else {
+          console.error(response.data.error);
+          alert("Error: " + response.data.error);
+        }
       } catch (error) {
         console.error(error);
-        alert("Not Added");
+        alert(error);
       }
     }
   };
@@ -91,7 +98,7 @@ function UserData() {
   }, []);
 
   const getuser = async () => {
-    let res = await axios.get("http://api.srimagicprintz.com/api/getuser");
+    let res = await axios.get(`${ApiURL}/getuser`);
     if ((res.status = 200)) {
       console.log(res.data.masteruser);
       setuserdata(res.data?.masteruser);
@@ -106,7 +113,7 @@ function UserData() {
       const config = {
         url: `/edituser/${data._id}`,
         method: "post",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         headers: { "content-type": "application/json" },
         data: {
           userid: data._id,
@@ -135,7 +142,7 @@ function UserData() {
   const deleteuser = async (id) => {
     axios({
       method: "post",
-      url: "http://api.srimagicprintz.com/api/deleteuser/" + id,
+      url: `${ApiURL}/deleteuser/" + id`,
     })
       .then(function (response) {
         //handle success
@@ -156,7 +163,7 @@ function UserData() {
       const config = {
         url: `/changepassword/${data._id}`,
         method: "post",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         headers: { "content-type": "application/json" },
         data: {
           oldPassword: oldPassword,
@@ -265,7 +272,6 @@ function UserData() {
           {/* default it will show user data in table view ======================================== */}
           {selected === 0 ? (
             <>
-              {" "}
               <div className="mt-5">
                 <input
                   type="text"
@@ -295,8 +301,19 @@ function UserData() {
                 <div className="card-body p-4">
                   <form>
                     <div className="row">
+                      <div className="col-md-12 mb-3">
+                        <div className="vhs-input-label">Profile Image</div>
+                        <div className="group pt-1">
+                          <Form.Control
+                            name="image"
+                            onChange={(e) => setprofimg(e.target.files[0])}
+                            id="file-upload"
+                            type="file"
+                          />
+                        </div>
+                      </div>
                       <div className="col-md-6">
-                        <div className="vhs-input-label">Display Name</div>
+                        <div className="vhs-input-label">Display Name </div>
                         <div className="group pt-1">
                           <Form.Control
                             type="text"
@@ -370,7 +387,12 @@ function UserData() {
                         </Button>
                       </div>
                       <div className="col-md-2">
-                        <Button className="vhs-button mx-3">Cancel</Button>
+                        <Button
+                          className="vhs-button mx-3"
+                          onClick={() => setSelected(0)}
+                        >
+                          Cancel
+                        </Button>
                       </div>
                     </div>
                   </form>
@@ -397,7 +419,7 @@ function UserData() {
               <div className="p-2">
                 <div className="row">
                   <div className="col-md-12  mb-2">
-                    <div className="vhs-input-label">Display Name</div>
+                    <div className="vhs-input-label">Display Name </div>
                     <div className="group pt-1">
                       <Form.Control
                         readOnly

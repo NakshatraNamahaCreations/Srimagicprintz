@@ -21,15 +21,15 @@ export default function ClientsManagement() {
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
   const [clientID, setClientID] = useState();
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   useEffect(() => {
     getAllClientsInfo();
   }, []);
 
   const getAllClientsInfo = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
-      );
+      const res = await axios.get(`${ApiURL}/Client/clients/getallclient`);
       if (res.status === 200) {
         setAddClients(res.data.client);
       }
@@ -46,49 +46,49 @@ export default function ClientsManagement() {
 
       if (searchName) {
         results = results.filter((item) =>
-          item.clientsName?.toLowerCase().includes(searchName.toLowerCase())
+          item.clientsName?.toLowerCase()?.includes(searchName?.toLowerCase())
         );
       }
 
       if (searchBusinessName) {
-        results = results.filter((item) =>
-          item.ClientBusinessName?.toLowerCase().includes(
-            searchBusinessName.toLowerCase()
+        results = results?.filter((item) =>
+          item.ClientBusinessName?.toLowerCase()?.includes(
+            searchBusinessName?.toLowerCase()
           )
         );
       }
       if (searchClientContactNo1) {
-        results = results.filter((item) => {
+        results = results?.filter((item) => {
           const contactNumber1 =
-            item.ClientsContactNumber1 && item.ClientsContactNumber1.toString();
+            item.ClientsContactNumber1 && item.ClientsContactNumber1?.toString();
           return contactNumber1?.includes(searchClientContactNo1);
         });
       }
 
       if (searchClientContactNo2) {
-        results = results.filter((item) => {
+        results = results?.filter((item) => {
           const contactNumber2 =
-            item.ClientsContactNumber2 && item.ClientsContactNumber2.toString();
+            item.ClientsContactNumber2 && item.ClientsContactNumber2?.toString();
           return contactNumber2?.includes(searchClientContactNo2);
         });
       }
       if (searchClientEmail) {
-        results = results.filter((item) =>
-          item.ClientsEmail?.toLowerCase().includes(
-            searchClientEmail.toLowerCase()
+        results = results?.filter((item) =>
+          item.ClientsEmail?.toLowerCase()?.includes(
+            searchClientEmail?.toLowerCase()
           )
         );
       }
 
       if (searchClientPincode) {
         results = results.filter((item) => {
-          const pincode1 = item.Pincode && item.Pincode.toString();
+          const pincode1 = item.Pincode && item?.Pincode?.toString();
           return pincode1?.includes(searchClientPincode);
         });
       }
       if (searchClientzone) {
-        results = results.filter((item) => {
-          const Zone1 = item.Zone && item.Zone.toString();
+        results = results?.filter((item) => {
+          const Zone1 = item?.Zone && item.Zone?.toString();
 
           return Zone1?.includes(searchClientzone);
         });
@@ -160,7 +160,7 @@ export default function ClientsManagement() {
                       {/* <td className="td_S poppinfnt p-1">{item?.InstallationRate}</td> */}
                       <td className="td_S poppinfnt p-1">
                         {item?.createdAt
-                          ? new Date(item.createdAt).toISOString().slice(0, 10)
+                          ? new Date(item.createdAt)?.toISOString()?.slice(0, 10)
                           : ""}
                       </td>
 
@@ -196,7 +196,7 @@ export default function ClientsManagement() {
               <div className="row ">
                 <img
                   variant="top"
-                  src={`http://api.srimagicprintz.com/ClientImage/${clientID?.ClientImage}`}
+                  src={`${ImageURL}/ClientImage/${clientID?.ClientImage}`}
                   alt=""
                   style={{
                     width: "150px",

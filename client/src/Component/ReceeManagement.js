@@ -8,23 +8,21 @@ import Col from "react-bootstrap/Col";
 import Modal from "react-bootstrap/Modal";
 import { Card } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
-import Row from "react-bootstrap/Row";
-import { useDispatch } from "react-redux";
 import "react-toastify/dist/ReactToastify.css";
-import { CSVLink, CSVDownload } from "react-csv";
 import * as XLSX from "xlsx";
 import axios from "axios";
 import pptxgen from "pptxgenjs";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import moment from "moment";
-import { saveAs } from "file-saver";
-import HeightIcon from "@mui/icons-material/Height";
+
 const ExcelJS = require("exceljs");
 
 export default function ReceeManagement() {
   const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
 
   const [selectedIndex, setSelectedIndex] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -34,41 +32,19 @@ export default function ReceeManagement() {
   const [recceexcel, setrecceexcel] = useState("");
   const [reccedata, setRecceData] = useState([]);
   const [vendordata, setVendorData] = useState([]);
-  // const [searchshopName, setSearchshopName] = useState("");
-  // const [searcharea, setSearcharea] = useState("");
-  // const [searchcity, setSearchcity] = useState("");
-  // const [searchcontactNumber, setSearchcontactNumber] = useState("");
-  // const [searchpincode, setSearchpincode] = useState("");
-  // const [searchzone, setSearchzone] = useState("");
-  // const [searchdate, setSearchDate] = useState("");
-  // const [searchdatastatus, setSearchdatastatus] = useState("");
-  // const [searchVendorName, setSearchVendorName] = useState("");
-  // const [SearchclientName, setSearchclientName] = useState("");
-  // const [searchSINO, setSearchSINO] = useState("");
+
   const [importXLSheet, setImportXLSheet] = useState([]);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [displayedData, setDisplayedData] = useState();
   const [getVendorName, setgetVendorName] = useState(null);
   const [CategoryData, setCategoryData] = useState();
-  // const [selectedcategory, setselectedcategory] = useState("");
-  // const [SearchCategory, setSearchCategory] = useState("");
+
   const [selectedRecceItems, setSelectedRecceItems] = useState([]);
 
   const [selectedRecceItems1, setSelectedRecceItems1] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [editrecce, setEditRecce] = useState(false);
-  // const [Editarea, setEditArea] = useState("");
-  // const [Editclient, setEditclient] = useState("");
-  // const [Editshopname, setEditShopName] = useState("");
-  // const [EditCity, setEditCity] = useState("");
-  // const [EditContactNumber, setEditContactNumber] = useState("");
-  // const [EditPincode, setEditPincode] = useState("");
-  // const [EditZone, setEditZone] = useState("");
-  // const [Editdatastatus, setEditdatastatus] = useState("");
-  // const [Editreccehight, setEditreccehight] = useState("");
-  // const [Editreccewidth, setEditreccewidth] = useState("");
-  // const [EditrecceUnit, setEditrecceUnit] = useState("");
 
   const [editRecceData, setEditRecceData] = useState({});
   const [moreoption, setmoreoption] = useState(false);
@@ -123,10 +99,10 @@ export default function ReceeManagement() {
   useEffect(() => {
     getLengthOfStatus();
   }, [reccedata]);
-  //http://api.srimagicprintz.com/api
+
   const getAllOutlets = async () => {
     try {
-      const res = await axios.get(`http://api.srimagicprintz.com/api/getalloutlets`);
+      const res = await axios.get(`${ApiURL}/getalloutlets`);
       if (res.status === 200) {
         setOutletDoneData(res?.data?.outletData);
       }
@@ -140,9 +116,7 @@ export default function ReceeManagement() {
 
   const getAllRecce = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
-      );
+      const res = await axios.get(`${ApiURL}/recce/recce/getallrecce`);
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
       }
@@ -155,7 +129,7 @@ export default function ReceeManagement() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        `${ApiURL}/Vendor/vendorInfo/getvendorinfo`
       );
 
       if (response.status === 200) {
@@ -186,11 +160,22 @@ export default function ReceeManagement() {
 
       const startIndex = (currentPage - 1) * rowsPerPage;
       const endIndex = Math.min(startIndex + rowsPerPage, results.length);
-      const dataToDisplay = results.slice(startIndex, endIndex);
+      const dataToDisplay = results?.slice(startIndex, endIndex);
       setDisplayedData(dataToDisplay);
     };
     filteredClients();
   }, [reccedata, rowsPerPage]);
+
+  function convertToJson(data) {
+    const headerRow = data[0];
+    return data.slice(1).map((row) => {
+      const rowData = {};
+      headerRow.forEach((header, index) => {
+        rowData[header] = row[index];
+      });
+      return rowData;
+    });
+  }
 
   useEffect(() => {
     if (recceexcel && importXLSheet.length === 0) {
@@ -199,43 +184,22 @@ export default function ReceeManagement() {
     handleImport();
   }, [recceexcel, importXLSheet]);
 
-  function convertToJson(csv) {
-    const lines = csv.split("\n");
-    const result = [];
-    const headers = lines[0].split(",");
+  function readFile() {
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const bstr = evt.target.result;
+      const wb = XLSX.read(bstr, { type: "binary" });
+      const wsname = wb.SheetNames[0];
+      const ws = wb.Sheets[wsname];
+      const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1 });
+      const formattedData = convertToJson(jsonData);
 
-    for (let i = 1; i < lines.length; i++) {
-      const obj = {};
-      const currentLine = lines[i].split(",");
+      setDisplayedData(formattedData);
+    };
 
-      for (let j = 0; j < headers.length; j++) {
-        let value = currentLine[j]
-          ? currentLine[j].replace(/""/g, "").trim()
-          : "";
-
-        if (value.startsWith("{") && value.endsWith("}")) {
-          try {
-            const jsonValue = JSON.parse(value);
-            obj[headers[j]] = jsonValue.VendorId;
-          } catch (error) {
-            console.error("Error parsing JSON:", error);
-          }
-        } else {
-          obj[headers[j]] = value;
-        }
-      }
-      result.push(obj);
-    }
-    return result;
+    reader.readAsBinaryString(recceexcel);
   }
-  const handleEdit = (vendor, action) => {
-    setgetVendorName(vendor);
-    setSelectedIndex({ action });
-  };
-  const handleOutletView = (idd) => {
-    setViewOutletBoardIdd(idd);
-    setViewOutletBoard(true);
-  };
+
   const handleImport = async (outlateid) => {
     if (!outlateid) {
       return;
@@ -246,19 +210,10 @@ export default function ReceeManagement() {
       if (filteredData.length > 0) {
         setUploading(true);
         try {
-          const flattenOutletNames = (data) => {
-            return data.reduce((acc, item) => {
-              if (Array.isArray(item)) {
-                return [...acc, ...flattenOutletNames(item)];
-              }
-              return [...acc, item];
-            }, []);
-          };
-
           const outletNames = flattenOutletNames(filteredData);
 
           const res = await axios.post(
-            `http://api.srimagicprintz.com/api/recce/recce/addreccesviaexcelesheet/${outlateid}`,
+            `${ApiURL}/recce/recce/addreccesviaexcelesheet/${outlateid}`,
             { outletName: outletNames },
             {
               headers: {
@@ -274,7 +229,7 @@ export default function ReceeManagement() {
 
             toast.success("Outlet names in recce updated successfully!");
             setrecceexcel(null);
-            setDisplayedData();
+            setDisplayedData([]);
             window.location.reload();
           } else {
             toast.error(
@@ -296,44 +251,25 @@ export default function ReceeManagement() {
     }
   };
 
-  function readFile() {
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const bstr = evt.target.result;
-      const wb = XLSX.read(bstr, { type: "binary" });
-      const wsname = wb.SheetNames[0];
-      const ws = wb.Sheets[wsname];
-      const data = XLSX.utils.sheet_to_csv(ws, { header: 1 });
-
-      try {
-        const jsonData = convertToJson(data);
-
-        const flattenedData = jsonData.flat();
-
-        setDisplayedData(flattenedData);
-      } catch (error) {
-        console.error("Error parsing JSON:", error);
+  //
+  function flattenOutletNames(data) {
+    // Implement your logic to flatten outlet names if needed
+    // You may need to adjust this function based on your data structure
+    return data.reduce((acc, item) => {
+      if (Array.isArray(item)) {
+        return [...acc, ...flattenOutletNames(item)];
       }
-    };
-
-    reader.readAsBinaryString(recceexcel);
+      return [...acc, item];
+    }, []);
   }
-
-  const handleImageUpload = (event) => {
-    const files = event.target.files;
-    setDesignImages(files);
+  const handleEdit = (vendor, action) => {
+    setgetVendorName(vendor);
+    setSelectedIndex({ action });
   };
 
-  const handleVendorEdit = (recceid) => {
-    const recceTobeedit = filteredData.find((recce) => recce._id === recceid);
-
-    if (recceTobeedit) {
-      setEditRecceData(recceTobeedit);
-      setEditRecce(true);
-      console.log(recceTobeedit, "editid");
-    } else {
-      alert("Recce not found for editing");
-    }
+  const handleOutletView = (idd) => {
+    setViewOutletBoardIdd(idd);
+    setViewOutletBoard(true);
   };
 
   const handleDownload = () => {
@@ -381,20 +317,20 @@ export default function ReceeManagement() {
 
               return {
                 siNo: ++serialNumber,
-                shopName: outlet.ShopName,
-                Clientname: recceItem.BrandName,
+                shopName: outlet?.ShopName,
+                Clientname: recceItem?.BrandName,
                 jobNo: `JOB ${JobNob}`,
-                contact: outlet.OutletContactNumber,
-                address: outlet.OutletAddress,
-                city: outlet.OutletCity,
-                zone: outlet.OutletZone,
-                date: outlet.createdAt
-                  ? new Date(outlet.createdAt).toISOString().slice(0, 10)
+                contact: outlet?.OutletContactNumber,
+                address: outlet?.OutletAddress,
+                city: outlet?.OutletCity,
+                zone: outlet?.OutletZone,
+                date: outlet?.createdAt
+                  ? new Date(outlet.createdAt)?.toISOString()?.slice(0, 10)
                   : "",
-                status: outlet.RecceStatus,
-                height: outletDimensions.height,
-                width: outletDimensions.width,
-                Category: outletDimensions.category,
+                status: outlet?.RecceStatus,
+                height: outletDimensions?.height,
+                width: outletDimensions?.width,
+                Category: outletDimensions?.category,
               };
             })
           )
@@ -406,9 +342,9 @@ export default function ReceeManagement() {
         );
 
         return {
-          height: outletDimensions ? outletDimensions.height : "",
-          width: outletDimensions ? outletDimensions.width : "",
-          category: outletDimensions ? outletDimensions.category : "",
+          height: outletDimensions ? outletDimensions?.height : "",
+          width: outletDimensions ? outletDimensions?.width : "",
+          category: outletDimensions ? outletDimensions?.category : "",
         };
       }
 
@@ -431,9 +367,7 @@ export default function ReceeManagement() {
 
   const getAllCategory = async () => {
     try {
-      const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
-      );
+      const res = await fetch(`${ApiURL}/Product/category/getcategory`);
       if (res.ok) {
         const data = await res.json();
 
@@ -449,7 +383,7 @@ export default function ReceeManagement() {
     let updatedSelectedRecceItems;
 
     if (selectedRecceItems?.includes(itemId)) {
-      updatedSelectedRecceItems = selectedRecceItems.filter(
+      updatedSelectedRecceItems = selectedRecceItems?.filter(
         (id) => id !== itemId
       );
     } else {
@@ -457,7 +391,7 @@ export default function ReceeManagement() {
     }
 
     setSelectedRecceItems(updatedSelectedRecceItems);
-    setmoreoption(updatedSelectedRecceItems.length > 0);
+    setmoreoption(updatedSelectedRecceItems?.length > 0);
   };
 
   const handleSelectAllChange = () => {
@@ -507,7 +441,7 @@ export default function ReceeManagement() {
     setShow(true);
   };
 
-  const selectedv = vendordata?.find((vendor) => vendor._id === selctedVendor);
+  const selectedv = vendordata?.find((vendor) => vendor?._id === selctedVendor);
 
   const handleUpdate = async () => {
     try {
@@ -519,9 +453,9 @@ export default function ReceeManagement() {
         }
 
         const config = {
-          url: `/recce/recce/updatereccedata/${getVendorName._id}/${outletid}`,
+          url: `/recce/recce/updatereccedata/${getVendorName?._id}/${outletid}`,
           method: "put",
-          baseURL: "http://api.srimagicprintz.com/api",
+          baseURL: ApiURL,
           headers: { "Content-Type": "multipart/form-data" },
           data: formdata,
         };
@@ -550,10 +484,10 @@ export default function ReceeManagement() {
       const updatedRecceData = [];
 
       for (const recceId of selectedRecceItems1) {
-        const filteredData = reccedata.map((ele) =>
-          ele.outletName.filter((item) => {
-            if (recceId === item._id) {
-              item.vendor = vendordata._id;
+        const filteredData = reccedata?.map((ele) =>
+          ele?.outletName?.filter((item) => {
+            if (recceId === item?._id) {
+              item.vendor = vendordata?._id;
             }
             return item;
           })
@@ -562,8 +496,8 @@ export default function ReceeManagement() {
         updatedRecceData.push(...filteredData);
 
         const config = {
-          url: `/api/recce/recce/outletupdate/${recceId}/${selectedv?._id}`,
-          baseURL: "http://api.srimagicprintz.com",
+          url: `/recce/recce/outletupdate/${recceId}/${selectedv?._id}`,
+          baseURL: ApiURL,
           method: "put",
           headers: { "Content-Type": "application/json" },
           data: { reccedata: updatedRecceData },
@@ -677,21 +611,24 @@ export default function ReceeManagement() {
 
       if (Array.isArray(outletNameArray)) {
         outletNameArray?.forEach((outlet) => {
-          if (outlet.RecceStatus?.includes("Pending")) {
+          const OutletDoned = OutletDoneData.find(
+            (Ele) => Ele?.outletShopId === outlet._id
+          );
+          console.log(OutletDoned, "OutletDoned");
+          if (OutletDoned && OutletDoned.jobStatus === true) {
+            statusCounts.completed++;
+          } else if (outlet.RecceStatus === "Pending") {
             statusCounts.pending++;
-          }
-          if (outlet.RecceStatus?.includes("Cancelled")) {
+          } else if (outlet.RecceStatus === "Cancelled") {
             statusCounts.cancelled++;
-          }
-          if (
-            outlet.RecceStatus?.includes("Completed") &&
+          } else if (
+            outlet.RecceStatus === "Completed" &&
             outlet.vendor !== null &&
             outlet.vendor !== undefined
           ) {
             statusCounts.completed++;
-          }
-          if (
-            outlet.RecceStatus?.includes("Proccesing") &&
+          } else if (
+            outlet.RecceStatus === "Processing" &&
             outlet.vendor !== null &&
             outlet.vendor !== undefined
           ) {
@@ -701,10 +638,10 @@ export default function ReceeManagement() {
       }
     });
 
-    setcompletedStatus(statusCounts.completed);
-    setpendingStatus(statusCounts.pending);
-    setcancelledStatus(statusCounts.cancelled);
-    setproccesingStatus(statusCounts.processing);
+    setcompletedStatus(statusCounts?.completed);
+    setpendingStatus(statusCounts?.pending);
+    setcancelledStatus(statusCounts?.cancelled);
+    setproccesingStatus(statusCounts?.processing);
   };
 
   function convertToFeet(value, unit) {
@@ -961,7 +898,7 @@ export default function ReceeManagement() {
 
               let currentX = centerX;
 
-              const fullImageUrl = `http://api.srimagicprintz.com/Outlet/${outl.ouletBannerImage}`;
+              const fullImageUrl = `${ImageURL}/Outlet/${outl.ouletBannerImage}`;
 
               slide.addImage({
                 path: fullImageUrl,
@@ -1234,9 +1171,7 @@ export default function ReceeManagement() {
 
   const getAllClientsInfo = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
-      );
+      const res = await axios.get(`${ApiURL}/Client/clients/getallclient`);
       if (res.status === 200) {
         setClientInfo(res.data);
       }
@@ -1454,7 +1389,7 @@ export default function ReceeManagement() {
                       >
                         <option disabled>Choose..</option>
                         {vendordata?.map((vendorele) => (
-                          <option key={vendorele._id} value={vendorele._id}>
+                          <option key={vendorele?._id} value={vendorele?._id}>
                             {vendorele?.VendorFirstName}
                           </option>
                         ))}
@@ -1668,8 +1603,8 @@ export default function ReceeManagement() {
                         <td className="td_S poppinfnt p-2 text-nowrap text-center">
                           {item.createdAt
                             ? new Date(item.createdAt)
-                                .toISOString()
-                                .slice(0, 10)
+                                ?.toISOString()
+                                ?.slice(0, 10)
                             : ""}
                         </td>
 
@@ -1905,8 +1840,8 @@ export default function ReceeManagement() {
                         <span className="me-3 clr">createdAt :</span>
                         {getVendorName.createdAt
                           ? new Date(getVendorName.createdAt)
-                              .toISOString()
-                              .slice(0, 10)
+                              ?.toISOString()
+                              ?.slice(0, 10)
                           : ""}
                       </p>
 
@@ -1933,7 +1868,7 @@ export default function ReceeManagement() {
                         <div className="row">
                           {OutletDoneData.filter(
                             (Ele) => Ele?.outletShopId === viewOutletBoardsIdd
-                          ).map((board) => {
+                          ).map((board, ind) => {
                             return (
                               <>
                                 <div className="col-md-4 ">
@@ -1942,31 +1877,30 @@ export default function ReceeManagement() {
                                       {" "}
                                       Outlet ShopName :
                                     </span>{" "}
-                                    {board.outletShopName
-                                      .charAt(0)
-                                      .toUpperCase() +
-                                      board.outletShopName.slice(1)}
+                                    {board?.outletShopName
+                                      ?.charAt(0)
+                                      ?.toUpperCase() +
+                                      board?.outletShopName?.slice(1)}
                                   </p>
                                   <p className="poppinfnt ">
                                     <span className="me-2 subct">
                                       Board Type :
                                     </span>
-                                    {board.boardType.charAt(0).toUpperCase() +
-                                      board.boardType.slice(1)}
+                                    {ind + 1}
                                   </p>
 
                                   <p className="poppinfnt ">
                                     <span className="me-2 subct">
                                       Category :
                                     </span>{" "}
-                                    {board.category}
+                                    {board?.category}
                                   </p>
 
                                   <p className="poppinfnt ">
                                     <span className="me-2 subct">
                                       GST Number :
                                     </span>{" "}
-                                    {board.gstNumber}
+                                    {board?.gstNumber}
                                   </p>
 
                                   <div className="row">
@@ -1975,15 +1909,15 @@ export default function ReceeManagement() {
                                       height={200}
                                       className="col-md-8 banrrad"
                                       alt=""
-                                      src={`http://api.srimagicprintz.com/Outlet/${board.ouletBannerImage}`}
+                                      src={`${ImageURL}/Outlet/${board?.ouletBannerImage}`}
                                     />
                                     <div className="col-md-1 borderlef">
                                       <span className="border-line"></span>
                                       <span className="poppinfnt ms-5 me-3">
-                                        {board.height}
+                                        {board?.height}
                                       </span>
                                       <span className="poppinfnt ms-5 me-3">
-                                        {board.unitsOfMeasurment}
+                                        {board?.unitsOfMeasurment}
                                       </span>
                                       <span className="border-line"></span>
                                     </div>
@@ -1992,16 +1926,16 @@ export default function ReceeManagement() {
                                   <div className=" mt-2 m-auto mb-2 borderlef1 ">
                                     <span className="border-line2"></span>
                                     <span className=" poppinfnt ms-2 me-1 ">
-                                      {board.width}
+                                      {board?.width}
                                     </span>
                                     <span className="poppinfnt  me-2">
-                                      {board.unitsOfMeasurment}
+                                      {board?.unitsOfMeasurment}
                                     </span>
                                     <span className=" border-line2"></span>
                                   </div>
                                   <p className="poppinfnt ">
                                     <span className="me-2 subct">Remark :</span>{" "}
-                                    {board.remark}
+                                    {board?.remark}
                                   </p>
                                 </div>
                                 <hr></hr>{" "}
@@ -2266,7 +2200,7 @@ export default function ReceeManagement() {
                                             )}
                                             onChange={() =>
                                               handleOutletToggleSelect(
-                                                recceItem.BrandId,
+                                                recceItem?.BrandId,
                                                 outlet._id
                                               )
                                             }
@@ -2279,7 +2213,7 @@ export default function ReceeManagement() {
                                           Job{JobNob}
                                         </td>
                                         <td className="td_S poppinfnt p-1">
-                                          {recceItem.BrandName}
+                                          {recceItem?.BrandName}
                                         </td>
                                         <td className="td_S poppinfnt p-1">
                                           {outlet.ShopName}
@@ -2319,9 +2253,9 @@ export default function ReceeManagement() {
                                           {vendor?.VendorFirstName}
                                         </td>
                                         <td className="td_S poppinfnt p-2 text-nowrap text-center">
-                                          {recceItem.createdAt
+                                          {recceItem?.createdAt
                                             ? moment(
-                                                recceItem.createdAt
+                                                recceItem?.createdAt
                                               ).format("DD MMMM YYYY")
                                             : ""}
                                         </td>
@@ -2382,7 +2316,7 @@ export default function ReceeManagement() {
                 >
                   <option>Choose..</option>
                   {vendordata?.map((vendorele) => (
-                    <option key={vendorele._id} value={vendorele._id}>
+                    <option key={vendorele?._id} value={vendorele?._id}>
                       {vendorele?.VendorFirstName}
                     </option>
                   ))}

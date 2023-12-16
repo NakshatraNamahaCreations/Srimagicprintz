@@ -42,14 +42,15 @@ function Userrights() {
 
   const [Reports, setreports] = useState(data?.reports || false);
   const [Billing, setbilling] = useState(data?.billing || false);
-
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const givenRights = async (e) => {
     e.preventDefault();
     try {
       const config = {
         url: `/giveaccess/${data._id}`,
         method: "post",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         // data: formdata,
         headers: { "content-type": "application/json" },
         data: {

@@ -8,6 +8,7 @@ import AddIcon from "@mui/icons-material/Add";
 
 import "react-data-table-component-extensions/dist/index.css";
 export default function MarketingInfo() {
+
   const [saveDate, setSaveDate] = useState(false);
   const [shedule, setShedule] = useState(false);
   const [sheduledDate, setSheduledDate] = useState(false);

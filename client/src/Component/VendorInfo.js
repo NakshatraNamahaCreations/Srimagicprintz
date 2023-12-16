@@ -7,6 +7,8 @@ import axios from "axios";
 import Button from "react-bootstrap/esm/Button";
 import { Link } from "react-router-dom";
 export default function VendorInfo() {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [VendorFirstName, setVendorFirstName] = useState("");
   const [VendorLastName, setVendorLastName] = useState("");
   const [VendorContactNumber, setVendorContactNumber] = useState("");
@@ -17,7 +19,7 @@ export default function VendorInfo() {
   const [selected, setSelected] = useState("");
   const [passWord, setPassWord] = useState(null);
 
-  // login api  http://api.srimagicprintz.com/api/Vendor/vendorInfo/login
+
   const AddVendorData = async (e) => {
     e.preventDefault();
 
@@ -36,7 +38,7 @@ export default function VendorInfo() {
       const config = {
         url: "/Vendor/vendorInfo/addvendorinfo",
         method: "post",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL:ApiURL,
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };

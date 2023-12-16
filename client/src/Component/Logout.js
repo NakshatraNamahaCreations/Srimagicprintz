@@ -3,17 +3,19 @@ import Button from "react-bootstrap/esm/Button";
 import Header from "./Header";
 import axios from "axios";
 export default function Logout() {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const Logout = async () => {
     const user = JSON.parse(localStorage.getItem("userData"));
 
     try {
       let res = await axios.delete(
-        `http://api.srimagicprintz.com/api/auth/auth/logout/${user._id}`
+        `${ApiURL}/logout/${user._id}`
       );
 
       if (res.status === 200) {
-        localStorage.removeItem("userData");
-        localStorage.clear();
+        // localStorage.removeItem("userData");
+        // localStorage.clear();
         alert("logged out succesfully");
         window.location.href = "/";
       }

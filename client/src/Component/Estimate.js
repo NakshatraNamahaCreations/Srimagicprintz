@@ -14,6 +14,8 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 function Estimate() {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [recceData1, setRecceData1] = useState([]);
   const [OutletDoneData, setOutletDoneData] = useState([]);
   const location = useLocation();
@@ -50,9 +52,7 @@ function Estimate() {
   }, []);
   const getOuletById = async () => {
     try {
-      const res = await axios.get(
-        `http://api.srimagicprintz.com/api/getalloutlets`
-      );
+      const res = await axios.get(`${ApiURL}/getalloutlets`);
       if (res.status === 200) {
         setOutletDoneData(res?.data?.outletData);
       }
@@ -63,7 +63,7 @@ function Estimate() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        `${ApiURL}/Vendor/vendorInfo/getvendorinfo`
       );
 
       if (response.status === 200) {
@@ -117,9 +117,7 @@ function Estimate() {
 
   const getAllRecce = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
-      );
+      const res = await axios.get(`${ApiURL}/recce/recce/getallrecce`);
       if (res.status === 200) {
         let RecceID = res?.data?.RecceData?.filter((ele) => ele?._id === idd);
 
@@ -132,9 +130,7 @@ function Estimate() {
 
   const getAllClientsInfo = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
-      );
+      const res = await axios.get(`${ApiURL}/Client/clients/getallclient`);
       if (res.status === 200) {
         setClientInfo(res.data);
       }
@@ -192,7 +188,7 @@ function Estimate() {
     try {
       const config = {
         url: "/quotation",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         method: "post",
         headers: { "Content-Type": "application/json" },
         data: {
@@ -238,7 +234,7 @@ function Estimate() {
   const getQuotation = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://api.srimagicprintz.com/api/getquotation");
+      const res = await axios.get(`${ApiURL}/getquotation`);
       if (res.status === 200) {
         let quotation = res.data.data;
         let filtered = quotation.filter((ele) => ele.ReeceId === idd);

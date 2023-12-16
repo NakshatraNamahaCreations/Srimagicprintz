@@ -17,19 +17,18 @@ function BillingEstimate() {
   const id = searchParams.get("id");
   const selectedStatus = searchParams.get("type");
   const [RecceId, setRecceId] = useState(null);
+  const ApiURL = process.env.REACT_APP_API_URL;
   useEffect(() => {
     getAllRecce();
     getQuotation();
   }, []);
   const getAllRecce = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
-      );
+      const res = await axios.get(`${ApiURL}/recce/recce/getallrecce`);
       if (res.status === 200) {
-        let recceData = res.data.RecceData.filter((ele) => ele._id === id);
+        let recceData = res.data.RecceData.filter((ele) => ele?._id === id);
         setRecceData(recceData);
-        setRecceId(recceData.flatMap((ele) => ele._id));
+        setRecceId(recceData?.flatMap((ele) => ele?._id));
       }
     } catch (err) {
       console.error(err);
@@ -39,10 +38,10 @@ function BillingEstimate() {
   const [QuotationData, setQuotationData] = useState([]);
   const getQuotation = async () => {
     try {
-      const res = await axios.get("http://api.srimagicprintz.com/api/getquotation");
+      const res = await axios.get(`${ApiURL}/getquotation`);
       if (res.status === 200) {
         let quotation = res.data.data;
-        let filtered = quotation.filter((ele) => ele.ReeceId === id);
+        let filtered = quotation?.filter((ele) => ele?.ReeceId === id);
         setQuotationData(filtered);
       }
     } catch (err) {
@@ -151,7 +150,7 @@ function BillingEstimate() {
                               {outlet?.category}
                             </td>
                             <td className="thstyle poppinfnt">
-                              {outlet.height}
+                              {outlet?.height}
                             </td>
                             <td className="thstyle poppinfnt">
                               {outlet?.width}

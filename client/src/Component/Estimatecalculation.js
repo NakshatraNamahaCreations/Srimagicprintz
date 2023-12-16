@@ -12,7 +12,8 @@ function Estiamtecalculation() {
   const handleTrackJob = (row) => {
     const { index } = row;
     setTrackJob(index);
-  };
+  }; const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const columns = [
     {
       name: "SI.NO.",

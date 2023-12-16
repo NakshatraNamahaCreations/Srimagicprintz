@@ -33,15 +33,15 @@ function Billing() {
     setSelectAll(!selectAll);
 
     if (!selectAll) {
-      const allOutletIds = filteredData.flatMap((item) =>
-        item?.outletName.map((outlet) => outlet._id)
+      const allOutletIds = filteredData?.flatMap((item) =>
+        item?.outletName?.map((outlet) => outlet?._id)
       );
       setSelectedRecceItems1(allOutletIds);
     } else {
       setSelectedRecceItems1([]);
     }
   };
-
+  const ApiURL = process.env.REACT_APP_API_URL;
   useEffect(() => {
     getAllRecce();
 
@@ -49,9 +49,7 @@ function Billing() {
   }, []);
   const getAllClientsInfo = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
-      );
+      const res = await axios.get(`${ApiURL}/Client/clients/getallclient`);
       if (res.status === 200) {
         setClientInfo(res.data);
       }
@@ -61,9 +59,7 @@ function Billing() {
   };
   const getAllRecce = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
-      );
+      const res = await axios.get(`${ApiURL}/recce/recce/getallrecce`);
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
       }
@@ -164,12 +160,12 @@ function Billing() {
   useEffect(() => {
     const filteredClients = () => {
       const filteredOutlets = recceData.filter((recceItem) =>
-        recceItem.BrandName?.toLowerCase().includes(
-          searchshopName.toLowerCase()
+        recceItem.BrandName?.toLowerCase()?.includes(
+          searchshopName?.toLowerCase()
         )
       );
 
-      const dataToDisplay = filteredOutlets.slice(
+      const dataToDisplay = filteredOutlets?.slice(
         (currentPage - 1) * rowsPerPage1,
         currentPage * rowsPerPage1
       );
@@ -180,7 +176,6 @@ function Billing() {
   }, [recceData, searchshopName, rowsPerPage1, currentPage]);
   return (
     <>
-     
       <Header />
       <div className="row  m-auto containerPadding">
         <div className="row">

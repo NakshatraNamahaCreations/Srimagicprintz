@@ -25,6 +25,8 @@ const StatusColor = {
   Cancelled: { backgroundColor: "#E06469" },
 };
 export default function Overview() {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [RecceData, setRecceData] = useState([]);
   const [totalRecce, setTotalRecce] = useState([]);
   const [totalDesign, setTotalDesign] = useState([]);
@@ -60,7 +62,7 @@ export default function Overview() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        `${ApiURL}/recce/recce/getallrecce`
       );
       if (res.status === 200) {
         const recceData = res.data.RecceData || [];
@@ -132,7 +134,7 @@ export default function Overview() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        `${ApiURL}/Vendor/vendorInfo/getvendorinfo`
       );
 
       if (response.status === 200) {
@@ -148,7 +150,7 @@ export default function Overview() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        `${ApiURL}/Client/clients/getallclient`
       );
       if (res.status === 200) {
         setTotalAddClients(res.data.client);

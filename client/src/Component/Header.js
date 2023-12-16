@@ -7,6 +7,8 @@ import { NavLink } from "react-router-dom";
 import { useGlobalNotification } from "../Component/NotificationContext";
 
 function Header() {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const { notifications } = useGlobalNotification();
   const user = JSON.parse(localStorage.getItem("userData"));
 
@@ -52,7 +54,6 @@ function Header() {
   } else if (pathname === "/Notification") {
     sidenavName = " Notification ";
   }
-  
 
   // Now, `filteredNotifications` contains notifications without the "New notification" text.
 
@@ -112,7 +113,7 @@ function Header() {
                     width={"35px"}
                     height={"35px"}
                     style={{ borderRadius: "100px" }}
-                    src={`http://api.srimagicprintz.com/ProfileImage/${user?.profileImage}`}
+                    src={`${ImageURL}/ProfileImage/${user?.primages}`}
                     alt=""
                   />
 

@@ -11,6 +11,8 @@ import { useLocation } from "react-router-dom";
 import moment from "moment";
 
 export default function Invoice() {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const idd = searchParams.get("id");
@@ -52,7 +54,7 @@ export default function Invoice() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        `${ApiURL}/Vendor/vendorInfo/getvendorinfo`
       );
 
       if (response.status === 200) {
@@ -68,9 +70,7 @@ export default function Invoice() {
 
   const getOuletById = async () => {
     try {
-      const res = await axios.get(
-        `http://api.srimagicprintz.com/api/getalloutlets`
-      );
+      const res = await axios.get(`${ApiURL}/getalloutlets`);
       if (res.status === 200) {
         setOutletDoneData(res?.data?.outletData);
       }
@@ -80,9 +80,7 @@ export default function Invoice() {
   };
   const getQuotation = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/getquotation"
-      );
+      const res = await axios.get(`${ApiURL}/getquotation`);
       if (res.status === 200) {
         let quotation = res.data.data;
         let filtered = quotation.filter((ele) => ele.ReeceId === idd);
@@ -94,9 +92,7 @@ export default function Invoice() {
   };
   const getAllRecce = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
-      );
+      const res = await axios.get(`${ApiURL}/recce/recce/getallrecce`);
       if (res.status === 200) {
         let recceData = res.data.RecceData.filter((ele) => ele._id === idd);
         setRecceData(recceData);
@@ -108,9 +104,7 @@ export default function Invoice() {
 
   const getAllClientsInfo = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
-      );
+      const res = await axios.get(`${ApiURL}/Client/clients/getallclient`);
       if (res.status === 200) {
         setClientInfo(res.data);
       }
@@ -162,7 +156,7 @@ export default function Invoice() {
           <img
             width={"200px"}
             height={"100px"}
-            src="../Assests/images.jpg"
+            src="http://localhost:3000/Assests/images.jpg"
             alt=""
           />
         </div>

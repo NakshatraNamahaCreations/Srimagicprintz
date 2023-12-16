@@ -14,7 +14,8 @@ import CheckIcon from "@mui/icons-material/Check";
 export default function JobManagement() {
   // const [selectedClientId, setSelectedClientId] = useState(null);
   const [vendorData, setVendorData] = useState([]);
-
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [selecteZone, setSelectedZone] = useState("");
   const [selectedCity, setselectedCity] = useState([]);
   // const [client, setclient] = useState([]);
@@ -68,9 +69,7 @@ export default function JobManagement() {
   }, []);
   const getAllCategory = async () => {
     try {
-      const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
-      );
+      const res = await fetch(`${ApiURL}/Product/category/getcategory`);
       if (res.ok) {
         const data = await res.json();
 
@@ -84,9 +83,7 @@ export default function JobManagement() {
 
   const getAllRecce = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
-      );
+      const res = await axios.get(`${ApiURL}/recce/recce/getallrecce`);
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
       }
@@ -103,7 +100,7 @@ export default function JobManagement() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        `${ApiURL}/Vendor/vendorInfo/getvendorinfo`
       );
 
       if (response.status === 200) {
@@ -125,8 +122,8 @@ export default function JobManagement() {
   ) => {
     try {
       const selectedCitiesArray = selectedCity
-        .split(",")
-        .map((city) => city.trim().toLowerCase());
+        ?.split(",")
+        ?.map((city) => city?.trim()?.toLowerCase());
 
       if (!assign) {
         alert("Please select a zone.");
@@ -141,13 +138,13 @@ export default function JobManagement() {
       const updatedRecceData = [];
 
       for (const recceId of selectedRecceItems) {
-        const filteredData = RecceData.map((ele) =>
-          ele.outletName.filter((item) => {
-            // console.log(item.OutletCity, "selectedCity");
+        const filteredData = RecceData?.map((ele) =>
+          ele?.outletName?.filter((item) => {
+            // console.log(item?.OutletCity, "selectedCity");
             if (
-              recceId === item._id &&
-              item.OutletZone === selecteZone &&
-              selectedCitiesArray.includes(item.OutletCity?.toLowerCase())
+              recceId === item?._id &&
+              item?.OutletZone === selecteZone &&
+              selectedCitiesArray?.includes(item?.OutletCity?.toLowerCase())
             ) {
               item.vendor = vendordata._id;
             }
@@ -159,7 +156,7 @@ export default function JobManagement() {
 
         const config = {
           url: `/api/recce/recce/outletupdate/${recceId}/${vendordata?._id}`,
-          baseURL: "http://api.srimagicprintz.com",
+          baseURL: ApiURL,
           method: "put",
           headers: { "Content-Type": "application/json" },
           data: { RecceData: updatedRecceData },
@@ -198,15 +195,13 @@ export default function JobManagement() {
   };
   const handleEditPrint = (item, recceItem) => {
     setPrintData(item);
-    setRecceIndex(recceItem._id);
+    setRecceIndex(recceItem?._id);
     setselectedIndexPrint(true);
   };
 
   const getAllClientsInfo = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
-      );
+      const res = await axios.get(`${ApiURL}/Client/clients/getallclient`);
       if (res.status === 200) {
         setClientInfo(res.data);
       }
@@ -260,7 +255,7 @@ export default function JobManagement() {
       const config = {
         url: `/recce/recce/updatereccedata/${RecceIndex}/${PrintData._id}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -285,10 +280,10 @@ export default function JobManagement() {
   const downloadAsPdf = () => {};
 
   const handleSelectClientName = () => {
-    const selectedBrandNames = selectedCheckboxes.map((value) => {
-      const [brandName] = value.split("_");
+    const selectedBrandNames = selectedCheckboxes?.map((value) => {
+      const [brandName] = value?.split("_");
       const desiredClient = ClientInfo?.client?.find(
-        (client) => client._id === brandName
+        (client) => client?._id === brandName
       );
 
       return desiredClient?.clientsBrand || brandName;
@@ -301,9 +296,9 @@ export default function JobManagement() {
   const handleCheckboxChange = (event, brandName, index, recceItemId) => {
     const updatedCheckboxes = event.target.checked
       ? [...selectedCheckboxes, `${brandName}_${index}_${recceItemId}`]
-      : selectedCheckboxes.filter(
+      : selectedCheckboxes?.filter(
           (checkbox) =>
-            !checkbox.includes(`${brandName}_${index}_${recceItemId}`)
+            !checkbox?.includes(`${brandName}_${index}_${recceItemId}`)
         );
     // setIDD(recceItemId)
     setSelectedCheckboxes(updatedCheckboxes);
@@ -336,8 +331,8 @@ export default function JobManagement() {
     setSelectAll(!selectAll);
 
     if (!selectAll) {
-      const allOutletIds = RecceData.flatMap((item) =>
-        item?.outletName.map((outlet) => outlet._id)
+      const allOutletIds = RecceData?.flatMap((item) =>
+        item?.outletName?.map((outlet) => outlet?._id)
       );
       setSelectedRecceItems(allOutletIds);
     } else {
@@ -372,8 +367,8 @@ export default function JobManagement() {
   const handleToggleSelect = (item, outletId) => {
     let updatedSelectedRecceItems;
 
-    if (selectedRecceItems.includes(outletId)) {
-      updatedSelectedRecceItems = selectedRecceItems.filter(
+    if (selectedRecceItems?.includes(outletId)) {
+      updatedSelectedRecceItems = selectedRecceItems?.filter(
         (id) => id !== outletId
       );
     } else {
@@ -382,9 +377,9 @@ export default function JobManagement() {
 
     setSelectedRecceItems(updatedSelectedRecceItems);
 
-    if (item && item.outletName) {
-      const selectedOutlet = item.outletName.find(
-        (outlet) => outlet._id === outletId
+    if (item && item?.outletName) {
+      const selectedOutlet = item?.outletName.find(
+        (outlet) => outlet?._id === outletId
       );
 
       if (selectedOutlet) {
@@ -395,25 +390,25 @@ export default function JobManagement() {
 
   const handleSelectAllCity = () => {
     setselectAllCity(!selectAllCity);
-  
+
     if (!selectAllCity) {
       const allCitiesSet = new Set();
-  
-      RecceData?.filter((recceItem) => 
-        recceItem._id?.includes(selectedOutletIds)
+
+      RecceData?.filter((recceItem) =>
+        recceItem?._id?.includes(selectedOutletIds)
       ).forEach((ele) =>
-        ele.outletName?.forEach((outlet) => {
+        ele?.outletName?.forEach((outlet) => {
           const lowercaseCity = outlet?.OutletCity?.toLowerCase();
           if (lowercaseCity && !allCitiesSet.has(lowercaseCity)) {
             allCitiesSet.add(lowercaseCity);
           }
         })
       );
-  
+
       const updatedCheckboxes = [
         ...new Set([...selectedCheckboxes1, ...Array.from(allCitiesSet)]),
       ];
-  
+
       setselectedCity(Array.from(allCitiesSet).join(","));
       setselectedCheckboxes1(updatedCheckboxes);
     } else {
@@ -421,8 +416,7 @@ export default function JobManagement() {
       setselectedCity("");
     }
   };
-  
-  
+
   const handleSelectAllClientName = () => {
     setselectAllClients(!selectAllClients);
 
@@ -433,7 +427,7 @@ export default function JobManagement() {
         if (lowebrand && !allClientsSet.has(lowebrand)) {
           allClientsSet.add(lowebrand);
         }
-        return `${lowebrand}_${index}_${recceItem._id}`;
+        return `${lowebrand}_${index}_${recceItem?._id}`;
       });
 
       setSelectedBrandNames(Array.from(allClientsSet).join(", "));
@@ -464,12 +458,12 @@ export default function JobManagement() {
       const updatedRecceData = [];
 
       for (const recceId of selectedRecceItems) {
-        const filteredData = RecceData.filter((ele) =>
-          ele.outletName.filter((item) => {
+        const filteredData = RecceData?.filter((ele) =>
+          ele?.outletName?.filter((item) => {
             if (
-              recceId === item._id &&
-              item.OutletZone === selecteZone &&
-              item.OutletCity?.toLowerCase()?.includes(
+              recceId === item?._id &&
+              item?.OutletZone === selecteZone &&
+              item?.OutletCity?.toLowerCase()?.includes(
                 selectedCity?.toLowerCase()
               )
             ) {
@@ -483,7 +477,7 @@ export default function JobManagement() {
 
         const config = {
           url: `/api/recce/recce/updateinstaltion/${recceId}/${vendor}`,
-          baseURL: "http://api.srimagicprintz.com",
+          baseURL: ApiURL,
           method: "put",
           headers: { "Content-Type": "application/json" },
           data: { RecceData: updatedRecceData },
@@ -492,13 +486,13 @@ export default function JobManagement() {
         const res = await axios(config);
 
         vendorData
-          .filter((ele) => ele._id === vendor)
-          .map((vonf) => {
+          ?.filter((ele) => ele?._id === vendor)
+          ?.map((vonf) => {
             if (res.status === 200) {
-              alert(`${jobType} assigned to:   ${vonf.VendorFirstName} vendor`);
+              alert(`${jobType} assigned to:   ${vonf?.VendorFirstName} vendor`);
             } else {
               alert(
-                `Failed to assign ${jobType} to:  ${vonf.VendorFirstName} vendor`
+                `Failed to assign ${jobType} to:  ${vonf?.VendorFirstName} vendor`
               );
             }
           });
@@ -519,7 +513,7 @@ export default function JobManagement() {
     if (isChecked) {
       updatedCheckboxes = [...new Set([...selectedCheckboxes1, city])];
     } else {
-      updatedCheckboxes = selectedCheckboxes1.filter(
+      updatedCheckboxes = selectedCheckboxes1?.filter(
         (checkbox) => checkbox !== city
       );
     }
@@ -655,21 +649,21 @@ export default function JobManagement() {
                                           <Form.Check
                                             type="checkbox"
                                             className="me-3 d-inline"
-                                            value={`${ele.BrandName}_${index}`}
+                                            value={`${ele?.BrandName}_${index}`}
                                             checked={
                                               selectAllClients ||
                                               selectedCheckboxes?.includes(
-                                                `${ele.BrandName}_${index}_${ele._id}`
+                                                `${ele?.BrandName}_${index}_${ele?._id}`
                                               )
                                             }
                                             onChange={(event) => {
                                               handleCheckboxChange(
                                                 event,
-                                                ele.BrandName,
+                                                ele?.BrandName,
                                                 index,
-                                                ele._id
+                                                ele?._id
                                               );
-                                              setSelectedOutletIds(ele._id);
+                                              setSelectedOutletIds(ele?._id);
                                             }}
                                           />
 
@@ -678,7 +672,7 @@ export default function JobManagement() {
                                               {" "}
                                               Job {index + 1}
                                             </span>
-                                            {ele.BrandName}
+                                            {ele?.BrandName}
                                           </p>
                                         </Form.Label>
                                       </div>
@@ -931,14 +925,14 @@ export default function JobManagement() {
                       </thead>
                       <tbody>
                         {RecceData?.map((recceItem, index) =>
-                          recceItem?.outletName.map((outlet, outletArray) => {
+                          recceItem?.outletName?.map((outlet, outletArray) => {
                             // const desiredClient = ClientInfo?.client?.find(
-                            //   (client) => client._id === recceItem.BrandName
+                            //   (client) => client._id === recceItem?.BrandName
                             // );
                             let JobNob = 0;
                             RecceData?.forEach((recceItem, recceIndex) => {
                               recceItem?.outletName?.forEach((item) => {
-                                if (outlet._id === item._id) {
+                                if (outlet?._id === item?._id) {
                                   JobNob = recceIndex + 1;
                                 }
                               });
@@ -946,7 +940,7 @@ export default function JobManagement() {
                             const selectedIds =
                               SelectedData?.selectedBrandNames?.selectedIds;
 
-                            const recceItemId = recceItem._id;
+                            const recceItemId = recceItem?._id;
 
                             const isRecceItemIdSelected =
                               selectedIds?.includes(recceItemId);
@@ -963,12 +957,12 @@ export default function JobManagement() {
                               }
                               const selectedCitiesArray =
                                 SelectedData.selectedCity
-                                  .split(",")
-                                  .map((city) => city.trim().toLowerCase());
+                                  ?.split(",")
+                                  ?.map((city) => city?.trim()?.toLowerCase());
 
                               const isCityMatched =
                                 SelectedData.selectedCity === "Select All" ||
-                                selectedCitiesArray.includes(
+                                selectedCitiesArray?.includes(
                                   outlet?.OutletCity?.toLowerCase()
                                 );
 
@@ -986,7 +980,7 @@ export default function JobManagement() {
                                 rowsDisplayed++;
                                 serialNumber++;
                                 return (
-                                  <tr className="tr_C" key={outlet._id}>
+                                  <tr className="tr_C" key={outlet?._id}>
                                     <td className="td_S p-1">
                                       <input
                                         style={{
@@ -995,13 +989,13 @@ export default function JobManagement() {
                                           marginRight: "5px",
                                         }}
                                         type="checkbox"
-                                        checked={selectedRecceItems.includes(
-                                          outlet._id
+                                        checked={selectedRecceItems?.includes(
+                                          outlet?._id
                                         )}
                                         onChange={() =>
                                           handleToggleSelect(
-                                            recceItem.BrandId,
-                                            outlet._id
+                                            recceItem?.BrandId,
+                                            outlet?._id
                                           )
                                         }
                                       />
@@ -1012,18 +1006,20 @@ export default function JobManagement() {
                                       {recceItem?.BrandName}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.ShopName}
+                                      {outlet?.ShopName}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.ClientName}
+                                      {outlet?.ClientName}
                                     </td>
-                                    <td className="td_S p-1">{outlet.State}</td>
                                     <td className="td_S p-1">
-                                      {outlet.OutletContactNumber}
+                                      {outlet?.State}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet?.OutletContactNumber}
                                     </td>
 
                                     <td className="td_S p-1">
-                                      {outlet.OutletZone}
+                                      {outlet?.OutletZone}
                                     </td>
                                     <td className="td_S p-1">
                                       {extractedPincode
@@ -1031,31 +1027,31 @@ export default function JobManagement() {
                                         : ""}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.OutletCity}
+                                      {outlet?.OutletCity}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.FLBoard}
+                                      {outlet?.FLBoard}
                                     </td>
-                                    <td className="td_S p-1">{outlet.GSB}</td>
+                                    <td className="td_S p-1">{outlet?.GSB}</td>
                                     <td className="td_S p-1">
-                                      {outlet.Inshop}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet.Category}
+                                      {outlet?.Inshop}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.height}
-                                      {outlet.unit}
+                                      {outlet?.Category}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.width}
-                                      {outlet.unit}
+                                      {outlet?.height}
+                                      {outlet?.unit}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet?.width}
+                                      {outlet?.unit}
                                     </td>
                                     <td className="td_S ">
-                                      {recceItem.createdAt
-                                        ? new Date(recceItem.createdAt)
-                                            .toISOString()
-                                            .slice(0, 10)
+                                      {recceItem?.createdAt
+                                        ? new Date(recceItem?.createdAt)
+                                            ?.toISOString()
+                                            ?.slice(0, 10)
                                         : ""}
                                     </td>
                                     <td className="td_S ">
@@ -1092,9 +1088,9 @@ export default function JobManagement() {
                   </div>
                   <div className="row mt-3 m-auto containerPadding">
                     {vendorData ? (
-                      vendorData.map((ele, index) => (
+                      vendorData?.map((ele, index) => (
                         <Card
-                          key={ele.VendorId}
+                          key={ele?.VendorId}
                           className="col-md-4 m-3 "
                           style={{
                             width: "240px",
@@ -1103,7 +1099,7 @@ export default function JobManagement() {
                           }}
                         >
                           <div className="row text-center m-auto">
-                            {ele.VendorImage ? (
+                            {ele?.VendorImage ? (
                               <img
                                 style={{
                                   width: "70%",
@@ -1111,18 +1107,18 @@ export default function JobManagement() {
                                   borderRadius: "100%",
                                 }}
                                 className="m-auto"
-                                src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
+                                src={`${ImageURL}/VendorImage/${ele?.VendorImage}`}
                                 alt=""
                               />
                             ) : (
                               <span>No Image Available</span>
                             )}
                             <span>
-                              {ele.VendorFirstName?.charAt(0)?.toUpperCase() +
-                                ele.VendorFirstName?.substr(1)}
-                              {ele.VendorLastName}
+                              {ele?.VendorFirstName?.charAt(0)?.toUpperCase() +
+                                ele?.VendorFirstName?.substr(1)}
+                              {ele?.VendorLastName}
                             </span>
-                            <span>{ele.VendorId}</span>
+                            <span>{ele?.VendorId}</span>
                             <span style={{ color: "orange" }}>
                               Job Assigned
                               <span style={{ margin: "5px" }}>0</span>
@@ -1218,15 +1214,15 @@ export default function JobManagement() {
                       </thead>
                       <tbody>
                         {RecceData?.map((recceItem, index) =>
-                          recceItem?.outletName.map((outlet, outletArray) => {
+                          recceItem?.outletName?.map((outlet, outletArray) => {
                             // const desiredClient = ClientInfo?.client?.find(
-                            //   (client) => client._id === recceItem.BrandName
+                            //   (client) => client._id === recceItem?.BrandName
                             // );
 
                             let JobNob = 0;
                             RecceData?.forEach((recceItem, recceIndex) => {
                               recceItem?.outletName?.forEach((item) => {
-                                if (outlet._id === item._id) {
+                                if (outlet?._id === item?._id) {
                                   JobNob = recceIndex + 1;
                                 }
                               });
@@ -1241,29 +1237,31 @@ export default function JobManagement() {
                               if (extractedPincode) {
                                 outlet.OutletPincode = extractedPincode[0];
                               }
-                              if (outlet.RecceStatus.includes("Completed")) {
+                              if (outlet?.RecceStatus?.includes("Completed")) {
                                 rowsDisplayed++;
                                 serialNumber++;
                                 return (
-                                  <tr className="tr_C" key={outlet._id}>
+                                  <tr className="tr_C" key={outlet?._id}>
                                     <td className="td_S p-1">{serialNumber}</td>
                                     <td className="td_S p-1">Job{JobNob}</td>
                                     <td className="td_S p-1">
                                       {recceItem?.BrandName}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.ShopName}
+                                      {outlet?.ShopName}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.ClientName}
+                                      {outlet?.ClientName}
                                     </td>
-                                    <td className="td_S p-1">{outlet.State}</td>
                                     <td className="td_S p-1">
-                                      {outlet.OutletContactNumber}
+                                      {outlet?.State}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet?.OutletContactNumber}
                                     </td>
 
                                     <td className="td_S p-1">
-                                      {outlet.OutletZone}
+                                      {outlet?.OutletZone}
                                     </td>
                                     <td className="td_S p-1">
                                       {extractedPincode
@@ -1271,31 +1269,31 @@ export default function JobManagement() {
                                         : ""}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.OutletCity}
+                                      {outlet?.OutletCity}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.FLBoard}
+                                      {outlet?.FLBoard}
                                     </td>
-                                    <td className="td_S p-1">{outlet.GSB}</td>
+                                    <td className="td_S p-1">{outlet?.GSB}</td>
                                     <td className="td_S p-1">
-                                      {outlet.Inshop}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet.Category}
+                                      {outlet?.Inshop}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.height}
-                                      {outlet.unit}
+                                      {outlet?.Category}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.width}
-                                      {outlet.unit}
+                                      {outlet?.height}
+                                      {outlet?.unit}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet?.width}
+                                      {outlet?.unit}
                                     </td>
                                     <td className="td_S ">
-                                      {recceItem.createdAt
-                                        ? new Date(recceItem.createdAt)
-                                            .toISOString()
-                                            .slice(0, 10)
+                                      {recceItem?.createdAt
+                                        ? new Date(recceItem?.createdAt)
+                                            ?.toISOString()
+                                            ?.slice(0, 10)
                                         : ""}
                                     </td>
                                     <td className="td_S ">
@@ -1496,11 +1494,11 @@ export default function JobManagement() {
                       </thead>
                       <tbody>
                         {RecceData?.map((recceItem, index) =>
-                          recceItem?.outletName.map((outlet, outletArray) => {
+                          recceItem?.outletName?.map((outlet, outletArray) => {
                             let JobNob = 0;
                             RecceData?.forEach((recceItem, recceIndex) => {
                               recceItem?.outletName?.forEach((item) => {
-                                if (outlet._id === item._id) {
+                                if (outlet?._id === item?._id) {
                                   JobNob = recceIndex + 1;
                                 }
                               });
@@ -1508,7 +1506,7 @@ export default function JobManagement() {
                             const selectedIds =
                               SelectedData?.selectedBrandNames?.selectedIds;
 
-                            const recceItemId = recceItem._id;
+                            const recceItemId = recceItem?._id;
 
                             const isRecceItemIdSelected =
                               selectedIds?.includes(recceItemId);
@@ -1525,13 +1523,13 @@ export default function JobManagement() {
                               }
 
                               const selectedCitiesArray =
-                                SelectedData.selectedCity
-                                  .split(",")
-                                  .map((city) => city.trim().toLowerCase());
+                                SelectedData?.selectedCity
+                                  ?.split(",")
+                                  ?.map((city) => city?.trim()?.toLowerCase());
 
                               const isCityMatched =
                                 SelectedData.selectedCity === "Select All" ||
-                                selectedCitiesArray.includes(
+                                selectedCitiesArray?.includes(
                                   outlet?.OutletCity?.toLowerCase()
                                 );
 
@@ -1552,7 +1550,7 @@ export default function JobManagement() {
                                 rowsDisplayed++;
                                 serialNumber++;
                                 return (
-                                  <tr className="tr_C" key={outlet._id}>
+                                  <tr className="tr_C" key={outlet?._id}>
                                     <td className="td_S p-1">
                                       <input
                                         style={{
@@ -1561,13 +1559,13 @@ export default function JobManagement() {
                                           marginRight: "5px",
                                         }}
                                         type="checkbox"
-                                        checked={selectedRecceItems.includes(
-                                          outlet._id
+                                        checked={selectedRecceItems?.includes(
+                                          outlet?._id
                                         )}
                                         onChange={() =>
                                           handleToggleSelect(
-                                            recceItem.BrandId,
-                                            outlet._id
+                                            recceItem?.BrandId,
+                                            outlet?._id
                                           )
                                         }
                                       />
@@ -1578,18 +1576,20 @@ export default function JobManagement() {
                                       {recceItem?.BrandName}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.ShopName}
+                                      {outlet?.ShopName}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.ClientName}
+                                      {outlet?.ClientName}
                                     </td>
-                                    <td className="td_S p-1">{outlet.State}</td>
                                     <td className="td_S p-1">
-                                      {outlet.OutletContactNumber}
+                                      {outlet?.State}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet?.OutletContactNumber}
                                     </td>
 
                                     <td className="td_S p-1">
-                                      {outlet.OutletZone}
+                                      {outlet?.OutletZone}
                                     </td>
                                     <td className="td_S p-1">
                                       {extractedPincode
@@ -1597,31 +1597,31 @@ export default function JobManagement() {
                                         : ""}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.OutletCity}
+                                      {outlet?.OutletCity}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.FLBoard}
+                                      {outlet?.FLBoard}
                                     </td>
-                                    <td className="td_S p-1">{outlet.GSB}</td>
+                                    <td className="td_S p-1">{outlet?.GSB}</td>
                                     <td className="td_S p-1">
-                                      {outlet.Inshop}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet.Category}
+                                      {outlet?.Inshop}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.height}
-                                      {outlet.unit}
+                                      {outlet?.Category}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.width}
-                                      {outlet.unit}
+                                      {outlet?.height}
+                                      {outlet?.unit}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet?.width}
+                                      {outlet?.unit}
                                     </td>
                                     <td className="td_S ">
-                                      {recceItem.createdAt
-                                        ? new Date(recceItem.createdAt)
-                                            .toISOString()
-                                            .slice(0, 10)
+                                      {recceItem?.createdAt
+                                        ? new Date(recceItem?.createdAt)
+                                            ?.toISOString()
+                                            ?.slice(0, 10)
                                         : ""}
                                     </td>
                                     <td className="td_S ">
@@ -1665,7 +1665,7 @@ export default function JobManagement() {
                         if (ele?.InstalationGroup?.length > 0) {
                           return (
                             <Card
-                              key={ele.VendorId}
+                              key={ele?.VendorId}
                               className="col-md-4 m-3 p-2"
                               style={{
                                 width: "200px",
@@ -1687,7 +1687,7 @@ export default function JobManagement() {
                                   onClick={() => {
                                     AssignInstallation(
                                       selectedRecceItems,
-                                      ele._id,
+                                      ele?._id,
                                       selecteZone,
                                       selectedCity,
                                       ele?.InstalationGroup?.length
@@ -1708,9 +1708,9 @@ export default function JobManagement() {
 
                   <div className="row mt-3 m-auto containerPadding">
                     {vendorData ? (
-                      vendorData.map((ele, index) => (
+                      vendorData?.map((ele, index) => (
                         <Card
-                          key={ele.VendorId}
+                          key={ele?.VendorId}
                           className="col-md-4 m-3 "
                           style={{
                             width: "240px",
@@ -1719,7 +1719,7 @@ export default function JobManagement() {
                           }}
                         >
                           <div className="row text-center m-auto">
-                            {ele.VendorImage ? (
+                            {ele?.VendorImage ? (
                               <img
                                 style={{
                                   width: "70%",
@@ -1727,18 +1727,18 @@ export default function JobManagement() {
                                   borderRadius: "100%",
                                 }}
                                 className="m-auto"
-                                src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
+                                src={`${ImageURL}/VendorImage/${ele?.VendorImage}`}
                                 alt=""
                               />
                             ) : (
                               <span>No Image Available</span>
                             )}
                             <span>
-                              {ele.VendorFirstName?.charAt(0)?.toUpperCase() +
-                                ele.VendorFirstName?.substr(1)}
-                              {ele.VendorLastName}
+                              {ele?.VendorFirstName?.charAt(0)?.toUpperCase() +
+                                ele?.VendorFirstName?.substr(1)}
+                              {ele?.VendorLastName}
                             </span>
-                            <span>{ele.VendorId}</span>
+                            <span>{ele?.VendorId}</span>
                             <span style={{ color: "orange" }}>
                               Job Assigned
                               <span style={{ margin: "5px" }}>0</span>
@@ -1752,7 +1752,7 @@ export default function JobManagement() {
                               onClick={() => {
                                 AssignInstallation(
                                   selectedRecceItems,
-                                  ele._id,
+                                  ele?._id,
                                   selectedCity,
                                   selecteZone
                                 );
@@ -1836,14 +1836,14 @@ export default function JobManagement() {
                           </thead>
                           <tbody>
                             {RecceData?.map((recceItem, index) =>
-                              recceItem?.outletName.map(
+                              recceItem?.outletName?.map(
                                 (outlet, outletArray) => {
                                   if (rowsDisplayed < rowsPerPage1) {
                                     const pincodePattern = /\b\d{6}\b/;
                                     // const desiredClient =
                                     //   ClientInfo?.client?.find(
                                     //     (client) =>
-                                    //       client._id === recceItem.BrandName
+                                    //       client._id === recceItem?.BrandName
                                     //   );
 
                                     let JobNob = 0;
@@ -1851,7 +1851,7 @@ export default function JobManagement() {
                                       (recceItem, recceIndex) => {
                                         recceItem?.outletName?.forEach(
                                           (item) => {
-                                            if (outlet._id === item._id) {
+                                            if (outlet?._id === item?._id) {
                                               JobNob = recceIndex + 1;
                                             }
                                           }
@@ -1867,12 +1867,12 @@ export default function JobManagement() {
                                         extractedPincode[0];
                                     }
                                     if (
-                                      outlet.RecceStatus.includes("Completed")
+                                      outlet?.RecceStatus?.includes("Completed")
                                     ) {
                                       rowsDisplayed++;
                                       serialNumber++;
                                       return (
-                                        <tr className="tr_C" key={outlet._id}>
+                                        <tr className="tr_C" key={outlet?._id}>
                                           <td className="td_S p-1">
                                             {serialNumber}
                                           </td>
@@ -1883,20 +1883,20 @@ export default function JobManagement() {
                                             {recceItem?.BrandName}
                                           </td>
                                           <td className="td_S p-1">
-                                            {outlet.ShopName}
+                                            {outlet?.ShopName}
                                           </td>
                                           <td className="td_S p-1">
-                                            {outlet.ClientName}
+                                            {outlet?.ClientName}
                                           </td>
                                           <td className="td_S p-1">
-                                            {outlet.State}
+                                            {outlet?.State}
                                           </td>
                                           <td className="td_S p-1">
-                                            {outlet.OutletContactNumber}
+                                            {outlet?.OutletContactNumber}
                                           </td>
 
                                           <td className="td_S p-1">
-                                            {outlet.OutletZone}
+                                            {outlet?.OutletZone}
                                           </td>
                                           <td className="td_S p-1">
                                             {extractedPincode
@@ -1904,33 +1904,33 @@ export default function JobManagement() {
                                               : ""}
                                           </td>
                                           <td className="td_S p-1">
-                                            {outlet.OutletCity}
+                                            {outlet?.OutletCity}
                                           </td>
                                           <td className="td_S p-1">
-                                            {outlet.FLBoard}
+                                            {outlet?.FLBoard}
                                           </td>
                                           <td className="td_S p-1">
-                                            {outlet.GSB}
+                                            {outlet?.GSB}
                                           </td>
                                           <td className="td_S p-1">
-                                            {outlet.Inshop}
+                                            {outlet?.Inshop}
                                           </td>
                                           <td className="td_S p-1">
-                                            {outlet.Category}
+                                            {outlet?.Category}
                                           </td>
                                           <td className="td_S p-1">
-                                            {outlet.height}
-                                            {outlet.unit}
+                                            {outlet?.height}
+                                            {outlet?.unit}
                                           </td>
                                           <td className="td_S p-1">
-                                            {outlet.width}
-                                            {outlet.unit}
+                                            {outlet?.width}
+                                            {outlet?.unit}
                                           </td>
                                           <td className="td_S ">
-                                            {recceItem.createdAt
-                                              ? new Date(recceItem.createdAt)
-                                                  .toISOString()
-                                                  .slice(0, 10)
+                                            {recceItem?.createdAt
+                                              ? new Date(recceItem?.createdAt)
+                                                  ?.toISOString()
+                                                  ?.slice(0, 10)
                                               : ""}
                                           </td>
                                           <td className="td_S ">
@@ -2161,15 +2161,15 @@ export default function JobManagement() {
                       </thead>
                       <tbody>
                         {RecceData?.map((recceItem, index) =>
-                          recceItem?.outletName.map((outlet, outletArray) => {
+                          recceItem?.outletName?.map((outlet, outletArray) => {
                             // const desiredClient = ClientInfo?.client?.find(
-                            //   (client) => client._id === recceItem.BrandName
+                            //   (client) => client._id === recceItem?.BrandName
                             // );
 
                             let JobNob = 0;
                             RecceData?.forEach((recceItem, recceIndex) => {
                               recceItem?.outletName?.forEach((item) => {
-                                if (outlet._id === item._id) {
+                                if (outlet?._id === item?._id) {
                                   JobNob = recceIndex + 1;
                                 }
                               });
@@ -2197,18 +2197,20 @@ export default function JobManagement() {
                                       {recceItem?.BrandName}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.ShopName}
+                                      {outlet?.ShopName}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.ClientName}
+                                      {outlet?.ClientName}
                                     </td>
-                                    <td className="td_S p-1">{outlet.State}</td>
                                     <td className="td_S p-1">
-                                      {outlet.OutletContactNumber}
+                                      {outlet?.State}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet?.OutletContactNumber}
                                     </td>
 
                                     <td className="td_S p-1">
-                                      {outlet.OutletZone}
+                                      {outlet?.OutletZone}
                                     </td>
                                     <td className="td_S p-1">
                                       {extractedPincode
@@ -2216,31 +2218,31 @@ export default function JobManagement() {
                                         : ""}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.OutletCity}
+                                      {outlet?.OutletCity}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.FLBoard}
+                                      {outlet?.FLBoard}
                                     </td>
-                                    <td className="td_S p-1">{outlet.GSB}</td>
+                                    <td className="td_S p-1">{outlet?.GSB}</td>
                                     <td className="td_S p-1">
-                                      {outlet.Inshop}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet.Category}
+                                      {outlet?.Inshop}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.height}
-                                      {outlet.unit}
+                                      {outlet?.Category}
                                     </td>
                                     <td className="td_S p-1">
-                                      {outlet.width}
-                                      {outlet.unit}
+                                      {outlet?.height}
+                                      {outlet?.unit}
+                                    </td>
+                                    <td className="td_S p-1">
+                                      {outlet?.width}
+                                      {outlet?.unit}
                                     </td>
                                     <td className="td_S ">
-                                      {recceItem.createdAt
-                                        ? new Date(recceItem.createdAt)
-                                            .toISOString()
-                                            .slice(0, 10)
+                                      {recceItem?.createdAt
+                                        ? new Date(recceItem?.createdAt)
+                                            ?.toISOString()
+                                            ?.slice(0, 10)
                                         : ""}
                                     </td>
                                     <td className="td_S ">

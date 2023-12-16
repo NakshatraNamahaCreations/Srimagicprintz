@@ -20,7 +20,8 @@ import jsPDF from "jspdf";
 import "jspdf-autotable"; // Import the autotable plugin
 
 export default function Installation() {
-  // const ApiURL = process.env.REACT_APP_API_URL;
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [recceData, setRecceData] = useState([]);
 
   const [displayedData, setDisplayedData] = useState();
@@ -55,9 +56,7 @@ export default function Installation() {
 
   const getAllRecce = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
-      );
+      const res = await axios.get(`${ApiURL}/recce/recce/getallrecce`);
       if (res.status === 200) {
         // const filteredRecceData = res.data.RecceData.filter(
         //   (item) => item._id === item.completedFabrication
@@ -82,7 +81,7 @@ export default function Installation() {
   }, [recceData, rowsPerPage]);
   const getAllOutlets = async () => {
     try {
-      const res = await axios.get(`http://api.srimagicprintz.com/api/getalloutlets`);
+      const res = await axios.get(`${ApiURL}/getalloutlets`);
       if (res.status === 200) {
         setOutletDoneData(res?.data?.outletData);
       }
@@ -93,9 +92,7 @@ export default function Installation() {
   };
   const getAllClientsInfo = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
-      );
+      const res = await axios.get(`${ApiURL}/Client/clients/getallclient`);
       if (res.status === 200) {
         setClientInfo(res.data);
       }
@@ -106,7 +103,7 @@ export default function Installation() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        `${ApiURL}/Vendor/vendorInfo/getvendorinfo`
       );
 
       if (response.status === 200) {
@@ -121,7 +118,7 @@ export default function Installation() {
   };
   const getAllInstalation = async () => {
     try {
-      let res = await axios.get("http://api.srimagicprintz.com/api/getgroup");
+      let res = await axios.get(`${ApiURL}/getgroup`);
       if (res.status === 200) {
         let instalationData = res?.data?.instalation?.flatMap((ele) => ele);
         setInstaLationGroups(instalationData);
@@ -156,8 +153,8 @@ export default function Installation() {
 
     let serialNumber = 0;
 
-    const tableData = selectedRecceItems1.flatMap((outletidd) =>
-      filteredData.flatMap((Ele) =>
+    const tableData = selectedRecceItems1?.flatMap((outletidd) =>
+      filteredData?.flatMap((Ele) =>
         Ele?.outletName
           ?.filter(
             (outle) =>
@@ -167,7 +164,7 @@ export default function Installation() {
                 "Go to installation"
               )
           )
-          .map((item) => ({
+          ?.map((item) => ({
             siNo: ++serialNumber,
             shopName: item.ShopName,
             contact: item.OutletContactNumber,
@@ -175,7 +172,7 @@ export default function Installation() {
             city: item.OutletCity,
             zone: item.OutletZone,
             date: item.createdAt
-              ? new Date(item.createdAt).toISOString().slice(0, 10)
+              ? new Date(item.createdAt)?.toISOString()?.slice(0, 10)
               : "",
             status: item.RecceStatus,
             // height: item.height,
@@ -191,7 +188,7 @@ export default function Installation() {
 
     pdf.autoTable({
       head: [tableColumn],
-      body: tableData.map((item) => Object.values(item)),
+      body: tableData?.map((item) => Object.values(item)),
       startY: 20,
       styles: {
         fontSize: 6,
@@ -252,7 +249,7 @@ export default function Installation() {
     let updatedSelectedRecceItems;
 
     if (selectedRecceItems1.includes(outletId)) {
-      updatedSelectedRecceItems = selectedRecceItems1.filter(
+      updatedSelectedRecceItems = selectedRecceItems1?.filter(
         (id) => id !== outletId
       );
     } else {
@@ -268,8 +265,8 @@ export default function Installation() {
     setSelectAll(!selectAll);
 
     if (!selectAll) {
-      const allOutletIds = filteredData.flatMap((item) =>
-        item?.outletName.map((outlet) => outlet._id)
+      const allOutletIds = filteredData?.flatMap((item) =>
+        item?.outletName?.map((outlet) => outlet?._id)
       );
       setSelectedRecceItems1(allOutletIds);
     } else {
@@ -291,7 +288,7 @@ export default function Installation() {
         const config = {
           url: `/recce/recce/updatereccedata/${RecceId}/${outletid}`,
           method: "put",
-          baseURL: "http://api.srimagicprintz.com/api",
+          baseURL: ApiURL,
           headers: { "Content-Type": "multipart/form-data" },
           data: formdata,
         };
@@ -323,8 +320,8 @@ export default function Installation() {
 
       for (const outlateid of selectedRecceItems1) {
         for (const recceid of filteredData) {
-          const filteredData1 = recceid.outletName.filter((outlet) => {
-            if (outlateid === outlet._id) {
+          const filteredData1 = recceid.outletName?.filter((outlet) => {
+            if (outlateid === outlet?._id) {
               outlet.InstalationGroup = selectedv._id;
             }
             return outlet;
@@ -333,8 +330,8 @@ export default function Installation() {
           updatedRecceData.push(...filteredData1);
 
           const config = {
-            url: `/api/recce/recce/updateinstaltion/${outlateid}/${selectedv._id}`,
-            baseURL: "http://api.srimagicprintz.com",
+            url: `/recce/recce/updateinstaltion/${outlateid}/${selectedv._id}`,
+            baseURL: ApiURL,
             method: "put",
             headers: { "Content-Type": "application/json" },
             data: { reccedata: updatedRecceData },
@@ -377,7 +374,7 @@ export default function Installation() {
         : recceData?.map((recceItem) => {
             const outletNameArray = recceItem?.outletName;
             if (Array.isArray(outletNameArray)) {
-              const filteredOutlets = outletNameArray.filter((outlet) =>
+              const filteredOutlets = outletNameArray?.filter((outlet) =>
                 outlet?.installationSTatus?.includes(selctedStatus)
               );
               return { ...recceItem, outletName: filteredOutlets };
@@ -394,10 +391,10 @@ export default function Installation() {
     setShowOutletId(true);
   };
 
-  const mergedArray = OutletDoneData.filter(
+  const mergedArray = OutletDoneData?.filter(
     (Ele) => Ele?.outletShopId === OutletId
   )
-    .map((board) => {
+    ?.map((board) => {
       // Transform OutletDoneData to match the structure of recceData
       // Add a property, e.g., isOutletDone: true, to distinguish between OutletDoneData and recceData
 
@@ -411,7 +408,7 @@ export default function Installation() {
         ?.map((recceItem, index) =>
           recceItem?.outletName
             ?.filter((item) => item._id === OutletId)
-            .map((outlet) => ({
+            ?.map((outlet) => ({
               ...outlet,
               isOutletDone: false,
             }))
@@ -651,12 +648,12 @@ export default function Installation() {
               <tbody>
                 {FilteredDatabystat?.map((recceItem, index) =>
                   recceItem?.outletName
-                    .filter((ele, outletArray) =>
+                    ?.filter((ele, outletArray) =>
                       ele?.OutlateFabricationDeliveryType?.includes(
                         "Go to installation"
                       )
                     )
-                    .map((outlet) => {
+                    ?.map((outlet) => {
                       if (rowsDisplayed < rowsPerPage1) {
                         const pincodePattern = /\b\d{6}\b/;
 
@@ -664,7 +661,7 @@ export default function Installation() {
 
                         FilteredDatabystat?.forEach((recceItem, recceIndex) => {
                           recceItem?.outletName?.forEach((item) => {
-                            if (outlet._id === item._id) {
+                            if (outlet?._id === item._id) {
                               JobNob = recceIndex + 1;
                             }
                           });
@@ -694,12 +691,12 @@ export default function Installation() {
                                 }}
                                 type="checkbox"
                                 checked={selectedRecceItems1.includes(
-                                  outlet._id
+                                  outlet?._id
                                 )}
                                 onChange={() =>
                                   handleOutletToggleSelect(
                                     recceItem._id,
-                                    outlet._id
+                                    outlet?._id
                                   )
                                 }
                               />
@@ -727,10 +724,10 @@ export default function Installation() {
                               {vendor?.VendorFirstName}
                             </td>
                             <td className="td_S p-2 text-nowrap text-center">
-                              {recceItem.createdAt
+                            {recceItem.createdAt
                                 ? new Date(recceItem.createdAt)
-                                    .toISOString()
-                                    .slice(0, 10)
+                                    ?.toISOString()
+                                    ?.slice(0, 10)
                                 : ""}
                             </td>
                             <td className="td_S ">
@@ -740,7 +737,7 @@ export default function Installation() {
                               className="td_S "
                               variant="info "
                               onClick={() => {
-                                handleEdit(outlet._id);
+                                handleEdit(outlet?._id);
                               }}
                               style={{ cursor: "pointer", color: "skyblue" }}
                             >
@@ -766,14 +763,14 @@ export default function Installation() {
             </div>
           </div>{" "}
           <div className="row">
-            {mergedArray.map((item, index) => (
+            {mergedArray?.map((item, index) => (
               <div className="col-md-6" key={index}>
                 {!item.isOutletDone ? (
                   <>
                     <div className="row">
-                      {OutletDoneData.filter(
+                      {OutletDoneData?.filter(
                         (Ele) => Ele?.outletShopId === OutletId
-                      ).map((board) => {
+                      )?.map((board, ind) => {
                         return (
                           <>
                             <div className="col-md-12 ">
@@ -782,23 +779,21 @@ export default function Installation() {
                                   {" "}
                                   Outlet ShopName :
                                 </span>{" "}
-                                {board.outletShopName.charAt(0).toUpperCase() +
-                                  board.outletShopName.slice(1)}
+                                {ind+1}
                               </p>
                               <p className="poppinfnt ">
                                 <span className="me-2 subct">Board Type :</span>
-                                {board.boardType.charAt(0).toUpperCase() +
-                                  board.boardType.slice(1)}
+                                {ind + 1}
                               </p>
 
                               <p className="poppinfnt ">
                                 <span className="me-2 subct">Category :</span>{" "}
-                                {board.category}
+                                {board?.category}
                               </p>
 
                               <p className="poppinfnt ">
                                 <span className="me-2 subct">GST Number :</span>{" "}
-                                {board.gstNumber}
+                                {board?.gstNumber}
                               </p>
 
                               <div className="row">
@@ -807,15 +802,15 @@ export default function Installation() {
                                   height={200}
                                   className="col-md-8 banrrad"
                                   alt=""
-                                  src={`http://api.srimagicprintz.com/Outlet/${board.ouletInstallationImage}`}
+                                  src={`${ImageURL}/Outlet/${board?.ouletInstallationImage}`}
                                 />
                                 <div className="col-md-1 borderlef">
                                   <span className="border-line"></span>
                                   <span className="poppinfnt ms-5 me-3">
-                                    {board.height}
+                                    {board?.height}
                                   </span>
                                   <span className="poppinfnt ms-5 me-3">
-                                    {board.unitsOfMeasurment}
+                                    {board?.unitsOfMeasurment}
                                   </span>
                                   <span className="border-line"></span>
                                 </div>
@@ -824,16 +819,16 @@ export default function Installation() {
                               <div className=" mt-2 m-auto mb-2 borderlef1 ">
                                 <span className="border-line2"></span>
                                 <span className=" poppinfnt ms-2 me-1 ">
-                                  {board.width}
+                                  {board?.width}
                                 </span>
                                 <span className="poppinfnt  me-2">
-                                  {board.unitsOfMeasurment}
+                                  {board?.unitsOfMeasurment}
                                 </span>
                                 <span className=" border-line2"></span>
                               </div>
                               <p className="poppinfnt ">
                                 <span className="me-2 subct">Remark :</span>{" "}
-                                {board.installationCommentOrNote}
+                                {board?.installationCommentOrNote}
                               </p>
                             </div>
                             <hr></hr>{" "}
@@ -847,28 +842,29 @@ export default function Installation() {
                     {recceData?.map((recceItem, index) =>
                       recceItem?.outletName
                         ?.filter((item) => item._id === OutletId)
-                        .map((outlet) => (
+                        ?.map((outlet) => (
                           <>
                             <p>
                               <span className="cl"> Shop Name:</span>
-                              <span>{outlet.ShopName}</span>
+                              <span>{outlet?.ShopName}</span>
                             </p>
                             <p>
                               <span className="cl"> Partner Code:</span>
-                              <span> {outlet.PartnerCode}</span>
+                              <span> {outlet?.PartnerCode}</span>
                             </p>
                             <p>
                               <span className="cl"> Category :</span>
-                              <span> {outlet.Category}</span>
+                              <span> {outlet?.Category}</span>
                             </p>
                             <p>
                               <span className="cl">Outlet Pincode :</span>
-                              <span> {outlet.OutletPincode}</span>
+                              <span> {outlet?.OutletPincode}</span>
                             </p>
                             <p>
                               <span className="cl"> Inshop :</span>
                               <span>
-                                {outlet.Inshop === "Y" || outlet.Inshop === "y"
+                                {outlet?.Inshop === "Y" ||
+                                outlet?.Inshop === "y"
                                   ? "Yes"
                                   : "No"}
                               </span>
@@ -876,7 +872,7 @@ export default function Installation() {
                             <p>
                               <span className="cl"> GSB :</span>
                               <span>
-                                {outlet.GSB === "Y" || outlet.GSB === "y"
+                                {outlet?.GSB === "Y" || outlet?.GSB === "y"
                                   ? "Yes"
                                   : "No"}
                               </span>
@@ -884,26 +880,26 @@ export default function Installation() {
                             <p>
                               <span className="cl"> FLBoard :</span>
                               <span>
-                                {outlet.FLBoard === "Y" ? "Yes" : "No"}
+                                {outlet?.FLBoard === "Y" ? "Yes" : "No"}
                               </span>
                             </p>
                             <p>
                               <span className="cl"> Height:</span>
                               <span>
-                                {outlet.Height}
-                                {outlet.unit}
+                                {outlet?.Height}
+                                {outlet?.unit}
                               </span>
                             </p>
                             <p>
                               <span className="cl"> Width :</span>
                               <span>
-                                {outlet.width}
-                                {outlet.unit}
+                                {outlet?.width}
+                                {outlet?.unit}
                               </span>
                             </p>
                             <p>
                               <span className="cl"> GST Number :</span>
-                              <span>{outlet.GSTNumber}</span>
+                              <span>{outlet?.GSTNumber}</span>
                             </p>
                           </>
                         ))

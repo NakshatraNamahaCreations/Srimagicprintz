@@ -16,7 +16,7 @@ export default function ClientInfo() {
   const [pincode, setPincode] = useState("");
   const [zone, setZone] = useState("");
   // const [installationRate, setInstallationRate] = useState(0);
-
+  const ApiURL = process.env.REACT_APP_API_URL;
   const [clientImage, setClientImage] = useState("");
   const AddClientsData = async (e) => {
     e.preventDefault();
@@ -36,7 +36,7 @@ export default function ClientInfo() {
     try {
       const config = {
         url: "/Client/clients/addclient",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         headers: { "Content-Type": "multipart/form-data" },
         method: "post",
         data: formData,

@@ -21,6 +21,7 @@ import "jspdf-autotable";
 
 export default function Design() {
   const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [recceData, setRecceData] = useState([]);
   const [searchshopName, setSearchshopName] = useState("");
   const [searcharea, setSearcharea] = useState("");
@@ -67,9 +68,7 @@ export default function Design() {
 
   const getAllRecce = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
-      );
+      const res = await axios.get(`${ApiURL}/recce/recce/getallrecce`);
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
       }
@@ -79,7 +78,7 @@ export default function Design() {
   };
   const getAllOutlets = async () => {
     try {
-      const res = await axios.get(`http://api.srimagicprintz.com/api/getalloutlets`);
+      const res = await axios.get(`${ApiURL}/getalloutlets`);
       if (res.status === 200) {
         setOutletDoneData(res?.data?.outletData);
       }
@@ -108,35 +107,35 @@ export default function Design() {
           return (
             selectedcategory &&
             selectedcategory.categoryName
-              .toLowerCase()
-              ?.includes(SearchCategory.toLowerCase())
+              ?.toLowerCase()
+              ?.includes(SearchCategory?.toLowerCase())
           );
         });
       }
 
       if (SearchclientName) {
-        results = results.filter((item) =>
-          item.ClientName?.toLowerCase()?.includes(
-            SearchclientName.toLowerCase()
+        results = results?.filter((item) =>
+          item?.ClientName?.toLowerCase()?.includes(
+            SearchclientName?.toLowerCase()
           )
         );
       }
       if (searchshopName) {
         results = results.filter((item) =>
-          item.ShopName?.toLowerCase()?.includes(searchshopName?.toLowerCase())
+          item?.ShopName?.toLowerCase()?.includes(searchshopName?.toLowerCase())
         );
       }
       if (searchcontactNumber) {
-        results = results.filter((item) => {
+        results = results?.filter((item) => {
           const contactNumber1 =
-            item.ContactNumber && item.ContactNumber.toString();
+            item?.ContactNumber && item?.ContactNumber?.toString();
           return contactNumber1?.includes(searchcontactNumber);
         });
       }
       if (searcharea) {
-        const searchTerm = searcharea.toLowerCase();
-        results = results.filter((item) => {
-          const area = item.Area?.toLowerCase();
+        const searchTerm = searcharea?.toLowerCase();
+        results = results?.filter((item) => {
+          const area = item?.Area?.toLowerCase();
           return (
             area.indexOf(searchTerm) !== -1 || area.indexOf(searchTerm) !== -1
           );
@@ -145,7 +144,7 @@ export default function Design() {
       if (searchcity) {
         const searchTerm = searchcity.toLowerCase();
         results = results.filter((item) => {
-          const city = item.City?.toLowerCase();
+          const city = item?.City?.toLowerCase();
 
           return (
             city.indexOf(searchTerm) !== -1 || city.indexOf(searchTerm) !== -1
@@ -155,13 +154,13 @@ export default function Design() {
 
       if (searchzone) {
         results = results.filter((item) => {
-          const Zone1 = item.Zone && item.Zone.toString();
+          const Zone1 = item?.Zone && item?.Zone.toString();
           return Zone1?.includes(searchzone);
         });
       }
       if (searchpincode) {
         results = results.filter((item) => {
-          const Pincode1 = item.Pincode && item.Pincode.toString();
+          const Pincode1 = item?.Pincode && item?.Pincode.toString();
           return Pincode1?.includes(searchpincode);
         });
       }
@@ -171,11 +170,11 @@ export default function Design() {
 
         if (!isNaN(searchDate)) {
           results = results.filter((item) => {
-            if (!item.createdAt) {
+            if (!item?.createdAt) {
               return false;
             }
 
-            const createdAtDate = new Date(item.createdAt);
+            const createdAtDate = new Date(item?.createdAt);
 
             // Compare date components (year, month, day)
             return (
@@ -189,14 +188,14 @@ export default function Design() {
 
       if (searchdatastatus) {
         results = results.filter((item) => {
-          const status1 = item.datastatus && item.datastatus.toString();
+          const status1 = item?.datastatus && item?.datastatus.toString();
           return status1?.includes(searchdatastatus);
         });
       }
 
       const startIndex = (currentPage - 1) * rowsPerPage;
       const endIndex = Math.min(startIndex + rowsPerPage, results.length);
-      const dataToDisplay = results.slice(startIndex, endIndex);
+      const dataToDisplay = results?.slice(startIndex, endIndex);
       setDisplayedData(dataToDisplay);
     };
     filteredClients();
@@ -252,17 +251,17 @@ export default function Design() {
           )
           .map((item) => ({
             siNo: ++serialNumber,
-            shopName: item.ShopName,
-            contact: item.OutletContactNumber,
-            address: item.OutletAddress,
-            city: item.OutletCity,
-            zone: item.OutletZone,
-            date: item.createdAt
-              ? new Date(item.createdAt).toISOString().slice(0, 10)
+            shopName: item?.ShopName,
+            contact: item?.OutletContactNumber,
+            address: item?.OutletAddress,
+            city: item?.OutletCity,
+            zone: item?.OutletZone,
+            date: item?.createdAt
+              ? new Date(item?.createdAt)?.toISOString()?.slice(0, 10)
               : "",
-            status: item.RecceStatus,
-            // height: item.height,
-            // width: item.width,
+            status: item?.RecceStatus,
+            // height: item?.height,
+            // width: item?.width,
           }))
       )
     );
@@ -301,7 +300,7 @@ export default function Design() {
 
   const filterDateswise = (data) => {
     return data?.filter((item) => {
-      const createdAtDate = moment(item.createdAt, "YYYY-MM-DD");
+      const createdAtDate = moment(item?.createdAt, "YYYY-MM-DD");
       const startDate = filterStartDate
         ? moment(filterStartDate, "YYYY-MM-DD")
         : null;
@@ -344,7 +343,7 @@ export default function Design() {
       const config = {
         url: `/recce/recce/updatereccedata/${RecceIndex}/${getreccedata._id}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         headers: { "Content-Type": "multipart/form-data" },
         data: formdata,
       };
@@ -390,9 +389,7 @@ export default function Design() {
 
   const getAllClientsInfo = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
-      );
+      const res = await axios.get(`${ApiURL}/Client/clients/getallclient`);
       if (res.status === 200) {
         setClientInfo(res.data);
       }
@@ -436,8 +433,8 @@ export default function Design() {
   const handleUpdate1 = async () => {
     try {
       for (const recceid of filteredData) {
-        for (const outlet of recceid.outletName) {
-          if (selectedRecceItems1?.includes(outlet._id)) {
+        for (const outlet of recceid?.outletName) {
+          if (selectedRecceItems1?.includes(outlet?._id)) {
             const formdata = new FormData();
 
             if (fabricationneed !== undefined && fabricationneed !== null) {
@@ -445,9 +442,9 @@ export default function Design() {
             }
 
             const config = {
-              url: `/recce/recce/updatereccedata/${recceid._id}/${outlet._id}`,
+              url: `/recce/recce/updatereccedata/${recceid?._id}/${outlet?._id}`,
               method: "put",
-              baseURL: "http://api.srimagicprintz.com/api",
+              baseURL: ApiURL,
               headers: { "Content-Type": "multipart/form-data" },
               data: formdata,
             };
@@ -643,12 +640,12 @@ export default function Design() {
                                 }}
                                 type="checkbox"
                                 checked={selectedRecceItems1?.includes(
-                                  outlet._id
+                                  outlet?._id
                                 )}
                                 onChange={() =>
                                   handleOutletToggleSelect(
                                     recceItem.BrandId,
-                                    outlet._id
+                                    outlet?._id
                                   )
                                 }
                               />
@@ -680,10 +677,10 @@ export default function Design() {
                               {outlet?.unit}
                             </td>
                             <td className="td_S p-2 text-nowrap text-center">
-                              {recceItem.createdAt
+                              {recceItem?.createdAt
                                 ? new Date(recceItem.createdAt)
-                                    .toISOString()
-                                    .slice(0, 10)
+                                    ?.toISOString()
+                                    ?.slice(0, 10)
                                 : ""}
                             </td>
                             <td className="td_S ">

@@ -3,17 +3,19 @@ import Header from "./Header";
 import Button from "react-bootstrap/esm/Button";
 import axios from "axios";
 function Marketingshedule() {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [reshedule, setReshedule] = useState(false);
   const [sheduledData, setSheduleData] = useState([]);
   const [EditSheduled, setEditSheduled] = useState({});
   useEffect(() => {
     getAllClientsInfo();
-  },[]);
+  }, []);
 
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/marketingClient/marketingcliend/getmarketingclient"
+        `${ApiURL}/marketingClient/marketingcliend/getmarketingclient`
       );
       if (res.status === 200) {
         setSheduleData(res.data.mclient);

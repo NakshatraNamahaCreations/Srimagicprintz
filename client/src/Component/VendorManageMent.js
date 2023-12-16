@@ -14,6 +14,8 @@ import axios from "axios";
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 export default function Vendor() {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [filter, setFilter] = useState(false);
   const [selected, setSelected] = useState(null);
   const [vendorData, setVendorData] = useState([]);
@@ -60,7 +62,7 @@ export default function Vendor() {
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        `${ApiURL}/Vendor/vendorInfo/getvendorinfo`
       );
 
       if (response.status === 200) {
@@ -75,12 +77,12 @@ export default function Vendor() {
       setLoading(false);
     }
   };
-console.log("vendorData",vendorData)
+  console.log("vendorData", vendorData);
   const handleClose = () => setaddBank(false);
   const handleShow = async () => {
     try {
       const response = await axios.get(
-        "http://api.srimagicprintz.com/api/Vendor/vendorInfo/getvendorinfo"
+        `${ApiURL}/Vendor/vendorInfo/getvendorinfo`
       );
 
       if (response.status === 200) {
@@ -118,7 +120,7 @@ console.log("vendorData",vendorData)
       const config = {
         url: "/Vendor/vendorInfo/linkbankinfo",
         method: "post",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
@@ -249,7 +251,7 @@ console.log("vendorData",vendorData)
       const vendorid = editVendorData._id;
       const config = {
         url: `/Vendor/vendorInfo/updatevendordata/${vendorid}`,
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         method: "put",
         Header: { "Content-type": "application/json" },
         data: formData,
@@ -268,7 +270,7 @@ console.log("vendorData",vendorData)
   const deleteVendorData = async (row) => {
     try {
       const response = await axios.delete(
-        `http://api.srimagicprintz.com/api/Vendor/vendorInfo/deletevendordata/${row._id}`
+        `${ApiURL}/Vendor/vendorInfo/deletevendordata/${row._id}`
       );
 
       if (response.status === 200) {
@@ -295,9 +297,7 @@ console.log("vendorData",vendorData)
   };
   const getAllRecce = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
-      );
+      const res = await axios.get(`${ApiURL}/recce/recce/getallrecce`);
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
       }
@@ -344,7 +344,7 @@ console.log("vendorData",vendorData)
 
       const config = {
         url: "installgrp/createroup",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         method: "post",
         headers: {
           "Content-Type": "application/json",
@@ -468,7 +468,7 @@ console.log("vendorData",vendorData)
                               borderRadius: "100%",
                             }}
                             className="m-auto"
-                            src={`http://api.srimagicprintz.com/VendorImage/${ele.VendorImage}`}
+                            src={`${ImageURL}/VendorImage/${ele.VendorImage}`}
                             alt=""
                           />
                         ) : (
@@ -703,7 +703,7 @@ console.log("vendorData",vendorData)
                                     height: "30%",
                                     borderRadius: "100%",
                                   }}
-                                  src={`http://api.srimagicprintz.com/VendorImage/${vendorData[selected].VendorImage}`}
+                                  src={`${ImageURL}/VendorImage/${vendorData[selected].VendorImage}`}
                                   alt=""
                                 />
                               ) : null}
@@ -797,7 +797,7 @@ console.log("vendorData",vendorData)
                               <img
                                 width={"200px"}
                                 height={"100px"}
-                                src={`http://api.srimagicprintz.com/BankInfoImage/${vendorData[selected].BankInfoImage}`}
+                                src={`${ImageURL}/BankInfoImage/${vendorData[selected].BankInfoImage}`}
                                 alt=""
                               />
                             ) : null}

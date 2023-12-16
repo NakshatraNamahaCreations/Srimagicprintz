@@ -8,6 +8,8 @@ import Row from "react-bootstrap/Row";
 import axios from "axios";
 
 export default function ReceeManagementApi() {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [brandName, setBrandName] = useState("");
   const [area, setArea] = useState("");
   const [city, setCity] = useState("");
@@ -28,7 +30,7 @@ export default function ReceeManagementApi() {
     try {
       const config = {
         url: "/recce/recce/addrecce",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         method: "post",
         headers: { "Content-Type": "application/json" },
         data: {
@@ -64,7 +66,7 @@ export default function ReceeManagementApi() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        `${ApiURL}/Client/clients/getallclient`
       );
       if (res.status === 200) {
         setClientInfo(res.data);

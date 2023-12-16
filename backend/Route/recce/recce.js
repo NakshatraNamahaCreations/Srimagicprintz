@@ -77,11 +77,6 @@ router.get(
   RecceController.getParticularRecceByRecceId //this
 );
 
-router.post(
-  "/addoutlet/:id",
-  upload.single("ouletBannerImage"),
-  RecceController.addOutlet
-); //this
 
 
 

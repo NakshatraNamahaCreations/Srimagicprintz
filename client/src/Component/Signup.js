@@ -7,6 +7,7 @@ import Row from "react-bootstrap/Row";
 import axios from "axios";
 // import Header from "./Header";
 import ImageIcon from "@mui/icons-material/Image";
+import { AlternateEmail } from "@material-ui/icons";
 
 export function Signup() {
   const [name, setName] = useState("");
@@ -33,6 +34,8 @@ export function Signup() {
 
   const formdata = new FormData();
   const signupUser = async (e) => {
+    const ApiURL = process.env.REACT_APP_API_URL;
+    const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
     e.preventDefault();
     if (!name || !mobileNumber || !email || !password || !cpassword) {
       alert("Enter all fields");
@@ -45,28 +48,33 @@ export function Signup() {
       formdata.append("displayname", name);
       formdata.append("contactno", mobileNumber);
       formdata.append("confirmPassword", cpassword);
-      formdata.append("profileImage", profimg);
+      formdata.append("primages", profimg);
 
       try {
         const config = {
           url: "/adduser",
-          baseURL: "http://api.srimagicprintz.com/api",
+          baseURL: ApiURL,
           method: "post",
           headers: { "content-type": "multipart/form-data" },
           data: formdata,
         };
-        await axios(config).then(function (response) {
-          if (response.status === 200) {
-            alert("Account Created");
-            // window.location.assign("/Users");
-          }
-        });
+        let response = await axios(config);
+
+        if (response.status === 200) {
+          alert("Account Created");
+          alert("Success:", response.data.success);
+          // window.location.assign("/Users");
+        } else {
+          console.error(response.data.error);
+          alert("Error: " + response.data.error);
+        }
       } catch (error) {
         console.error(error);
-        alert("Not Added");
+        alert(error);
       }
     }
   };
+
   return (
     <>
       <div className="row m-auto mt-5 p-2">
@@ -103,7 +111,6 @@ export function Signup() {
                     onChange={(e) => setprofimg(e.target.files[0])}
                     id="file-upload"
                     type="file"
-                    accept="image/*"
                     style={{ display: "none" }}
                   />
                 </div>

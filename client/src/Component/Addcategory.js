@@ -14,6 +14,8 @@ function Addcategory() {
   const [showPopup, setShowPopup] = useState(false);
   const [editcategorydata, setEditCAtegoryData] = useState(null);
   const [editCatagoryName, setEditCatagoryName] = useState("");
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
 
   const AddCatagory = async (e) => {
     e.preventDefault();
@@ -22,7 +24,7 @@ function Addcategory() {
       const config = {
         url: "/Product/category/addcategory",
         method: "POST",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         Header: { "Content-Type": "application/json" },
         data: { categoryName: catagoryName },
       };
@@ -43,9 +45,7 @@ function Addcategory() {
   }, []);
   const getAllCategory = async () => {
     try {
-      const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
-      );
+      const res = await fetch(`${ApiURL}/Product/category/getcategory`);
       if (res.ok) {
         const data = await res.json();
 
@@ -62,7 +62,7 @@ function Addcategory() {
   const deleteCatagory = async (row) => {
     try {
       const response = await axios.delete(
-        `http://api.srimagicprintz.com/api/Product/category/deletecategory/${row._id}`
+        `${ApiURL}/Product/category/deletecategory/${row._id}`
       );
 
       if (response.status === 200) {
@@ -76,14 +76,14 @@ function Addcategory() {
 
   const editData = async () => {
     try {
-      const categoryId = editcategorydata._id;
+      const categoryId = editcategorydata?._id;
       const updateData = {
-        categoryName: editCatagoryName || editcategorydata.categoryName,
+        categoryName: editCatagoryName || editcategorydata?.categoryName,
       };
       const config = {
         url: `/Product/category/editcategory/${categoryId}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         headers: {
           "Content-Type": "application/json",
         },
@@ -182,7 +182,6 @@ function Addcategory() {
         <div className="row mt-5 containerPadding">
           <div className="col-md-8">
             <BootstrapTable
-          
               striped
               bordered
               hover

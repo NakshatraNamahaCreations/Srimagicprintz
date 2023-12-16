@@ -2,47 +2,85 @@ const outletBoardModal = require("../../Model/Reccemanagement/outletUpload");
 const { mongoose } = require("mongoose");
 
 class outLetBoardManagement {
+  // mltiple boards old
+  // async addOutlet(req, res) {
+  //   try {
+  //     const {
+  //       outletShopId,
+  //       outletShopName,
+  //       category,
+  //       height,
+  //       width,
+  //       unitsOfMeasurment,
+  //       quantity,
+  //       remark,
+  //       // boardType,
+  //       gstNumber,
+  //       jobStatus,
+  //     } = req.body;
+  //     const file = req.file.filename;
+  //     const newOutlet = new outletBoardModal({
+  //       outletShopId,
+  //       outletShopName,
+  //       category,
+  //       height,
+  //       width,
+  //       unitsOfMeasurment,
+  //       quantity,
+  //       remark,
+  //       // boardType,
+  //       gstNumber,
+  //       ouletBannerImage: file,
+  //       jobStatus,
+  //     });
+
+  //     const save = await newOutlet.save();
+
+  //     return res
+  //       .status(200)
+  //       .json({ success: "Thanks for completing the job", data: save });
+  //   } catch (err) {
+  //     console.error(err, "error");
+  //     return res.status(500).json({ error: "Something went wrong" });
+  //   }
+  // }
+  // 16-12-2023
   async addOutlet(req, res) {
     try {
-      const boardData = req.body.boards;
-      for (const board of boardData) {
-        const {
-          outletShopId,
-          outletShopName,
-          category,
-          height,
-          width,
-          unitsOfMeasurment,
-          quantity,
-          remark,
-          boardType,
-          gstNumber,
-        } = board;
+      const {
+        outletShopId,
+        outletShopName,
+        category,
+        height,
+        width,
+        unitsOfMeasurment,
+        quantity,
+        remark,
+        // boardType,
+        gstNumber,
+        jobStatus,
+      } = req.body;
+      const file = req.file.filename;
+      const newOutlet = new outletBoardModal({
+        outletShopId,
+        outletShopName,
+        category,
+        height,
+        width,
+        unitsOfMeasurment,
+        quantity,
+        remark,
+        // boardType,
+        gstNumber,
+        ouletBannerImage: file,
+        jobStatus,
+      });
 
-        const newOutlet = new outletBoardModal({
-          outletShopId,
-          outletShopName,
-          category,
-          height,
-          width,
-          unitsOfMeasurment,
-          quantity,
-          remark,
-          boardType,
-          gstNumber,
-        });
-        const existingBoard = await outletBoardModal.findOne(newOutlet);
-        if (existingBoard) {
-          console.log(
-            `Board document already exists for ${newOutlet.category}`
-          );
-        } else {
-          await newOutlet.save();
-          console.log(`Board document created for ${newOutlet.category}`);
-        }
-      }
+      const save = await newOutlet.save();
 
-      return res.status(200).json({ success: "Thanks for completing the job" });
+      return res
+        .status(200)
+        .json({ success: "Thanks for completing the job", data: save });
     } catch (err) {
       console.error(err, "error");
       return res.status(500).json({ error: "Something went wrong" });
@@ -88,11 +126,47 @@ class outLetBoardManagement {
       return res.status(500).json({ error: "server error" });
     }
   }
+
+  // old--------
+  // async updateOutletBoard(req, res) {
+  //   try {
+  //     const id = req.params.id;
+  //     const { category, height, width, unitsOfMeasurment, quantity, remark } =
+  //       req.body;
+  //     const file = req.file?.filename;
+  //     const findJob = await outletBoardModal.findOne({ _id: id });
+  //     if (!findJob) {
+  //       return res.status(404).json({ error: "No such record found" });
+  //     }
+  //     if (category) findJob.category = category;
+  //     if (height) findJob.height = height;
+  //     if (width) findJob.width = width;
+
+  //     if (unitsOfMeasurment) findJob.unitsOfMeasurment = unitsOfMeasurment;
+  //     if (quantity) findJob.quantity = quantity;
+  //     if (file) findJob.ouletBannerImage = file;
+  //     if (remark) findJob.remark = remark;
+  //     const updatedJob = await findJob.save();
+  //     console.log("updated job", updatedJob);
+  //     return res.status(200).json({
+  //       message: "Updated",
+  //       date: updatedJob,
+  //     });
+  //   } catch (error) {
+  //     console.log("error", error);
+  //     return res
+  //       .status(500)
+  //       .json({ error: "Unable to update the details! Try again later" });
+  //   }
+  // }
+
+  // 16-12-2023
   async updateOutletBoard(req, res) {
     try {
       const id = req.params.id;
       const { category, height, width, unitsOfMeasurment, quantity, remark } =
         req.body;
+      const file = req.file?.filename;
       const findJob = await outletBoardModal.findOne({ _id: id });
       if (!findJob) {
         return res.status(404).json({ error: "No such record found" });
@@ -103,8 +177,8 @@ class outLetBoardManagement {
 
       if (unitsOfMeasurment) findJob.unitsOfMeasurment = unitsOfMeasurment;
       if (quantity) findJob.quantity = quantity;
+      if (file) findJob.ouletBannerImage = file;
       if (remark) findJob.remark = remark;
-      findJob.isCompleted = true;
       const updatedJob = await findJob.save();
       console.log("updated job", updatedJob);
       return res.status(200).json({
@@ -310,41 +384,75 @@ class outLetBoardManagement {
       console.log("error", error);
     }
   }
+
+  // dec 16
   async completeJob(req, res) {
     try {
-      const { jobStatus, shopIds } = req.body;
+      const shopId = req.params.id;
 
-      // Add validation for required fields
-      if (!jobStatus || !Array.isArray(shopIds) || shopIds.length === 0) {
-        return res.status(400).json({ error: "Invalid request data" });
+      const findShop = await RecceModel.findOne({ "outletName._id": shopId });
+      if (!findShop) {
+        return res.status(404).json({ error: "No such record found" });
       }
 
-      const updateJobStatus = await outletBoardModal.updateMany(
-        { _id: { $in: shopIds } },
-        { $set: { jobStatus } }
+      const outletIndex = findShop.outletName.findIndex(
+        (outlet) => outlet._id.toString() === shopId
       );
 
-      console.log("updateJobStatus", updateJobStatus);
+      if (outletIndex !== -1) {
+        // Update the jobStatus for the found outlet
+        findShop.outletName[outletIndex].jobStatus = true;
 
-      if (updateJobStatus.nModified === 0) {
-        return res
-          .status(404)
-          .json({ error: "Shops not found or no changes made" });
-      } else {
-        return res.status(200).send({
-          statusCode: 200,
-          success: true,
-          data: updateJobStatus,
-          message: "Thanks for completing the jobs",
+        // Save the changes to the database
+        await findShop.save();
+
+        return res.status(200).json({
+          message: "Thanks for completing the job",
+          data: findShop,
         });
+      } else {
+        return res.status(404).json({ error: "Outlet not found" });
       }
-    } catch (error) {
-      console.log("error", error);
-      return res
-        .status(500)
-        .json({ error: "Can't able to complete the job! Try again" });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Server error" });
     }
   }
+  // async completeJob(req, res) {
+  //   try {
+  //     const { jobStatus, shopIds } = req.body;
+
+  //     // Add validation for required fields
+  //     if (!jobStatus || !Array.isArray(shopIds) || shopIds.length === 0) {
+  //       return res.status(400).json({ error: "Invalid request data" });
+  //     }
+
+  //     const updateJobStatus = await outletBoardModal.updateMany(
+  //       { _id: { $in: shopIds } },
+  //       { $set: { jobStatus } }
+  //     );
+
+  //     console.log("updateJobStatus", updateJobStatus);
+
+  //     if (updateJobStatus.nModified === 0) {
+  //       return res
+  //         .status(404)
+  //         .json({ error: "Shops not found or no changes made" });
+  //     } else {
+  //       return res.status(200).send({
+  //         statusCode: 200,
+  //         success: true,
+  //         data: updateJobStatus,
+  //         message: "Thanks for completing the jobs",
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.log("error", error);
+  //     return res
+  //       .status(500)
+  //       .json({ error: "Can't able to complete the job! Try again" });
+  //   }
+  // }
 
   // async completeJob(req, res) {
   //   try {

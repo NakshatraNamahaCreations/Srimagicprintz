@@ -5,6 +5,8 @@ import { useGlobalNotification } from "../Component/NotificationContext";
 import moment from "moment/moment";
 
 export default function Notification() {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [recceData, setRecceData] = useState([]);
   const { notifications, dispatch } = useGlobalNotification();
   const [audio] = useState(new Audio("../audio/mixkit-confirmation-tone-2867.wav"));
@@ -26,7 +28,7 @@ export default function Notification() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        `${ApiURL}/recce/recce/getallrecce`
       );
       if (res.status === 200) {
         const recceData = res.data.RecceData;

@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+// const { Object } = require("mongoose/lib/schema/index");
+// const { object } = require("mongoose/lib/utils");
 
 const RecceModel = new mongoose.Schema(
   {
@@ -72,10 +74,17 @@ const RecceModel = new mongoose.Schema(
     latitude: {
       type: String,
     },
-
+   
     longitude: {
       type: String,
     },
+    State:{
+      type:String
+    },
+    PartnerCode:{
+      type:String
+    }
+    
   },
 
   { timestamps: true }

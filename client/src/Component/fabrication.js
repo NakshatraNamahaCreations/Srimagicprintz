@@ -21,6 +21,7 @@ import "jspdf-autotable"; // Import the autotable plugin
 
 export default function Fabrication() {
   const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [recceData, setRecceData] = useState([]);
   const [searchshopName, setSearchshopName] = useState("");
   const [searcharea, setSearcharea] = useState("");
@@ -68,7 +69,7 @@ export default function Fabrication() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        `${ApiURL}/recce/recce/getallrecce`
       );
       if (res.status === 200) {
         //   const filteredRecceData = res.data.RecceData.filter(
@@ -189,7 +190,7 @@ export default function Fabrication() {
 
       const startIndex = (currentPage - 1) * rowsPerPage;
       const endIndex = Math.min(startIndex + rowsPerPage, results.length);
-      const dataToDisplay = results.slice(startIndex, endIndex);
+      const dataToDisplay = results?.slice(startIndex, endIndex);
       setDisplayedData(dataToDisplay);
     };
     filteredClients();
@@ -252,7 +253,7 @@ export default function Fabrication() {
             city: item.OutletCity,
             zone: item.OutletZone,
             date: item.createdAt
-              ? new Date(item.createdAt).toISOString().slice(0, 10)
+              ? new Date(item.createdAt).toISOString()?.slice(0, 10)
               : "",
             status: item.RecceStatus,
             // height: item.height,
@@ -325,7 +326,7 @@ export default function Fabrication() {
       const config = {
         url: `/recce/recce/updatereccedata/${RecceIndex}/${PrintData._id}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         headers: { "Content-Type": "application/json" },
         data: {
           OutlateFabricationDeliveryType: deliverType,
@@ -369,7 +370,7 @@ export default function Fabrication() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        `${ApiURL}/Client/clients/getallclient`
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -625,8 +626,8 @@ export default function Fabrication() {
                             <td className="td_S p-2 text-nowrap text-center">
                               {recceItem.createdAt
                                 ? new Date(recceItem.createdAt)
-                                    .toISOString()
-                                    .slice(0, 10)
+                                    ?.toISOString()
+                                    ?.slice(0, 10)
                                 : ""}
                             </td>
                             <td className="td_S ">

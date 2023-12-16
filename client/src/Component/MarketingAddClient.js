@@ -9,7 +9,8 @@ import Form from "react-bootstrap/Form";
 
 function MarketingAddClient() {
   // addmarketingclient
-
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [mclientName, setmClientsName] = useState("");
   const [mbusinessName, setMBusinessName] = useState("");
   const [mclientsContact1, setmClientsContact1] = useState("");
@@ -39,7 +40,7 @@ function MarketingAddClient() {
     try {
       const config = {
         url: "/marketingClient/marketingcliend/addmarketingclient",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         headers: { "Content-Type": "multipart/form-data" },
         method: "post",
         data: formData,

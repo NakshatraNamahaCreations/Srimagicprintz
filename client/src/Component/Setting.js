@@ -3,8 +3,10 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
 export default function Setting() {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const user = JSON.parse(sessionStorage.getItem("userData"));
-  console.log(user)
+  console.log(user);
   return (
     <>
       <Header />
@@ -25,7 +27,7 @@ export default function Setting() {
                     width={"100px"}
                     height={"100px"}
                     style={{ borderRadius: "100px" }}
-                  src={`http://api.srimagicprintz.com/ProfileImage/${user?.profileImage}`}
+                    src={`${ImageURL}/ProfileImage/${user?.primages}`}
                     alt=""
                   />
                 )}

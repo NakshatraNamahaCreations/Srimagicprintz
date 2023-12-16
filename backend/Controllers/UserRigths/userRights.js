@@ -11,9 +11,11 @@ class masteruser {
         loginnameOrEmail,
         password,
         confirmPassword,
+        primages,
       } = req.body;
       let file = req.file?.filename;
       // Validate the input
+
       if (
         !displayname ||
         !contactno ||
@@ -78,20 +80,29 @@ class masteruser {
         contactno,
         loginnameOrEmail,
         password: hashedPassword,
-        profileImage: file,
+        primages: file,
       });
 
+      if (!file) {
+        return res.status(400).json({
+          status: 400,
+          error: "Please select client image",
+        });
+      }
+      console.log(primages, "primages");
       // Save the user
-      NewUser.save().then((data) => {
-        console.log(data);
-        return res.status(200).json({ success: "User added successfully" });
-      });
+      const data = await NewUser.save();
+      console.log(data);
+      return res
+        .status(200)
+        .json({ success: "User added successfully", userdata: data });
     } catch (error) {
-      console.log(error);
-      return res.status(500).json({ error: "Internal server error" });
+      console.error("Error saving user:", error);
+      return res
+        .status(500)
+        .json({ error: "Error saving user", details: error.message });
     }
   }
-
   // login user
 
   async loginUser(req, res) {

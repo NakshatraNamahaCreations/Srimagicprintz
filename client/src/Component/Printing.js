@@ -21,6 +21,7 @@ import "jspdf-autotable"; // Import the autotable plugin
 
 export default function Printing() {
   const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [RecceData, setRecceData] = useState([]);
   const [searchshopName, setSearchshopName] = useState("");
   const [searcharea, setSearcharea] = useState("");
@@ -61,7 +62,7 @@ export default function Printing() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
+        `${ApiURL}/Client/clients/getallclient`
       );
       if (res.status === 200) {
         setClientInfo(res.data);
@@ -73,7 +74,7 @@ export default function Printing() {
   const getAllRecce = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
+        `${ApiURL}/recce/recce/getallrecce`
       );
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
@@ -378,7 +379,7 @@ export default function Printing() {
         const config = {
           url: `/recce/recce/updatereccedata/${RecceId}/${outletid}`,
           method: "put",
-          baseURL: "http://api.srimagicprintz.com/api",
+          baseURL: ApiURL,
           headers: { "Content-Type": "multipart/form-data" },
           data: formdata,
         };

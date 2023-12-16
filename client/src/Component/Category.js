@@ -7,16 +7,15 @@ import paginationFactory from "react-bootstrap-table2-paginator";
 import axios from "axios";
 export default function Category() {
   const [categoryData, setCategoryData] = useState([]);
-
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   useEffect(() => {
     getAllCategory();
   }, []);
 
   const getAllCategory = async () => {
     try {
-      const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
-      );
+      const res = await fetch(`${ApiURL}/Product/category/getcategory`);
       if (res.ok) {
         const data = await res.json();
 
@@ -41,7 +40,7 @@ export default function Category() {
   const deleteCatagory = async (row) => {
     try {
       const response = await axios.delete(
-        `http://api.srimagicprintz.com/api/Product/category/deletecategory/${row._id}`
+        `${ApiURL}/Product/category/deletecategory/${row._id}`
       );
 
       if (response.status === 200) {

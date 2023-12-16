@@ -10,6 +10,8 @@ import AddIcon from "@mui/icons-material/Add";
 import Card from "react-bootstrap/Card";
 // getmarketingclient
 export default function Marketing() {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [MAddClients, setMAddClients] = useState([]);
   const [getMclient, setgetMclient] = useState();
   useEffect(() => {
@@ -18,7 +20,7 @@ export default function Marketing() {
   const getAllClientsInfo = async () => {
     try {
       const res = await axios.get(
-        "http://api.srimagicprintz.com/api/marketingClient/marketingcliend/getmarketingclient"
+        `${ApiURL}/marketingClient/marketingcliend/getmarketingclient`
       );
       if (res.status === 200) {
         setMAddClients(res.data.mclient);
@@ -48,7 +50,7 @@ export default function Marketing() {
       const config = {
         url: `/marketingClient/marketingcliend/updatemarketingdata/${MclientId}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         headers: { "Content-Type": "application/json" },
         data: { msaveMeetingTime: sheduledDate },
       };
@@ -308,7 +310,7 @@ export default function Marketing() {
                     style={{
                       borderRadius: "100%",
                     }}
-                    src={`http://api.srimagicprintz.com/marketing/${getMclient.mClientImage}`}
+                    src={`${ImageURL}/marketing/${getMclient.mClientImage}`}
                     alt=""
                   />
                 </div>

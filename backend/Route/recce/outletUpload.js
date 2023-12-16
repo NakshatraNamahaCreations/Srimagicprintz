@@ -43,7 +43,11 @@ router.get(
   "/getparticularshopbyid/:id",
   outLetBoardManagement.getParticularShopById
 );
-router.put("/updateoutlets/:id", outLetBoardManagement.updateOutletBoard);
+router.put(
+  "/updateoutlets/:id",
+  upload.single("ouletBannerImage"),
+  outLetBoardManagement.updateOutletBoard
+);
 router.put(
   "/uploadimage/:id",
   upload.single("ouletBannerImage"),

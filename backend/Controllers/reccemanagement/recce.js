@@ -44,6 +44,117 @@ class Reccemanagement {
     }
   }
 
+  // async updateRecceOutletName(req, res) {
+  //   const outletid = req.params.addexcelid;
+
+  //   try {
+  //     // if (!outletid || !mongoose.Types.ObjectId.isValid(outletid)) {
+  //     //   return res.status(400).json({ error: "Invalid outletid provided" });
+  //     // }
+
+  //     const {
+  //       vendor,
+  //       unit,
+  //       height,
+  //       date,
+  //       width,
+  //       category,
+  //       OutlateFabricationNeed,
+  //       OutlateFabricationDeliveryType,
+  //       InstalationGroup,
+  //       fabricationupload,
+  //       GSTNumber,
+  //       Designstatus,
+  //       printingStatus,
+  //       fabricationstatus,
+  //       installationSTatus,
+  //       RecceStatus,
+  //       printupload,
+  //       installationupload,
+  //       completedDesign,
+  //       completedRecceId,
+  //       completedPrinting,
+  //       completedInstallation,
+  //       designupload,
+  //       reccedesign,
+  //       No_Quantity,
+  //       SFT,
+  //       ProductionRate,
+  //       ProductionCost,
+  //       transportationcost,
+  //       InstallationRate,
+  //       InstallationCost,
+  //       transportationRate,
+  //       latitude,
+  //       longitude,
+  //     } = req.body;
+  //     const existingRecce = await RecceModel.findById(outletid);
+  //     const existingOutletName = existingRecce.outletName;
+  //     const updatedRecce = await RecceModel.findByIdAndUpdate(
+  //       outletid,
+  //       {
+  //         $addToSet: {
+  //           outletName:
+  //             {
+
+  //               vendor,
+  //               unit,
+  //               height,
+  //               date,
+  //               width,
+  //               category,
+  //               OutlateFabricationNeed,
+  //               OutlateFabricationDeliveryType,
+  //               InstalationGroup,
+  //               fabricationupload,
+  //               GSTNumber,
+  //               Designstatus: "Pending",
+  //               printingStatus: "Pending",
+  //               fabricationstatus: "Pending",
+  //               installationSTatus: "Pending",
+  //               RecceStatus: "Pending",
+  //               printupload,
+  //               installationupload,
+  //               completedDesign,
+  //               completedRecceId,
+  //               completedPrinting,
+  //               completedInstallation,
+  //               designupload,
+  //               reccedesign,
+  //               No_Quantity,
+  //               SFT,
+  //               ProductionRate,
+  //               ProductionCost,
+  //               transportationcost,
+  //               InstallationRate,
+  //               InstallationCost,
+  //               transportationRate,
+  //               latitude,
+  //               longitude,
+  //               createdAt: new Date(),
+  //             },
+
+  //         },
+  //       },
+  //       { new: true }
+  //     );
+
+  //     console.log(updatedRecce, "updatedRecce");
+  //     if (!updatedRecce) {
+  //       return res
+  //         .status(404)
+  //         .json({ error: `Document with _id ${outletid} not found` });
+  //     }
+
+  //     return res
+  //       .status(200)
+  //       .json({ message: "Outlet names updated successfully" });
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //     console.log("Error occurred");
+  //     return res.status(500).json({ error: "Internal server error" });
+  //   }
+  // }
   async updateRecceOutletName(req, res) {
     const outletid = req.params.addexcelid;
 
@@ -56,8 +167,14 @@ class Reccemanagement {
         vendor,
         unit,
         height,
+        State,
+        PartnerCode,
         date,
         width,
+        ShopName,
+        ClientName,
+        OutletAddress,
+        OutletZone,
         category,
         outletName,
         OutlateFabricationNeed,
@@ -67,6 +184,7 @@ class Reccemanagement {
         GSTNumber,
         Designstatus,
         printingStatus,
+        OutletContactNumber,
         fabricationstatus,
         installationSTatus,
         RecceStatus,
@@ -88,17 +206,29 @@ class Reccemanagement {
         transportationRate,
         latitude,
         longitude,
+        GSB,
+        OutletCity,
+        FLBoard,
+        Inshop,
+        OutletPincode,
       } = req.body;
 
-      const outletNameArrayWithIDs = outletName.map((outlet) => ({
+      const outletNameArrayWithIDs = outletName.map((individualOutlet) => ({
         _id: new ObjectId(),
         vendor,
+        ShopName,
+        ClientName,
         unit,
+        State,
+        OutletAddress,
+        OutletCity,
+        PartnerCode,
         height,
+        OutletZone,
         date,
         width,
+        OutletContactNumber,
         category,
-        outletName,
         OutlateFabricationNeed,
         OutlateFabricationDeliveryType,
         InstalationGroup,
@@ -127,8 +257,12 @@ class Reccemanagement {
         transportationRate,
         latitude,
         longitude,
+        FLBoard,
+        GSB,
+        Inshop,
+        OutletPincode,
         createdAt: new Date(),
-        ...outlet,
+        ...individualOutlet,
       }));
 
       const updatedRecce = await RecceModel.findByIdAndUpdate(
@@ -142,7 +276,7 @@ class Reccemanagement {
           .status(404)
           .json({ error: `Document with _id ${outletid} not found` });
       }
-
+      console.log("updatedRecce", updatedRecce);
       return res
         .status(200)
         .json({ message: "Outlet names updated successfully" });
@@ -152,7 +286,7 @@ class Reccemanagement {
       return res.status(500).json({ error: "Internal server error" });
     }
   }
-
+  
   async deleteOutletData(req, res) {
     const outletIdToDelete = new mongoose.Types.ObjectId(req.params.outletin);
 

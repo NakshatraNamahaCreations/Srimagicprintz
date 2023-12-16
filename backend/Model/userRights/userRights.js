@@ -75,7 +75,7 @@ const userSchema = new mongoose.Schema(
     reports: {
       type: Boolean,
     },
-    profileImage: { type: String },
+    primages: { type: String },
   },
   {
     timestamps: true,

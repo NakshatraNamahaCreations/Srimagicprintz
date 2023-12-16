@@ -6,7 +6,7 @@ require("dotenv").config();
 const app = express();
 
 //import routes
-const authRoute = require("./Route/auth/auth");
+
 const categoryRoute = require("./Route/Product/category");
 const subcategoryRoute = require("./Route/Product/subcategory");
 const VendorInfo = require("./Route/Vendor/vendorInfo");
@@ -38,7 +38,7 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 // Define your routes or other middleware here
 
 //creating routes
-app.use("/api/auth/auth", authRoute);
+
 app.use("/api/Product/category", categoryRoute);
 app.use("/api/Product/subcategory", subcategoryRoute);
 app.use("/api/Vendor/vendorInfo", VendorInfo);

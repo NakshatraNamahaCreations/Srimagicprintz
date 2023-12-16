@@ -14,6 +14,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 
 export default function Reports() {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [recceData, setRecceData] = useState([]);
 
   const [displayedData, setDisplayedData] = useState([]);
@@ -41,9 +43,7 @@ export default function Reports() {
   }, []);
   const getAllClientsInfo = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/Client/clients/getallclient"
-      );
+      const res = await axios.get(`${ApiURL}/Client/clients/getallclient`);
       if (res.status === 200) {
         setClientInfo(res.data);
       }
@@ -53,9 +53,7 @@ export default function Reports() {
   };
   const getAllCategory = async () => {
     try {
-      const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
-      );
+      const res = await fetch(`${ApiURL}/Product/category/getcategory`);
       if (res.ok) {
         const data = await res.json();
         const categoriesArray = Object.values(data.category);
@@ -67,9 +65,7 @@ export default function Reports() {
   };
   const getAllRecce = async () => {
     try {
-      const res = await axios.get(
-        "http://api.srimagicprintz.com/api/recce/recce/getallrecce"
-      );
+      const res = await axios.get(`${ApiURL}/recce/recce/getallrecce`);
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
       }
@@ -100,7 +96,7 @@ export default function Reports() {
     setSelectAll(!selectAll);
 
     if (!selectAll) {
-      setSelectedRecceItems(displayedData.map((item) => item._id));
+      setSelectedRecceItems(displayedData?.map((item) => item._id));
     } else {
       setSelectedRecceItems([]);
     }

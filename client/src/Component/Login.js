@@ -8,6 +8,8 @@ import axios from "axios";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 export const Login = () => {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [Visibility, setVisibility] = useState(false);
 
   const [email, setEmail] = useState("");
@@ -19,7 +21,7 @@ export const Login = () => {
       const config = {
         url: "/loginuser",
         method: "POST",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         data: {
           loginnameOrEmail: email,
           password: password,
@@ -129,11 +131,7 @@ export const Login = () => {
                 </Link>
               </Row>
             </div>
-            <img
-              alt=""
-              className="col-md-6 p-0"
-              src="https://img.freepik.com/premium-vector/abstract-vector-business-banner-designs_9583-165.jpg"
-            />{" "}
+            <img alt="" className="col-md-6 p-0" src="../Assests/smpbnr.avif" />{" "}
           </div>
         </div>
       </Form>

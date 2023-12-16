@@ -121,6 +121,8 @@ const navData = [
 ];
 
 const Sidenav1 = () => {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [open, setOpen] = useState(true);
   const location = useLocation();
 
@@ -138,11 +140,9 @@ const Sidenav1 = () => {
     getuser();
   }, []);
   const getuser = async () => {
-    let res = await axios.get("http://api.srimagicprintz.com/api/getuser");
+    let res = await axios.get(`${ApiURL}/getuser`);
     if ((res.status = 200)) {
-      console.log(res.data.masteruser);
       setuserdata(res.data?.masteruser);
-      // setfilterdata(res.data?.masteruser);
     }
   };
   let userPermissions = userdata.filter((user) => user._id === idd._id);

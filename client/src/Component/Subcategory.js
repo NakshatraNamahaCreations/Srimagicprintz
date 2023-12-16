@@ -8,6 +8,8 @@ import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 
 export default function Subcategory() {
+  const ApiURL = process.env.REACT_APP_API_URL;
+  const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
   const [subcatagoryName, setSubCatagoryName] = useState("");
   const [subcategoryData, setSubcategoryData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +26,7 @@ export default function Subcategory() {
       const config = {
         url: "/Product/subcategory/addsubcategory",
         method: "post",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         Header: { "Content-Type": "application/json" },
         data: { catagoryName: catagoryName, subCategoryName: subcatagoryName },
       };
@@ -41,7 +43,7 @@ export default function Subcategory() {
 
   const getAllSubcategory = async () => {
     let res = await axios.get(
-      "http://api.srimagicprintz.com/api/Product/subcategory/getallsubcategory"
+      `${ApiURL}/Product/subcategory/getallsubcategory`
     );
     if (res.status === 200) {
       setSubcategoryData(res.data?.subcatagory);
@@ -57,9 +59,7 @@ export default function Subcategory() {
 
   const getAllCategory = async () => {
     try {
-      const res = await fetch(
-        "http://api.srimagicprintz.com/api/Product/category/getcategory"
-      );
+      const res = await fetch(`${ApiURL}/Product/category/getcategory`);
       if (res.ok) {
         const data = await res.json();
         const categoriesArray = Object.values(data.category);
@@ -83,7 +83,7 @@ export default function Subcategory() {
       const config = {
         url: `/Product/subcategory/updateSubcategory/${categoryId}`,
         method: "put",
-        baseURL: "http://api.srimagicprintz.com/api",
+        baseURL: ApiURL,
         headers: {
           "Content-Type": "application/json",
         },
@@ -105,7 +105,7 @@ export default function Subcategory() {
   const deleteCatagory = async (row) => {
     try {
       const response = await axios.delete(
-        `http://api.srimagicprintz.com/api/Product/subcategory/deletesubcatagory/${row._id}`
+        `${ApiURL}/Product/subcategory/deletesubcatagory/${row._id}`
       );
 
       if (response.status === 200) {
