@@ -85,10 +85,11 @@ export default function ReceeManagement() {
   const handleClose1 = () => setShow(false);
   const [data1, setdata1] = useState(0);
   const [OutletDoneData, setOutletDoneData] = useState([]);
-  const [selectrecceStatus, setSelectRecceStatus] = useState(null);
+  // const [selectrecceStatus, setSelectRecceStatus] = useState(null);
   const [viewOutletBoards, setViewOutletBoard] = useState(false);
   const [viewOutletBoardsIdd, setViewOutletBoardIdd] = useState(null);
-
+  const [SelectedBoardStatus, setSelectedBoardStatus] =
+    useState("--Select All--");
   useEffect(() => {
     getAllRecce();
     getAllVendorInfo();
@@ -178,13 +179,17 @@ export default function ReceeManagement() {
   }
 
   useEffect(() => {
-    if (recceexcel && importXLSheet.length === 0) {
-      readFile();
-    }
-    handleImport();
+    const fetchData = async () => {
+      if (recceexcel && importXLSheet.length === 0) {
+        await readFile();
+      }
+      handleImport();
+    };
+
+    fetchData();
   }, [recceexcel, importXLSheet]);
 
-  function readFile() {
+  async function readFile() {
     const reader = new FileReader();
     reader.onload = (evt) => {
       const bstr = evt.target.result;
@@ -204,54 +209,50 @@ export default function ReceeManagement() {
     if (!outlateid) {
       return;
     }
+
     if (selectedRecceItems.length === 0) {
       alert("Please select at least one row before importing.");
-    } else {
-      if (filteredData.length > 0) {
-        setUploading(true);
-        try {
-          const outletNames = flattenOutletNames(filteredData);
+      return;
+    }
 
-          const res = await axios.post(
-            `${ApiURL}/recce/recce/addreccesviaexcelesheet/${outlateid}`,
-            { outletName: outletNames },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
+    setUploading(true);
 
-          if (res.status === 200) {
-            toast.success("Outlet names updated successfully!");
+    try {
+      const outletNames = flattenOutletNames(displayedData);
 
-            setOutletNames(outletNames);
-
-            toast.success("Outlet names in recce updated successfully!");
-            setrecceexcel(null);
-            setDisplayedData([]);
-            window.location.reload();
-          } else {
-            toast.error(
-              "Failed to update outlet names. Please check the data."
-            );
-
-            const errorMessage =
-              res.data && res.data.message
-                ? res.data.message
-                : "Error occurred while updating outlet names.";
-            toast.error(errorMessage);
-          }
-        } catch (error) {
-          toast.error("Error occurred while updating outlet names.");
-        } finally {
-          setUploading(false);
+      const res = await axios.post(
+        `${ApiURL}/recce/recce/addreccesviaexcelesheet/${outlateid}`,
+        { outletName: outletNames },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
+      );
+
+      if (res.status === 200) {
+        toast.success("Outlet names updated successfully!");
+        setOutletNames(outletNames);
+        toast.success("Outlet names in recce updated successfully!");
+        setrecceexcel(null);
+        setDisplayedData([]);
+        window.location.reload();
+      } else {
+        toast.error("Failed to update outlet names. Please check the data.");
+
+        const errorMessage =
+          res.data && res.data.message
+            ? res.data.message
+            : "Error occurred while updating outlet names.";
+        toast.error(errorMessage);
       }
+    } catch (error) {
+      toast.error("Error occurred while updating outlet names.");
+    } finally {
+      setUploading(false);
     }
   };
 
-  //
   function flattenOutletNames(data) {
     // Implement your logic to flatten outlet names if needed
     // You may need to adjust this function based on your data structure
@@ -262,8 +263,10 @@ export default function ReceeManagement() {
       return [...acc, item];
     }, []);
   }
-  const handleEdit = (vendor, action) => {
-    setgetVendorName(vendor);
+
+  const handleEdit = (outletid, action) => {
+    setgetVendorName(outletid);
+
     setSelectedIndex({ action });
   };
 
@@ -327,7 +330,6 @@ export default function ReceeManagement() {
                 date: outlet?.createdAt
                   ? new Date(outlet.createdAt)?.toISOString()?.slice(0, 10)
                   : "",
-                status: outlet?.RecceStatus,
                 height: outletDimensions?.height,
                 width: outletDimensions?.width,
                 Category: outletDimensions?.category,
@@ -442,33 +444,23 @@ export default function ReceeManagement() {
   };
 
   const selectedv = vendordata?.find((vendor) => vendor?._id === selctedVendor);
-
-  const handleUpdate = async () => {
+  const handleUpdate = async (outlet) => {
     try {
-      for (const outletid of selectedRecceItems1) {
-        const formdata = new FormData();
+      const config = {
+        url: `/recce/recce/updatereccedata/${getVendorName}/${outlet}`,
+        method: "put",
+        baseURL: ApiURL,
+        headers: { "Content-Type": "application/json" },
+        data: { RecceStatus: "Cancelled" },
+      };
 
-        if (selectrecceStatus !== undefined && selectrecceStatus !== null) {
-          formdata.append("RecceStatus", selectrecceStatus);
-        }
+      const res = await axios(config);
 
-        const config = {
-          url: `/recce/recce/updatereccedata/${getVendorName?._id}/${outletid}`,
-          method: "put",
-          baseURL: ApiURL,
-          headers: { "Content-Type": "multipart/form-data" },
-          data: formdata,
-        };
-
-        const res = await axios(config);
-
-        if (res.status === 200) {
-          alert("Successfully updated outlet");
-          console.log(res.data);
-          window.location.reload();
-        } else {
-          console.error("Received non-200 status code:", res.status);
-        }
+      if (res.status === 200) {
+        window.confirm("Are you sure you want to cancelled the job");
+        window.location.reload();
+      } else {
+        console.error("Received non-200 status code:", res.status);
       }
     } catch (err) {
       console.error("Error:", err.response ? err.response.data : err.message);
@@ -478,6 +470,41 @@ export default function ReceeManagement() {
       );
     }
   };
+  // const handleUpdate = async () => {
+  //   try {
+  //     for (const outletid of selectedRecceItems1) {
+  //       const formdata = new FormData();
+
+  //       if (selectrecceStatus !== undefined && selectrecceStatus !== null) {
+  //         formdata.append("RecceStatus", selectrecceStatus);
+  //       }
+
+  //       const config = {
+  //         url: `/recce/recce/updatereccedata/${getVendorName?._id}/${outletid}`,
+  //         method: "put",
+  //         baseURL: ApiURL,
+  //         headers: { "Content-Type": "multipart/form-data" },
+  //         data: formdata,
+  //       };
+
+  //       const res = await axios(config);
+
+  //       if (res.status === 200) {
+  //         alert("Successfully updated outlet");
+  //         console.log(res.data);
+  //         window.location.reload();
+  //       } else {
+  //         console.error("Received non-200 status code:", res.status);
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.error("Error:", err.response ? err.response.data : err.message);
+  //     alert(
+  //       "Not able to update: " +
+  //         (err.response ? err.response.data.message : err.message)
+  //     );
+  //   }
+  // };
 
   async function AssignVendor(selectedVendor) {
     try {
@@ -570,7 +597,7 @@ export default function ReceeManagement() {
     setFilterEndDate("");
   };
 
-  const filterDate = (data) => {
+  const filterRecceDate = (data) => {
     return data?.filter((item) => {
       const createdAtDate = moment(item.createdAt, "YYYY-MM-DD");
       const startDate = filterStartDate
@@ -592,10 +619,10 @@ export default function ReceeManagement() {
     });
   };
 
-  const filteredData = filterDate(displayedData);
-
+  const filteredData = filterRecceDate(reccedata);
+  // outlet filter
   const filteredData1 = filteredData?.filter(
-    (vendor) => vendor?._id === getVendorName?._id
+    (outlet) => outlet._id === getVendorName
   );
 
   const getLengthOfStatus = () => {
@@ -608,31 +635,19 @@ export default function ReceeManagement() {
 
     reccedata?.forEach((recceItem) => {
       const outletNameArray = recceItem?.outletName;
-
+      // ----------------------------------------------------
       if (Array.isArray(outletNameArray)) {
         outletNameArray?.forEach((outlet) => {
           const OutletDoned = OutletDoneData.find(
             (Ele) => Ele?.outletShopId === outlet._id
           );
-          console.log(OutletDoned, "OutletDoned");
-          if (OutletDoned && OutletDoned.jobStatus === true) {
-            statusCounts.completed++;
-          } else if (outlet.RecceStatus === "Pending") {
+
+          if (OutletDoned && !OutletDoned.jobStatus) {
             statusCounts.pending++;
-          } else if (outlet.RecceStatus === "Cancelled") {
-            statusCounts.cancelled++;
-          } else if (
-            outlet.RecceStatus === "Completed" &&
-            outlet.vendor !== null &&
-            outlet.vendor !== undefined
-          ) {
+          } else if (OutletDoned && OutletDoned.jobStatus === true) {
             statusCounts.completed++;
-          } else if (
-            outlet.RecceStatus === "Processing" &&
-            outlet.vendor !== null &&
-            outlet.vendor !== undefined
-          ) {
-            statusCounts.processing++;
+          } else if (OutletDoned && OutletDoned.jobCancel === true) {
+            statusCounts.cancelled++;
           }
         });
       }
@@ -643,6 +658,33 @@ export default function ReceeManagement() {
     setcancelledStatus(statusCounts?.cancelled);
     setproccesingStatus(statusCounts?.processing);
   };
+
+  // let uniqueId = OutletDoneData.map((epe)=>epe.outletShopId)
+  // function removeDuplicates(array) {
+  //   let uniqueArray = [];
+  //  console.log(array)
+  //   for(let i = 0; i < array.length; i++) {
+  //      if(uniqueArray.indexOf(array[i]) === -1) {
+  //        uniqueArray.push(array[i]);
+  //      }
+  //   }
+
+  //   return uniqueArray;
+  //  }
+
+  // removeDuplicates(OutletDoneData)
+
+  // how to remove duplicate values from the array in javascript?
+
+  let uniqueOutlets = [];
+
+  for (let outlets of OutletDoneData) {
+    if (
+      !uniqueOutlets.some((item) => item.outletShopId === outlets.outletShopId)
+    ) {
+      uniqueOutlets.push(outlets);
+    }
+  }
 
   function convertToFeet(value, unit) {
     if (unit === "inch") {
@@ -666,7 +708,7 @@ export default function ReceeManagement() {
     const worksheet = workbook.addWorksheet("Extracted Data");
 
     if (selectedRecceItems.length === 0 || filteredData.length === 0) {
-      alert("Please import outlet or select brand");
+      alert("Please import outlet or select a brand");
       return;
     }
 
@@ -678,48 +720,34 @@ export default function ReceeManagement() {
 
         const recceData = filteredData.find((item) => item._id === recceId);
 
-        if (!recceData) {
-          alert("Recce data not found for selected item");
-          continue;
+        for (const outlet of recceData.outletName) {
+          const OutletDoned = OutletDoneData.filter(
+            (Ele) => Ele?.outletShopId === outlet._id
+          );
+
+          for (const outl of OutletDoned) {
+            if (outl?.jobStatus === true) {
+            extractedData.push({
+              "Outlate Name": outlet.ShopName || null,
+              "Outlet Address": outlet.OutletAddress || null,
+              "Outlet Contact Number": outlet.OutletContactNumber || null,
+              "Board Type": outl.boardType,
+              "GST Number": !outlet.GSTNumber
+                ? outl.gstNumber
+                : outlet.GSTNumber,
+              "Media .": outl.category || null,
+              "A Height": `${outl.height} ${outl.unitsOfMeasurment} ` || null,
+              "A Width": `${outl.width} ${outl.unitsOfMeasurment} ` || null,
+              "No.Quantity": outl.quantity || null,
+              "R Height":
+                `${convertToFeet(outl.height, outl.unitsOfMeasurment)} feet ` ||
+                null,
+              "R Width":
+                `${convertToFeet(outl.width, outl.unitsOfMeasurment)} feet ` ||
+                null,
+            })}
+          }
         }
-
-        recceData.outletName.forEach((outlet) => {
-          if (recceData.outletName.length === 0) {
-            throw new Error("Please import outlet");
-          }
-
-          if (outlet.RecceStatus?.includes("Completed")) {
-            const OutletDoned = OutletDoneData.filter(
-              (Ele) => Ele?.outletShopId === outlet._id
-            );
-
-            for (const outl of OutletDoned) {
-              extractedData.push({
-                "Outlate Name": outlet.ShopName || null,
-                "Outlet Address": outlet.OutletAddress || null,
-                "Outlet Contact Number": outlet.OutletContactNumber || null,
-                "Board Type": outl.boardType,
-                "GST Number": !outlet.GSTNumber
-                  ? outl.gstNumber
-                  : outlet.GSTNumber,
-                "Media .": outl.category || null,
-                "A Height": `${outl.height} ${outl.unitsOfMeasurment} ` || null,
-                "A Width": `${outl.width} ${outl.unitsOfMeasurment} ` || null,
-                "No.Quantity": outl.quantity || null,
-                "R Height":
-                  `${convertToFeet(
-                    outl.height,
-                    outl.unitsOfMeasurment
-                  )} feet ` || null,
-                "R Width":
-                  `${convertToFeet(
-                    outl.width,
-                    outl.unitsOfMeasurment
-                  )} feet ` || null,
-              });
-            }
-          }
-        });
 
         const headerRow = worksheet.addRow([
           "Outlate Name",
@@ -825,14 +853,14 @@ export default function ReceeManagement() {
           console.error("Error creating Excel file:", error);
         });
     } catch (error) {
-      alert("Please import outlate");
+      // alert("Please import outlate");
       console.error("Error in processing data:", error);
     }
   };
 
   const handlePPT = () => {
     const pptx = new pptxgen();
-    console.log("Starting handlePPT");
+
     if (selectedRecceItems.length === 0 || filteredData.length === 0) {
       alert("Please import outlet or select a brand");
       return;
@@ -857,30 +885,29 @@ export default function ReceeManagement() {
             continue;
           }
 
-          if (outlet.RecceStatus?.includes("Completed")) {
-            const OutletDoned = OutletDoneData.filter(
-              (Ele) => Ele?.outletShopId === outlet._id
-            );
-            for (const outl of OutletDoned) {
-              const width = outl.width || 1;
-              const height = outl.height || 1;
+          const OutletDoned = OutletDoneData.filter(
+            (Ele) => Ele?.outletShopId === outlet._id
+          );
+          for (const outl of OutletDoned) {
+            if (outl?.jobStatus === true) {
+              const width = outl?.width || 1;
+              const height = outl?.height || 1;
               const rHeightInFeet = convertToFeet(
                 height,
                 outl.unitsOfMeasurment
               );
               const rWidthInFeet = convertToFeet(width, outl.unitsOfMeasurment);
-              const media = outl.category || "";
 
               const slide = pptx.addSlide();
 
-              slide.addText(`Outlet Name: ${outlet.ShopName}`, {
+              slide.addText(`Outlet Name: ${outlet?.ShopName}`, {
                 x: 1,
                 y: 0.3,
                 w: "100%",
                 fontSize: 12,
               });
 
-              slide.addText(`Address: ${outlet.OutletAddress}`, {
+              slide.addText(`Address: ${outlet?.OutletAddress}`, {
                 x: 1,
                 y: 0.6,
                 w: "100%",
@@ -888,7 +915,7 @@ export default function ReceeManagement() {
               });
               const formattedDimensions = `H${Math.round(
                 rHeightInFeet
-              )}XW${Math.round(rWidthInFeet)}`;
+              )} X W${Math.round(rWidthInFeet)}`;
               // const imageUrls = ["url1.jpg", "url2.jpg", "url3.jpg"];
               const imageWidth = "30%";
 
@@ -915,7 +942,7 @@ export default function ReceeManagement() {
                 fontSize: 12,
               });
 
-              slide.addText(`Category: ${media}`, {
+              slide.addText(`Category: ${outl?.category}`, {
                 x: 1,
                 y: "95%",
                 w: "100%",
@@ -936,16 +963,6 @@ export default function ReceeManagement() {
           a.click();
           window.URL.revokeObjectURL(url);
         });
-        // pptx.write("blob").then((blob) => {
-        //   const url = window.URL.createObjectURL(blob);
-        //   const a = document.createElement("a");
-        //   a.style.display = "none";
-        //   a.href = url;
-        //   a.download = "presentation.pptx";
-        //   document.body.appendChild(a);
-        //   a.click();
-        //   window.URL.revokeObjectURL(url);
-        // });
       }
     } catch (err) {
       console.error("Error:", err);
@@ -1001,11 +1018,12 @@ export default function ReceeManagement() {
             throw new Error("Please import outlet");
           }
 
-          if (outlet.RecceStatus?.includes("Completed")) {
-            const OutletDoned = OutletDoneData.filter(
-              (Ele) => Ele?.outletShopId === outlet._id
-            );
-            for (const outl of OutletDoned) {
+          const OutletDoned = OutletDoneData.filter(
+            (Ele) => Ele?.outletShopId === outlet._id
+          );
+
+          for (const outl of OutletDoned) {
+            if (outl?.jobStatus === true) {
               const rHeightInFeet = convertToFeet(
                 outl.height,
                 outl.unitsOfMeasurment
@@ -1224,7 +1242,7 @@ export default function ReceeManagement() {
     setFilterStartDate1(event.target.value);
   };
 
-  const filterDateswise = (data) => {
+  const filterOutletDateswise = (data) => {
     return data?.filter((item) => {
       const createdAtDate = moment(item.createdAt, "YYYY-MM-DD");
       const startDate = FilterStartDate1
@@ -1246,7 +1264,56 @@ export default function ReceeManagement() {
     });
   };
 
-  const filteredDate = filterDateswise(filteredData1);
+  const filteredDate = filterOutletDateswise(filteredData1);
+
+  const findingPending = reccedata?.flatMap((ele) =>
+    ele.outletName.filter((item) => item.vendor !== null)
+  );
+
+  const outletData = findingPending?.filter((item) =>
+    OutletDoneData?.some((fp) => fp.outletShopId === item._id)
+  );
+
+  const findingCompleteAndRemove = findingPending?.filter(
+    (ite) => !outletData.some((rr) => rr._id === ite._id)
+  );
+  const [filteredData2, setfilteredData2] = useState([]);
+  useEffect(() => {
+    const filteredDataByStatus = filteredData1?.map((recceItem) => {
+      const filteredOutlets = recceItem?.outletName?.filter((outlet) => {
+        let JobStatus;
+
+        if (outlet?.vendor !== null) {
+          JobStatus = OutletDoneData?.filter(
+            (ele) => ele.outletShopId === outlet._id
+          );
+
+          JobStatus = JobStatus.filter(
+            (ite) => !outletData.some((rr) => rr._id === ite._id)
+          );
+
+          const statuss =
+            JobStatus[0]?.jobStatus === true ? "Completed" : "Pending";
+
+          return SelectedBoardStatus === statuss;
+        }
+
+        if (outlet?.RecceStatus === "Cancelled") {
+          return SelectedBoardStatus === "Cancelled";
+        }
+
+        return false;
+      });
+
+      return { ...recceItem, outletName: filteredOutlets?.filter(Boolean) };
+    });
+
+    if (SelectedBoardStatus !== "--Select All--") {
+      setfilteredData2(filteredDataByStatus);
+    } else {
+      setfilteredData2(filteredData);
+    }
+  }, [filteredData1, SelectedBoardStatus]);
 
   return (
     <>
@@ -1443,14 +1510,14 @@ export default function ReceeManagement() {
                     }}
                   >
                     {" "}
-                    {pendingStatus}
+                    {findingCompleteAndRemove.length}
                   </p>
                   <p style={{ color: "black", textAlign: "center" }}>
                     Total Pending{" "}
                   </p>
                 </div>
               </Card>
-              <Card
+              {/* <Card
                 className={`col-md-3 m-2 c_zoom ${"active1"}`}
                 style={{ height: "125px" }}
               >
@@ -1470,7 +1537,7 @@ export default function ReceeManagement() {
                     Total Processing{" "}
                   </p>
                 </div>
-              </Card>
+              </Card> */}
               <Card
                 className={`col-md-3 m-2 c_zoom ${"active1"}`}
                 style={{ height: "125px" }}
@@ -1612,7 +1679,7 @@ export default function ReceeManagement() {
                           <span
                             variant="info "
                             onClick={() => {
-                              handleEdit(item, "details");
+                              handleEdit(item._id, "details");
                             }}
                             style={{ cursor: "pointer", color: "skyblue" }}
                           >
@@ -1623,7 +1690,7 @@ export default function ReceeManagement() {
                           <span
                             variant="info "
                             onClick={() => {
-                              handleEdit(item, "view");
+                              handleEdit(item._id, "view");
                             }}
                             style={{ cursor: "pointer", color: "skyblue" }}
                           >
@@ -2011,10 +2078,10 @@ export default function ReceeManagement() {
                         </div>
                         <div className="row mb-3">
                           <div className="row ">
-                            <div className="col-md-1 ">
+                            <div className="col-md-2 ">
                               <label className="col-md-9 mb-2">
                                 <span>{data1}</span> <span>Of </span>
-                                {filteredDate?.map((recceItem, index) => (
+                                {filteredData2?.map((recceItem, index) => (
                                   <span>{recceItem?.outletName?.length}</span>
                                 ))}
                               </label>
@@ -2041,7 +2108,7 @@ export default function ReceeManagement() {
                               </Form.Control>
                             </div>
 
-                            <div className="col-md-5 ">
+                            <div className="col-md-6 ">
                               <div className="row">
                                 <label className="col-md-5   mb-2">
                                   Start Date:
@@ -2073,7 +2140,7 @@ export default function ReceeManagement() {
 
                             <div className="col-md-2 ">
                               <label className="col-md-9 mb-2 ">Status</label>
-                              <Form.Select
+                              {/* <Form.Select
                                 as="select"
                                 value={selectrecceStatus}
                                 onChange={(e) => {
@@ -2088,16 +2155,30 @@ export default function ReceeManagement() {
                                 <option value="Proccesing">Proccesing</option>
                                 <option value="Pending">Pending</option>
                                 <option value="Cancelled">Cancelled</option>
-                              </Form.Select>
+                              </Form.Select> */}
+                              <Form.Select
+                                value={SelectedBoardStatus}
+                                className="shadow-none p-2 bg-light rounded"
+                                onChange={(e) => {
+                                  setSelectedBoardStatus(e.target.value);
+                                }}
+                              >
+                                <option value="--Select All--">
+                                  --Select All--
+                                </option>
+                                <option value="Completed">Completed</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Cancelled">Cancelled</option>
+                              </Form.Select>{" "}
                             </div>
-                            <div className="col-md-2 mt-4">
+                            {/* <div className="col-md-2 mt-4">
                               <Button
                                 className="row mt-2"
                                 onClick={handleUpdate}
                               >
                                 Save
                               </Button>
-                            </div>
+                            </div> */}
                             {/* <div className="col-md-2 mt-4">
                           <Button onClick={()=>handleButtonClick(selectedRecceItems1)}>
                             Create Quote
@@ -2169,9 +2250,22 @@ export default function ReceeManagement() {
 
                                   if (rowsDisplayed < rowsPerPage1) {
                                     const selectedVendorId = outlet?.vendor;
-                                    const vendor = vendordata?.find(
+                                    const Vendordata = vendordata?.find(
                                       (ele) => ele?._id === selectedVendorId
                                     );
+                                    let JobStatus;
+                                    let RecceCompletedDate;
+                                    if (outlet.vendor !== null) {
+                                      JobStatus = OutletDoneData?.filter(
+                                        (fp) => fp.outletShopId === outlet._id
+                                      );
+                                      RecceCompletedDate =
+                                        JobStatus[0]?.createdAt;
+                                      JobStatus =
+                                        JobStatus[0]?.jobStatus === true
+                                          ? "Completed"
+                                          : "Pending";
+                                    }
 
                                     rowsDisplayed++;
                                     const pincodePattern = /\b\d{6}\b/;
@@ -2250,13 +2344,13 @@ export default function ReceeManagement() {
                                         </td>
 
                                         <td className="td_S poppinfnt p-1">
-                                          {vendor?.VendorFirstName}
+                                          {Vendordata?.VendorFirstName}
                                         </td>
                                         <td className="td_S poppinfnt p-2 text-nowrap text-center">
-                                          {recceItem?.createdAt
-                                            ? moment(
-                                                recceItem?.createdAt
-                                              ).format("DD MMMM YYYY")
+                                          {RecceCompletedDate
+                                            ? moment(RecceCompletedDate).format(
+                                                "DD MMMM YYYY"
+                                              )
                                             : ""}
                                         </td>
 
@@ -2269,15 +2363,29 @@ export default function ReceeManagement() {
                                         </td>
 
                                         <td className="td_S poppinfnt p-1">
-                                          {outlet.RecceStatus}
+                                          {outlet.RecceStatus === "Cancelled"
+                                            ? outlet.RecceStatus
+                                            : JobStatus}
                                         </td>
-                                        <td
-                                          className="td_S poppinfnt p-1"
-                                          onClick={() =>
-                                            handleOutletView(outlet._id)
-                                          }
-                                        >
-                                          View
+                                        <td className="td_S poppinfnt p-1">
+                                          <p
+                                            style={{
+                                              color: "red",
+                                              cursor: "pointer",
+                                            }}
+                                            onClick={() =>
+                                              handleUpdate(outlet._id)
+                                            }
+                                          >
+                                            Cancel
+                                          </p>
+                                          <p
+                                            onClick={() =>
+                                              handleOutletView(outlet._id)
+                                            }
+                                          >
+                                            View
+                                          </p>
                                         </td>
                                       </tr>
                                     );

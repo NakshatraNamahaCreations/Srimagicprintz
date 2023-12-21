@@ -37,7 +37,8 @@ export default function Installation() {
   const [selectAll, setSelectAll] = useState(false);
   const [selectedRecceItems1, setSelectedRecceItems1] = useState([]);
   const [ClientInfo, setClientInfo] = useState([]);
-  const [selectrecceStatus, setSelectRecceStatus] = useState(null);
+  const [selectrecceStatus, setSelectRecceStatus] = useState("--Select All--");
+
   const [RecceId, setRecceId] = useState(null);
   const [show, setShow] = useState(false);
   const [instalationgrp, setInstalationgrp] = useState(null);
@@ -49,7 +50,7 @@ export default function Installation() {
   useEffect(() => {
     getAllRecce();
     getAllClientsInfo();
-    getAllInstalation();
+    // getAllInstalation();
     getAllVendorInfo();
     getAllOutlets();
   }, []);
@@ -116,18 +117,18 @@ export default function Installation() {
       alert("can't able to fetch data");
     }
   };
-  const getAllInstalation = async () => {
-    try {
-      let res = await axios.get(`${ApiURL}/getgroup`);
-      if (res.status === 200) {
-        let instalationData = res?.data?.instalation?.flatMap((ele) => ele);
-        setInstaLationGroups(instalationData);
-        // InstalationGroup
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  // const getAllInstalation = async () => {
+  //   try {
+  //     let res = await axios.get(`${ApiURL}/getgroup`);
+  //     if (res.status === 200) {
+  //       let instalationData = res?.data?.instalation?.flatMap((ele) => ele);
+  //       setInstaLationGroups(instalationData);
+  //       // InstalationGroup
+  //     }
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
   const handleExportPDF = () => {
     if (!selectedRecceItems1 || selectedRecceItems1.length === 0) {
       alert("Please select at least one record to export");
@@ -365,24 +366,67 @@ export default function Installation() {
   const handleAssignVendor = async () => {
     setShow(true);
   };
-  const [FilteredDatabystat, setFilteredDatabystat] = useState([]);
+  // const [FilteredDatabystat, setFilteredDatabystat] = useState([]);
 
+  // useEffect(() => {
+  //   const filteredDataByStatus =
+  //     selctedStatus === "--Select All--"
+  //       ? recceData
+  //       : recceData?.map((recceItem) => {
+  //           const outletNameArray = recceItem?.outletName;
+  //           if (Array.isArray(outletNameArray)) {
+  //             const filteredOutlets = outletNameArray?.filter((outlet) =>
+  //               outlet?.installationSTatus?.includes(selctedStatus)
+  //             );
+  //             return { ...recceItem, outletName: filteredOutlets };
+  //           }
+  //           return recceItem;
+  //         });
+  //   setFilteredDatabystat(filteredDataByStatus);
+  // }, [selctedStatus, recceData]);
+
+  const findingPending = recceData?.flatMap((ele) =>
+    ele.outletName.filter((item) => item.vendor !== null)
+  );
+
+  const outletData = findingPending?.filter((item) =>
+    OutletDoneData?.some((fp) => fp.outletShopId === item._id)
+  );
+  const [filteredData2, setfilteredData2] = useState([]);
   useEffect(() => {
-    const filteredDataByStatus =
-      selctedStatus === "--Select All--"
-        ? recceData
-        : recceData?.map((recceItem) => {
-            const outletNameArray = recceItem?.outletName;
-            if (Array.isArray(outletNameArray)) {
-              const filteredOutlets = outletNameArray?.filter((outlet) =>
-                outlet?.installationSTatus?.includes(selctedStatus)
-              );
-              return { ...recceItem, outletName: filteredOutlets };
-            }
-            return recceItem;
-          });
-    setFilteredDatabystat(filteredDataByStatus);
-  }, [selctedStatus, recceData]);
+    const filteredDataByStatus = filteredData?.map((recceItem) => {
+      const filteredOutlets = recceItem?.outletName?.filter((outlet) => {
+        let JobStatus;
+
+        if (outlet?.vendor !== null) {
+          JobStatus = OutletDoneData?.filter(
+            (ele) => ele.outletShopId === outlet._id
+          );
+
+          JobStatus = JobStatus.filter(
+            (ite) => !outletData.some((rr) => rr._id === ite._id)
+          );
+
+          const statuss =
+            JobStatus[0]?.installationStatus === true ? "Completed" : "Pending";
+
+          return selectrecceStatus === statuss;
+        }
+
+        return false;
+      });
+
+      return { ...recceItem, outletName: filteredOutlets.filter(Boolean) };
+    });
+
+    if (selectrecceStatus !== "--Select All--") {
+      setfilteredData2(filteredDataByStatus);
+    } else {
+      setfilteredData2(filteredData);
+    }
+  }, [filteredData, OutletDoneData, outletData, selectrecceStatus]);
+
+  
   const [OutletId, setOutletId] = useState(null);
 
   const [ShowOutletId, setShowOutletId] = useState(false);
@@ -395,9 +439,6 @@ export default function Installation() {
     (Ele) => Ele?.outletShopId === OutletId
   )
     ?.map((board) => {
-      // Transform OutletDoneData to match the structure of recceData
-      // Add a property, e.g., isOutletDone: true, to distinguish between OutletDoneData and recceData
-
       return {
         ...board,
         isOutletDone: true,
@@ -513,25 +554,20 @@ export default function Installation() {
             </div>
 
             <Col className="col-md-5">
-              <label className="mb-2">Status</label>
+              <label className="mb-2">Select Status</label>
               <div className="row">
                 <div className="col-md-5">
                   <Form.Select
-                    as="select"
                     value={selectrecceStatus}
+                    className="shadow-none p-2 bg-light rounded"
                     onChange={(e) => {
-                      const selectedValue = e.target.value;
-                      if (selectedValue !== "Choose...") {
-                        setSelectRecceStatus(selectedValue);
-                      }
+                      setSelectedStatus(e.target.value);
                     }}
                   >
-                    <option>Choose...</option>
+                    <option value="--Select All--">--Select All--</option>
                     <option value="Completed">Completed</option>
-                    <option value="Proccesing">Proccesing</option>
                     <option value="Pending">Pending</option>
-                    <option value="Cancelled">Cancelled</option>
-                  </Form.Select>
+                  </Form.Select>{" "}
                 </div>
                 <div className="col-md-2 ">
                   <Button
@@ -583,29 +619,6 @@ export default function Installation() {
                 </>
               ) : null}
             </div>
-
-            <div className="col-md-3 mt-3">
-              <label className="mb-2">Select Status</label>
-              <Form.Select
-                className="row "
-                value={selctedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-              >
-                <option>--Select All--</option>
-                <option value="Completed" className="cureor">
-                  Completed
-                </option>
-                <option value="Proccesing" className="cureor">
-                  Proccesing
-                </option>
-                <option value="Pending" className="cureor">
-                  Pending
-                </option>
-                <option value="Cancelled" className="cureor">
-                  Cancelled
-                </option>
-              </Form.Select>
-            </div>
           </div>
 
           <div className="row">
@@ -637,8 +650,6 @@ export default function Installation() {
                   <th className="th_s p-1">FL Board</th>
                   <th className="th_s p-1">GSB</th>
                   <th className="th_s p-1">Inshop</th>
-                  {/* <th className="th_s p-1">Category</th>
-                  <th className="th_s p-1">Hight</th>*/}
                   <th className="th_s p-1">Vendor</th>
                   <th className="th_s p-1">Date</th>
                   <th className="th_s p-1">Status</th>
@@ -646,7 +657,7 @@ export default function Installation() {
                 </tr>
               </thead>
               <tbody>
-                {FilteredDatabystat?.map((recceItem, index) =>
+                {filteredData2?.map((recceItem, index) =>
                   recceItem?.outletName
                     ?.filter((ele, outletArray) =>
                       ele?.OutlateFabricationDeliveryType?.includes(
@@ -659,7 +670,7 @@ export default function Installation() {
 
                         let JobNob = 0;
 
-                        FilteredDatabystat?.forEach((recceItem, recceIndex) => {
+                        filteredData2?.forEach((recceItem, recceIndex) => {
                           recceItem?.outletName?.forEach((item) => {
                             if (outlet?._id === item._id) {
                               JobNob = recceIndex + 1;
@@ -673,6 +684,20 @@ export default function Installation() {
                         const vendor = vendordata?.find(
                           (ele) => ele?._id === selectedVendorId
                         );
+
+                        let JobStatus;
+                        let InstallationCompleted;
+                        if (outlet.vendor !== null) {
+                          JobStatus = OutletDoneData?.filter(
+                            (fp) => fp.outletShopId === outlet._id
+                          );
+                          InstallationCompleted = JobStatus[0]?.createdAt;
+                          JobStatus =
+                            JobStatus[0]?.installationStatus === true
+                              ? "Completed"
+                              : "Pending";
+                        }
+
                         if (extractedPincode) {
                           outlet.OutletPincode = extractedPincode[0];
                         }
@@ -724,15 +749,13 @@ export default function Installation() {
                               {vendor?.VendorFirstName}
                             </td>
                             <td className="td_S p-2 text-nowrap text-center">
-                            {recceItem.createdAt
-                                ? new Date(recceItem.createdAt)
-                                    ?.toISOString()
-                                    ?.slice(0, 10)
+                              {InstallationCompleted
+                                ? moment(InstallationCompleted).format(
+                                    "DD MMMM YYYY"
+                                  )
                                 : ""}
                             </td>
-                            <td className="td_S ">
-                              {outlet?.installationSTatus}
-                            </td>
+                            <td className="td_S ">{JobStatus}</td>
                             <td
                               className="td_S "
                               variant="info "
@@ -763,7 +786,7 @@ export default function Installation() {
             </div>
           </div>{" "}
           <div className="row">
-            {mergedArray?.map((item, index) => (
+            {/* {mergedArray?.map((item, index) => (
               <div className="col-md-6" key={index}>
                 {!item.isOutletDone ? (
                   <>
@@ -779,7 +802,7 @@ export default function Installation() {
                                   {" "}
                                   Outlet ShopName :
                                 </span>{" "}
-                                {ind+1}
+                                {ind + 1}
                               </p>
                               <p className="poppinfnt ">
                                 <span className="me-2 subct">Board Type :</span>
@@ -907,7 +930,125 @@ export default function Installation() {
                   </>
                 )}
               </div>
-            ))}
+            ))} */}
+            <div className="col-md-6">
+              <div className="row">
+                {" "}
+                {recceData?.map((recceItem, index) =>
+                  recceItem?.outletName
+                    ?.filter((item) => item._id === OutletId)
+                    ?.map((outlet) => (
+                      <>
+                        <p>
+                          <span className="cl"> Client Brand:</span>
+                          <span> {outlet?.ClientName}</span>
+                        </p>
+
+                        <p>
+                          <span className="cl"> Brand:</span>
+                          <span> {recceItem?.BrandName}</span>
+                        </p>
+
+                        <p>
+                          <span className="cl"> Shop Name:</span>
+                          <span>{outlet?.ShopName}</span>
+                        </p>
+                        <p>
+                          <span className="cl"> Partner Code:</span>
+                          <span> {outlet?.PartnerCode}</span>
+                        </p>
+
+                        <p>
+                          <span className="cl">Outlet Pincode :</span>
+                          <span> {outlet?.OutletPincode}</span>
+                        </p>
+                        <p>
+                          <span className="cl"> Inshop :</span>
+                          <span>
+                            {outlet?.Inshop === "Y" || outlet?.Inshop === "y"
+                              ? "Yes"
+                              : "No"}
+                          </span>
+                        </p>
+                        <p>
+                          <span className="cl"> GSB :</span>
+                          <span>
+                            {outlet?.GSB === "Y" || outlet?.GSB === "y"
+                              ? "Yes"
+                              : "No"}
+                          </span>
+                        </p>
+                        <p>
+                          <span className="cl"> FLBoard :</span>
+                          <span>{outlet?.FLBoard === "Y" ? "Yes" : "No"}</span>
+                        </p>
+                      </>
+                    ))
+                )}
+              </div>
+            </div>
+            <div className="col-md-6">
+              <div className="row">
+                {OutletDoneData?.filter(
+                  (Ele) => Ele?.outletShopId === OutletId
+                )?.map((board, ind) => {
+                  return (
+                    <>
+                      <div className="col-md-12 ">
+                        <p className="poppinfnt ">
+                          <span className="me-2 subct">Board Type :</span>
+                          {ind + 1}
+                        </p>
+
+                        <p className="poppinfnt ">
+                          <span className="me-2 subct">Category :</span>{" "}
+                          {board?.category}
+                        </p>
+
+                        <p className="poppinfnt ">
+                          <span className="me-2 subct">GST Number :</span>{" "}
+                          {board?.gstNumber}
+                        </p>
+
+                        <div className="row">
+                          <img
+                            width={300}
+                            height={200}
+                            className="col-md-8 banrrad"
+                            alt=""
+                            src={`${ImageURL}/Outlet/${board?.ouletInstallationImage}`}
+                          />
+                          <div className="col-md-1 borderlef">
+                            <span className="border-line"></span>
+                            <span className="poppinfnt">{board?.height}</span>
+                            <span className="poppinfnt">
+                              {board?.unitsOfMeasurment}
+                            </span>
+                            <span className="border-line"></span>
+                          </div>
+                        </div>
+
+                        <div className=" mt-2 m-auto mb-2 borderlef1 ">
+                          <span className="border-line2"></span>
+                          <span className=" poppinfnt ms-2 me-1 ">
+                            {board?.width}
+                          </span>
+                          <span className="poppinfnt  me-2">
+                            {board?.unitsOfMeasurment}
+                          </span>
+                          <span className=" border-line2"></span>
+                        </div>
+                        <p className="poppinfnt ">
+                          <span className="me-2 subct">Remark :</span>{" "}
+                          {board?.installationCommentOrNote}
+                        </p>
+                      </div>
+                      <hr></hr>{" "}
+                    </>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
       )}

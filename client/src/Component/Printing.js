@@ -55,15 +55,15 @@ export default function Printing() {
   const [ClientInfo, setClientInfo] = useState([]);
   const [RecceId, setRecceId] = useState(null);
   const [selectrecceStatus, setSelectRecceStatus] = useState(null);
+  const [OutletDoneData, setOutletDoneData] = useState([]);
   useEffect(() => {
     getAllRecce();
     getAllClientsInfo();
+    getAllOutlets();
   }, []);
   const getAllClientsInfo = async () => {
     try {
-      const res = await axios.get(
-        `${ApiURL}/Client/clients/getallclient`
-      );
+      const res = await axios.get(`${ApiURL}/Client/clients/getallclient`);
       if (res.status === 200) {
         setClientInfo(res.data);
       }
@@ -73,9 +73,7 @@ export default function Printing() {
   };
   const getAllRecce = async () => {
     try {
-      const res = await axios.get(
-        `${ApiURL}/recce/recce/getallrecce`
-      );
+      const res = await axios.get(`${ApiURL}/recce/recce/getallrecce`);
       if (res.status === 200) {
         setRecceData(res.data.RecceData);
       }
@@ -244,7 +242,8 @@ export default function Printing() {
         Ele?.outletName
           ?.filter(
             (outle) =>
-              outle?._id === outletidd && outle?.RecceStatus?.includes("Completed")
+              outle?._id === outletidd &&
+              outle?.RecceStatus?.includes("Completed")
           )
           .map((item) => ({
             siNo: ++serialNumber,
@@ -402,6 +401,16 @@ export default function Printing() {
       );
     }
   };
+  const getAllOutlets = async () => {
+    try {
+      const res = await axios.get(`${ApiURL}/getalloutlets`);
+      if (res.status === 200) {
+        setOutletDoneData(res?.data?.outletData);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <>
@@ -519,6 +528,7 @@ export default function Printing() {
                   <th className="th_s p-1">Brand </th>
                   <th className="th_s p-1">Shop Name</th>
                   <th className="th_s p-1">Client Name</th>
+                  <th className="th_s p-1">Partner Code</th>
                   <th className="th_s p-1">State</th>
                   <th className="th_s p-1">Contact Number</th>
                   <th className="th_s p-1">Zone</th>
@@ -527,116 +537,112 @@ export default function Printing() {
                   <th className="th_s p-1">FL Board</th>
                   <th className="th_s p-1">GSB</th>
                   <th className="th_s p-1">Inshop</th>
-                  <th className="th_s p-1">Category</th>
-                  <th className="th_s p-1">Hight</th>
-                  <th className="th_s p-1">Width</th>
+                  <th className="th_s p-1">Status</th>
                   <th className="th_s p-1">Date</th>
                   <th className="th_s p-1">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredData?.map((recceItem, index) =>
-                  recceItem?.outletName.map((outlet, outletArray) => {
-                    if (rowsDisplayed < rowsPerPage1) {
-                      const pincodePattern = /\b\d{6}\b/;
+                {filteredData?.map((recceItem, index) => {
+                  const outletDoneItems = [];
 
+                  return recceItem?.outletName
+                    ?.filter((outlet) => {
+                      let outletDoneItem = OutletDoneData?.find(
+                        (ele) => ele.outletShopId === outlet._id
+                      );
+
+                      outletDoneItems.push(outletDoneItem);
+
+                      return outletDoneItem?.jobStatus === true;
+                    })
+                    .map((outlet, innerIndex) => {
                       let JobNob = 0;
-                      // const desiredClient = ClientInfo?.client?.find(
-                      //   (client) => client._id === recceItem.BrandName
-                      // );
 
-                      filteredData?.forEach((recceItem, recceIndex) => {
-                        recceItem?.outletName?.forEach((item) => {
-                          if (outlet._id === item._id) {
-                            JobNob = recceIndex + 1;
-                          }
-                        });
-                      });
+                      const matchingRecceItem = filteredData?.find(
+                        (recce, recceIndex) =>
+                          recce?.outletName?.some(
+                            (item) => item?._id === outlet?._id
+                          )
+                      );
+
+                      if (matchingRecceItem) {
+                        JobNob = filteredData.indexOf(matchingRecceItem) + 1;
+                      }
+                      const pincodePattern = /\b\d{6}\b/;
                       const address = outlet?.OutletAddress;
                       const extractedPincode = address?.match(pincodePattern);
 
                       if (extractedPincode) {
                         outlet.OutletPincode = extractedPincode[0];
                       }
-                      if (outlet.RecceStatus.includes("Completed")) {
-                        serialNumber++;
-                        rowsDisplayed++;
-                        return (
-                          <tr className="tr_C" key={serialNumber}>
-                            <td className="td_S p-1">
-                              <input
-                                style={{
-                                  width: "15px",
-                                  height: "15px",
-                                  marginRight: "5px",
-                                }}
-                                type="checkbox"
-                                checked={selectedRecceItems1.includes(
-                                  outlet._id
-                                )}
-                                onChange={() =>
-                                  handleOutletToggleSelect(
-                                    recceItem._id,
-                                    outlet._id
-                                  )
-                                }
-                              />
-                            </td>
-                            <td className="td_S p-1">{serialNumber}</td>
-                            <td className="td_S p-1">Job{JobNob}</td>
-                            <td className="td_S p-1">{recceItem.BrandName}</td>
-                            <td className="td_S p-1">{outlet.ShopName}</td>
-                            <td className="td_S p-1">{outlet.ClientName}</td>
-                            <td className="td_S p-1">{outlet.State}</td>
-                            <td className="td_S p-1">
-                              {outlet.OutletContactNumber}
-                            </td>
+                      serialNumber++;
 
-                            <td className="td_S p-1">{outlet.OutletZone}</td>
-                            <td className="td_S p-1">
-                              {extractedPincode ? extractedPincode[0] : ""}
-                            </td>
-                            <td className="td_S p-1">{outlet.OutletCity}</td>
-                            <td className="td_S p-1">{outlet.FLBoard}</td>
-                            <td className="td_S p-1">{outlet.GSB}</td>
-                            <td className="td_S p-1">{outlet.Inshop}</td>
-                            <td className="td_S p-1">{outlet.Category}</td>
-                            <td className="td_S p-1">
-                              {outlet.height}
-                              {outlet.unit}
-                            </td>
-                            <td className="td_S p-1">
-                              {outlet.width}
-                              {outlet.unit}
-                            </td>
-                            <td className="td_S p-2 text-nowrap text-center">
-                              {recceItem.createdAt
-                                ? new Date(recceItem.createdAt)
-                                    .toISOString()
-                                    .slice(0, 10)
-                                : ""}
-                            </td>
-                            <td className="td_S ">
-                              <span
-                                variant="info "
-                                onClick={() => {
-                                  handleEdit(outlet, recceItem);
-                                }}
-                                style={{
-                                  cursor: "pointer",
-                                  color: "skyblue",
-                                }}
-                              >
-                                view
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      }
-                    }
-                    return null;
-                  })
-                )}
+                      return (
+                        <tr className="tr_C" key={serialNumber}>
+                          <td className="td_S p-1">
+                            <input
+                              style={{
+                                width: "15px",
+                                height: "15px",
+                                marginRight: "5px",
+                              }}
+                              type="checkbox"
+                              checked={selectedRecceItems1?.includes(
+                                outlet?._id
+                              )}
+                              onChange={() =>
+                                handleOutletToggleSelect(
+                                  recceItem.BrandId,
+                                  outlet?._id
+                                )
+                              }
+                            />
+                          </td>
+                          <td className="td_S p-1">{serialNumber}</td>
+                          <td className="td_S p-1">Job{JobNob}</td>
+                          <td className="td_S p-1">{recceItem.BrandName}</td>
+                          <td className="td_S p-1">{outlet?.ShopName}</td>
+                          <td className="td_S p-1">{outlet?.ClientName}</td>
+                          <td className="td_S p-1">{outlet?.PartnerCode}</td>
+                          <td className="td_S p-1">{outlet?.State}</td>
+                          <td className="td_S p-1">
+                            {outlet?.OutletContactNumber}
+                          </td>
+                          <td className="td_S p-1">{outlet?.OutletZone}</td>
+                          <td className="td_S p-1">
+                            {extractedPincode ? extractedPincode[0] : ""}
+                          </td>
+                          <td className="td_S p-1">{outlet?.OutletCity}</td>
+                          <td className="td_S p-1">{outlet?.FLBoard}</td>
+                          <td className="td_S p-1">{outlet?.GSB}</td>
+                          <td className="td_S p-1">{outlet?.Inshop}</td>
+                          <td className="td_S p-1">{outlet?.Designstatus}</td>
+                          <td className="td_S p-2 text-nowrap text-center">
+                            {outletDoneItems[innerIndex]?.createdAt
+                              ? new Date(outletDoneItems[innerIndex].createdAt)
+                                  ?.toISOString()
+                                  ?.slice(0, 10)
+                              : "Date not available"}
+                          </td>
+                          <td className="td_S ">
+                            <span
+                              variant="info "
+                              onClick={() => {
+                                handleEdit(outlet, recceItem);
+                              }}
+                              style={{
+                                cursor: "pointer",
+                                color: "skyblue",
+                              }}
+                            >
+                              view
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    });
+                })}
               </tbody>
             </table>
           </div>

@@ -68,9 +68,7 @@ export default function Fabrication() {
 
   const getAllRecce = async () => {
     try {
-      const res = await axios.get(
-        `${ApiURL}/recce/recce/getallrecce`
-      );
+      const res = await axios.get(`${ApiURL}/recce/recce/getallrecce`);
       if (res.status === 200) {
         //   const filteredRecceData = res.data.RecceData.filter(
         //     (item) => item._id === item.completedPrinting
@@ -369,9 +367,7 @@ export default function Fabrication() {
 
   const getAllClientsInfo = async () => {
     try {
-      const res = await axios.get(
-        `${ApiURL}/Client/clients/getallclient`
-      );
+      const res = await axios.get(`${ApiURL}/Client/clients/getallclient`);
       if (res.status === 200) {
         setClientInfo(res.data);
       }
@@ -532,6 +528,7 @@ export default function Fabrication() {
                   <th className="th_s p-1">Brand </th>
                   <th className="th_s p-1">Shop Name</th>
                   <th className="th_s p-1">Client Name</th>
+                  <th className="th_s p-1">Partner Code</th>
                   <th className="th_s p-1">State</th>
                   <th className="th_s p-1">Contact Number</th>
                   <th className="th_s p-1">Zone</th>
@@ -540,9 +537,9 @@ export default function Fabrication() {
                   <th className="th_s p-1">FL Board</th>
                   <th className="th_s p-1">GSB</th>
                   <th className="th_s p-1">Inshop</th>
-                  <th className="th_s p-1">Category</th>
+                  {/* <th className="th_s p-1">Category</th>
                   <th className="th_s p-1">Hight</th>
-                  <th className="th_s p-1">Width</th>
+                  <th className="th_s p-1">Width</th> */}
                   <th className="th_s p-1">Date</th>
                   <th className="th_s p-1">Action</th>
                 </tr>
@@ -601,6 +598,8 @@ export default function Fabrication() {
                             <td className="td_S p-1">{recceItem.BrandName}</td>
                             <td className="td_S p-1">{outlet?.ShopName}</td>
                             <td className="td_S p-1">{outlet?.ClientName}</td>
+
+                            <td className="td_S p-1">{outlet?.PartnerCode}</td>
                             <td className="td_S p-1">{outlet?.State}</td>
                             <td className="td_S p-1">
                               {outlet?.OutletContactNumber}
@@ -614,7 +613,7 @@ export default function Fabrication() {
                             <td className="td_S p-1">{outlet?.FLBoard}</td>
                             <td className="td_S p-1">{outlet?.GSB}</td>
                             <td className="td_S p-1">{outlet?.Inshop}</td>
-                            <td className="td_S p-1">{outlet?.Category}</td>
+                            {/* <td className="td_S p-1">{outlet?.Category}</td>
                             <td className="td_S p-1">
                               {outlet?.height}
                               {outlet?.unit}
@@ -622,10 +621,10 @@ export default function Fabrication() {
                             <td className="td_S p-1">
                               {outlet?.width}
                               {outlet?.unit}
-                            </td>
+                            </td> */}
                             <td className="td_S p-2 text-nowrap text-center">
-                              {recceItem.createdAt
-                                ? new Date(recceItem.createdAt)
+                              {outlet.updatedAt
+                                ? new Date(outlet.updatedAt)
                                     ?.toISOString()
                                     ?.slice(0, 10)
                                 : ""}
@@ -718,9 +717,9 @@ export default function Fabrication() {
             </p>
           </div>
 
-          <div className="col-md-6  ">
+          <div className="col-md-6">
             <div className="row">
-              <div className="col-md-6  ">
+              <div className="col-md-6">
                 {" "}
                 <Form.Label>Type Of Delivery </Form.Label>
                 <Form.Select
@@ -738,7 +737,7 @@ export default function Fabrication() {
                   <option value="Go to installation">Go to installation</option>
                 </Form.Select>{" "}
               </div>
-              <div className="col-md-6  ">
+              <div className="col-md-6">
                 {" "}
                 <Form.Label>Fabrication Status </Form.Label>
                 <Form.Select

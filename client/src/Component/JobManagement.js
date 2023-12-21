@@ -62,10 +62,11 @@ export default function JobManagement() {
   const [selectAllClients, setselectAllClients] = useState(false);
 
   const [selectAllCity, setselectAllCity] = useState(false);
+  const [OutletDoneData, setOutletDoneData] = useState([]);
   useEffect(() => {
     getAllRecce();
     getAllCategory();
-    // getAllInstalation();
+    getAllOutlets();
   }, []);
   const getAllCategory = async () => {
     try {
@@ -140,7 +141,6 @@ export default function JobManagement() {
       for (const recceId of selectedRecceItems) {
         const filteredData = RecceData?.map((ele) =>
           ele?.outletName?.filter((item) => {
-            // console.log(item?.OutletCity, "selectedCity");
             if (
               recceId === item?._id &&
               item?.OutletZone === selecteZone &&
@@ -155,7 +155,7 @@ export default function JobManagement() {
         updatedRecceData.push(...filteredData);
 
         const config = {
-          url: `/api/recce/recce/outletupdate/${recceId}/${vendordata?._id}`,
+          url: `/recce/recce/outletupdate/${recceId}/${vendordata?._id}`,
           baseURL: ApiURL,
           method: "put",
           headers: { "Content-Type": "application/json" },
@@ -489,7 +489,9 @@ export default function JobManagement() {
           ?.filter((ele) => ele?._id === vendor)
           ?.map((vonf) => {
             if (res.status === 200) {
-              alert(`${jobType} assigned to:   ${vonf?.VendorFirstName} vendor`);
+              alert(
+                `${jobType} assigned to:   ${vonf?.VendorFirstName} vendor`
+              );
             } else {
               alert(
                 `Failed to assign ${jobType} to:  ${vonf?.VendorFirstName} vendor`
@@ -526,6 +528,20 @@ export default function JobManagement() {
     setselectedCity(selectedCities);
   };
   const allCitiesSet = new Set();
+
+  const selectedid = SelectedData?.selectedBrandNames?.selectedIds;
+
+  const getAllOutlets = async () => {
+    try {
+      const res = await axios.get(`${ApiURL}/getalloutlets`);
+      if (res.status === 200) {
+        setOutletDoneData(res?.data?.outletData);
+      }
+    } catch (err) {
+      // alert(err);
+      console.log(err);
+    }
+  };
   return (
     <>
       <Header />
@@ -630,6 +646,7 @@ export default function JobManagement() {
                                     <Form.Check
                                       checked={selectAllClients}
                                       onClick={handleSelectAllClientName}
+                                      // value={"Select All"}
                                     />
                                   </span>
                                   <Form.Label className="col-md-8 p-0 m-0 m-auto">
@@ -725,6 +742,7 @@ export default function JobManagement() {
                                       <Form.Check
                                         checked={selectAllCity}
                                         onClick={handleSelectAllCity}
+                                        // value={"Select All"}
                                       />
                                     </span>
                                     <Form.Label className="col-md-8 p-0 m-0 m-auto">
@@ -821,10 +839,10 @@ export default function JobManagement() {
                             }}
                           >
                             <option value="Select All">Select All</option>
-                            <option value="west">west</option>
-                            <option value="south">south</option>
-                            <option value="north">north</option>
-                            <option value="east">east</option>
+                            <option value="West">West</option>
+                            <option value="South">South</option>
+                            <option value="North">North</option>
+                            <option value="East">East</option>
                           </Form.Select>
                         </Form.Group>
                       </Col>
@@ -916,163 +934,156 @@ export default function JobManagement() {
                           <th className="th_s p-1">FL Board</th>
                           <th className="th_s p-1">GSB</th>
                           <th className="th_s p-1">Inshop</th>
-                          <th className="th_s p-1">Category</th>
-                          <th className="th_s p-1">Hight</th>
-                          <th className="th_s p-1">Width</th>
+
                           <th className="th_s p-1">Date</th>
                           <th className="th_s p-1">Action</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {RecceData?.map((recceItem, index) =>
-                          recceItem?.outletName?.map((outlet, outletArray) => {
-                            // const desiredClient = ClientInfo?.client?.find(
-                            //   (client) => client._id === recceItem?.BrandName
-                            // );
-                            let JobNob = 0;
-                            RecceData?.forEach((recceItem, recceIndex) => {
-                              recceItem?.outletName?.forEach((item) => {
-                                if (outlet?._id === item?._id) {
-                                  JobNob = recceIndex + 1;
-                                }
+                        {RecceData?.filter((recceItem) =>
+                          selectedid?.includes(recceItem._id)
+                        )?.map((outerRecceItem) =>
+                          outerRecceItem.outletName
+                            ?.filter(
+                              (out) =>
+                                out.vendor === null || out.vendor === undefined
+                            )
+                            ?.map((outlet) => {
+                              let JobNob = 0;
+                              RecceData?.forEach((recceItem, recceIndex) => {
+                                recceItem?.outletName?.forEach((item) => {
+                                  if (outlet?._id === item?._id) {
+                                    JobNob = recceIndex + 1;
+                                  }
+                                });
                               });
-                            });
-                            const selectedIds =
-                              SelectedData?.selectedBrandNames?.selectedIds;
 
-                            const recceItemId = recceItem?._id;
+                              if (rowsDisplayed < rowsPerPage1) {
+                                const pincodePattern = /\b\d{6}\b/;
+                                const address = outlet?.OutletAddress;
+                                const extractedPincode =
+                                  address?.match(pincodePattern);
 
-                            const isRecceItemIdSelected =
-                              selectedIds?.includes(recceItemId);
+                                if (extractedPincode) {
+                                  outlet.OutletPincode = extractedPincode[0];
+                                }
 
-                            if (rowsDisplayed < rowsPerPage1) {
-                              const pincodePattern = /\b\d{6}\b/;
-
-                              const address = outlet?.OutletAddress;
-                              const extractedPincode =
-                                address?.match(pincodePattern);
-
-                              if (extractedPincode) {
-                                outlet.OutletPincode = extractedPincode[0];
-                              }
-                              const selectedCitiesArray =
-                                SelectedData.selectedCity
-                                  ?.split(",")
-                                  ?.map((city) => city?.trim()?.toLowerCase());
-
-                              const isCityMatched =
-                                SelectedData.selectedCity === "Select All" ||
-                                selectedCitiesArray?.includes(
-                                  outlet?.OutletCity?.toLowerCase()
+                                const selectedCitiesArray =
+                                  SelectedData.selectedCity
+                                    ?.split(",")
+                                    ?.map((city) =>
+                                      city?.trim()?.toLowerCase()
+                                    );
+                                const isCityMatched = selectedCitiesArray.some(
+                                  (ele) => {
+                                    const outletCity =
+                                      outlet?.OutletCity?.trim();
+                                    return (
+                                      outletCity &&
+                                      ele === outletCity.toLowerCase()
+                                    );
+                                  }
                                 );
 
-                              const isZoneMatched =
-                                SelectedData.selecteZone === "Select All" ||
-                                (isCityMatched &&
-                                  outlet?.OutletZone?.toLowerCase() ===
-                                    SelectedData?.selecteZone?.toLowerCase());
+                                const isZoneMatched =
+                                  outlet?.OutletZone?.trim()?.toLowerCase() ===
+                                    SelectedData?.selecteZone
+                                      ?.trim()
+                                      ?.toLowerCase() ||
+                                  SelectedData?.selecteZone
+                                    ?.trim()
+                                    ?.toLowerCase() === "select all";
 
-                              if (
-                                isCityMatched &&
-                                isZoneMatched &&
-                                isRecceItemIdSelected
-                              ) {
-                                rowsDisplayed++;
-                                serialNumber++;
-                                return (
-                                  <tr className="tr_C" key={outlet?._id}>
-                                    <td className="td_S p-1">
-                                      <input
-                                        style={{
-                                          width: "15px",
-                                          height: "15px",
-                                          marginRight: "5px",
-                                        }}
-                                        type="checkbox"
-                                        checked={selectedRecceItems?.includes(
-                                          outlet?._id
-                                        )}
-                                        onChange={() =>
-                                          handleToggleSelect(
-                                            recceItem?.BrandId,
-                                            outlet?._id
-                                          )
-                                        }
-                                      />
-                                    </td>
-                                    <td className="td_S p-1">{serialNumber}</td>
-                                    <td className="td_S p-1">Job{JobNob}</td>
-                                    <td className="td_S p-1">
-                                      {recceItem?.BrandName}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.ShopName}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.ClientName}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.State}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.OutletContactNumber}
-                                    </td>
+                                if (isCityMatched && isZoneMatched) {
+                                  rowsDisplayed++;
+                                  serialNumber++;
 
-                                    <td className="td_S p-1">
-                                      {outlet?.OutletZone}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {extractedPincode
-                                        ? extractedPincode[0]
-                                        : ""}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.OutletCity}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.FLBoard}
-                                    </td>
-                                    <td className="td_S p-1">{outlet?.GSB}</td>
-                                    <td className="td_S p-1">
-                                      {outlet?.Inshop}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.Category}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.height}
-                                      {outlet?.unit}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.width}
-                                      {outlet?.unit}
-                                    </td>
-                                    <td className="td_S ">
-                                      {recceItem?.createdAt
-                                        ? new Date(recceItem?.createdAt)
-                                            ?.toISOString()
-                                            ?.slice(0, 10)
-                                        : ""}
-                                    </td>
-                                    <td className="td_S ">
-                                      <span
-                                        variant="info "
-                                        onClick={() => {
-                                          handleEdit(outlet);
-                                        }}
-                                        style={{
-                                          cursor: "pointer",
-                                          color: "skyblue",
-                                        }}
-                                      >
-                                        view
-                                      </span>
-                                    </td>
-                                  </tr>
-                                );
+                                  return (
+                                    <tr className="tr_C" key={outlet?._id}>
+                                      <td className="td_S p-1">
+                                        <input
+                                          style={{
+                                            width: "15px",
+                                            height: "15px",
+                                            marginRight: "5px",
+                                          }}
+                                          type="checkbox"
+                                          checked={selectedRecceItems?.includes(
+                                            outlet._id
+                                          )}
+                                          onChange={() =>
+                                            handleToggleSelect(
+                                              outerRecceItem?.BrandId,
+                                              outlet._id
+                                            )
+                                          }
+                                        />
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {serialNumber}
+                                      </td>
+                                      <td className="td_S p-1">Job{JobNob}</td>
+                                      <td className="td_S p-1">
+                                        {outerRecceItem.BrandName}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.ShopName}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.ClientName}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.State}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.OutletContactNumber}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.OutletZone}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {extractedPincode
+                                          ? extractedPincode[0]
+                                          : ""}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.OutletCity}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.FLBoard}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.GSB}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.Inshop}
+                                      </td>
+                                      <td className="td_S ">
+                                        {outlet?.createdAt
+                                          ? new Date(outlet?.createdAt)
+                                              ?.toISOString()
+                                              ?.slice(0, 10)
+                                          : ""}
+                                      </td>
+                                      <td className="td_S ">
+                                        <span
+                                          variant="info "
+                                          onClick={() => {
+                                            handleEdit(outlet);
+                                          }}
+                                          style={{
+                                            cursor: "pointer",
+                                            color: "skyblue",
+                                          }}
+                                        >
+                                          view
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  );
+                                }
                               }
-                            }
-                          })
+                            })
                         )}
                       </tbody>
                     </table>
@@ -1189,7 +1200,7 @@ export default function JobManagement() {
                     </Col>
                   </div>
                   <div className="row">
-                    <table className="t-p">
+                    {/* <table className="t-p">
                       <thead className="t-c">
                         <tr>
                           <th className="th_s p-1">SI.No</th>
@@ -1317,6 +1328,134 @@ export default function JobManagement() {
                             return null;
                           })
                         )}
+                      </tbody>
+                    </table> */}
+                    <table className="t-p">
+                      <thead className="t-c">
+                        <tr>
+                          <th className="th_s p-1">SI.No</th>
+                          <th className="th_s p-1">Job.No</th>
+                          <th className="th_s p-1">Brand </th>
+                          <th className="th_s p-1">Shop Name</th>
+                          <th className="th_s p-1">Client Name</th>
+                          <th className="th_s p-1">Partner Code</th>
+                          <th className="th_s p-1">State</th>
+                          <th className="th_s p-1">Contact Number</th>
+                          <th className="th_s p-1">Zone</th>
+                          <th className="th_s p-1">Pincode</th>
+                          <th className="th_s p-1">City</th>
+                          <th className="th_s p-1">FL Board</th>
+                          <th className="th_s p-1">GSB</th>
+                          <th className="th_s p-1">Inshop</th>
+                          <th className="th_s p-1">Status</th>
+                          <th className="th_s p-1">Date</th>
+                          <th className="th_s p-1">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {RecceData?.map((recceItem, index) => {
+                          const outletDoneItems = [];
+
+                          return recceItem?.outletName
+                            ?.filter((outlet) => {
+                              let outletDoneItem = OutletDoneData?.find(
+                                (ele) => ele.outletShopId === outlet._id
+                              );
+
+                              outletDoneItems.push(outletDoneItem);
+
+                              return outletDoneItem?.jobStatus === true;
+                            })
+                            .map((outlet, innerIndex) => {
+                              let JobNob = 0;
+
+                              const matchingRecceItem = RecceData?.find(
+                                (recce, recceIndex) =>
+                                  recce?.outletName?.some(
+                                    (item) => item?._id === outlet?._id
+                                  )
+                              );
+
+                              if (matchingRecceItem) {
+                                JobNob =
+                                  RecceData.indexOf(matchingRecceItem) + 1;
+                              }
+                              const pincodePattern = /\b\d{6}\b/;
+                              const address = outlet?.OutletAddress;
+                              const extractedPincode =
+                                address?.match(pincodePattern);
+
+                              if (extractedPincode) {
+                                outlet.OutletPincode = extractedPincode[0];
+                              }
+                              serialNumber++;
+
+                              return (
+                                <tr className="tr_C" key={serialNumber}>
+                                  <td className="td_S p-1">{serialNumber}</td>
+                                  <td className="td_S p-1">Job{JobNob}</td>
+                                  <td className="td_S p-1">
+                                    {recceItem.BrandName}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet?.ShopName}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet?.ClientName}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet?.PartnerCode}
+                                  </td>
+                                  <td className="td_S p-1">{outlet?.State}</td>
+                                  <td className="td_S p-1">
+                                    {outlet?.OutletContactNumber}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet?.OutletZone}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {extractedPincode
+                                      ? extractedPincode[0]
+                                      : ""}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet?.OutletCity}
+                                  </td>
+                                  <td className="td_S p-1">
+                                    {outlet?.FLBoard}
+                                  </td>
+                                  <td className="td_S p-1">{outlet?.GSB}</td>
+                                  <td className="td_S p-1">{outlet?.Inshop}</td>
+                                  <td className="td_S p-1">
+                                    {outlet?.Designstatus}
+                                  </td>
+                                  <td className="td_S p-2 text-nowrap text-center">
+                                    {outletDoneItems[innerIndex]?.createdAt
+                                      ? new Date(
+                                          outletDoneItems[innerIndex].createdAt
+                                        )
+                                          ?.toISOString()
+                                          ?.slice(0, 10)
+                                      : "Date not available"}
+                                  </td>
+                                  <td className="td_S ">
+                                    <span
+                                      variant="info "
+                                      onClick={() => {
+                                        handleEdit(outlet, recceItem);
+                                      }}
+                                      style={{
+                                        cursor: "pointer",
+                                        color: "skyblue",
+                                      }}
+                                    >
+                                      view
+                                    </span>
+                                  </td>
+                                </tr>
+                              );
+                            });
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -1485,165 +1624,163 @@ export default function JobManagement() {
                           <th className="th_s p-1">FL Board</th>
                           <th className="th_s p-1">GSB</th>
                           <th className="th_s p-1">Inshop</th>
-                          <th className="th_s p-1">Category</th>
-                          <th className="th_s p-1">Hight</th>
-                          <th className="th_s p-1">Width</th>
+
                           <th className="th_s p-1">Date</th>
                           <th className="th_s p-1">Action</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {RecceData?.map((recceItem, index) =>
-                          recceItem?.outletName?.map((outlet, outletArray) => {
-                            let JobNob = 0;
-                            RecceData?.forEach((recceItem, recceIndex) => {
-                              recceItem?.outletName?.forEach((item) => {
-                                if (outlet?._id === item?._id) {
-                                  JobNob = recceIndex + 1;
-                                }
+                        {RecceData?.filter((recceItem) =>
+                          selectedid?.includes(recceItem._id)
+                        )?.map((outerRecceItem) =>
+                          outerRecceItem.outletName
+                            .filter((outl) => {
+                              const deliveryType =
+                                outl?.OutlateFabricationDeliveryType;
+                              const isGoToInstallation =
+                                deliveryType &&
+                                deliveryType.trim() === "Go to installation";
+                              const isVendorNull =
+                                outl?.InstalationGroup === null ||
+                                outl?.InstalationGroup === undefined;
+                              return isGoToInstallation && isVendorNull;
+                            })
+                            .map((outlet) => {
+                              let JobNob = 0;
+                              RecceData?.forEach((recceItem, recceIndex) => {
+                                recceItem?.outletName?.forEach((item) => {
+                                  if (outlet?._id === item?._id) {
+                                    JobNob = recceIndex + 1;
+                                  }
+                                });
                               });
-                            });
-                            const selectedIds =
-                              SelectedData?.selectedBrandNames?.selectedIds;
 
-                            const recceItemId = recceItem?._id;
+                              if (rowsDisplayed < rowsPerPage1) {
+                                const pincodePattern = /\b\d{6}\b/;
+                                const address = outlet?.OutletAddress;
+                                const extractedPincode =
+                                  address?.match(pincodePattern);
 
-                            const isRecceItemIdSelected =
-                              selectedIds?.includes(recceItemId);
+                                if (extractedPincode) {
+                                  outlet.OutletPincode = extractedPincode[0];
+                                }
 
-                            if (rowsDisplayed < rowsPerPage1) {
-                              const pincodePattern = /\b\d{6}\b/;
-
-                              const address = outlet?.OutletAddress;
-                              const extractedPincode =
-                                address?.match(pincodePattern);
-
-                              if (extractedPincode) {
-                                outlet.OutletPincode = extractedPincode[0];
-                              }
-
-                              const selectedCitiesArray =
-                                SelectedData?.selectedCity
-                                  ?.split(",")
-                                  ?.map((city) => city?.trim()?.toLowerCase());
-
-                              const isCityMatched =
-                                SelectedData.selectedCity === "Select All" ||
-                                selectedCitiesArray?.includes(
-                                  outlet?.OutletCity?.toLowerCase()
+                                const selectedCitiesArray =
+                                  SelectedData.selectedCity
+                                    ?.split(",")
+                                    ?.map((city) =>
+                                      city?.trim()?.toLowerCase()
+                                    );
+                                const isCityMatched = selectedCitiesArray.some(
+                                  (ele) => {
+                                    const outletCity =
+                                      outlet?.OutletCity?.trim();
+                                    return (
+                                      outletCity &&
+                                      ele === outletCity.toLowerCase()
+                                    );
+                                  }
                                 );
 
-                              const isZoneMatched =
-                                SelectedData.selecteZone === "Select All" ||
-                                (isCityMatched &&
-                                  outlet?.OutletZone?.toLowerCase() ===
-                                    SelectedData?.selecteZone?.toLowerCase());
+                                const isZoneMatched =
+                                  outlet?.OutletZone?.trim()?.toLowerCase() ===
+                                    SelectedData?.selecteZone
+                                      ?.trim()
+                                      ?.toLowerCase() ||
+                                  SelectedData?.selecteZone
+                                    ?.trim()
+                                    ?.toLowerCase() === "select all";
 
-                              if (
-                                isCityMatched &&
-                                isZoneMatched &&
-                                isRecceItemIdSelected &&
-                                outlet?.OutlateFabricationDeliveryType?.includes(
-                                  "Go to installation"
-                                )
-                              ) {
-                                rowsDisplayed++;
-                                serialNumber++;
-                                return (
-                                  <tr className="tr_C" key={outlet?._id}>
-                                    <td className="td_S p-1">
-                                      <input
-                                        style={{
-                                          width: "15px",
-                                          height: "15px",
-                                          marginRight: "5px",
-                                        }}
-                                        type="checkbox"
-                                        checked={selectedRecceItems?.includes(
-                                          outlet?._id
-                                        )}
-                                        onChange={() =>
-                                          handleToggleSelect(
-                                            recceItem?.BrandId,
-                                            outlet?._id
-                                          )
-                                        }
-                                      />
-                                    </td>
-                                    <td className="td_S p-1">{serialNumber}</td>
-                                    <td className="td_S p-1">Job{JobNob}</td>
-                                    <td className="td_S p-1">
-                                      {recceItem?.BrandName}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.ShopName}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.ClientName}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.State}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.OutletContactNumber}
-                                    </td>
+                                if (isCityMatched && isZoneMatched) {
+                                  rowsDisplayed++;
+                                  serialNumber++;
 
-                                    <td className="td_S p-1">
-                                      {outlet?.OutletZone}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {extractedPincode
-                                        ? extractedPincode[0]
-                                        : ""}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.OutletCity}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.FLBoard}
-                                    </td>
-                                    <td className="td_S p-1">{outlet?.GSB}</td>
-                                    <td className="td_S p-1">
-                                      {outlet?.Inshop}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.Category}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.height}
-                                      {outlet?.unit}
-                                    </td>
-                                    <td className="td_S p-1">
-                                      {outlet?.width}
-                                      {outlet?.unit}
-                                    </td>
-                                    <td className="td_S ">
-                                      {recceItem?.createdAt
-                                        ? new Date(recceItem?.createdAt)
-                                            ?.toISOString()
-                                            ?.slice(0, 10)
-                                        : ""}
-                                    </td>
-                                    <td className="td_S ">
-                                      <span
-                                        variant="info "
-                                        onClick={() => {
-                                          handleEdit(outlet);
-                                        }}
-                                        style={{
-                                          cursor: "pointer",
-                                          color: "skyblue",
-                                        }}
-                                      >
-                                        view
-                                      </span>
-                                    </td>
-                                  </tr>
-                                );
+                                  return (
+                                    <tr className="tr_C" key={outlet?._id}>
+                                      <td className="td_S p-1">
+                                        <input
+                                          style={{
+                                            width: "15px",
+                                            height: "15px",
+                                            marginRight: "5px",
+                                          }}
+                                          type="checkbox"
+                                          checked={selectedRecceItems?.includes(
+                                            outlet._id
+                                          )}
+                                          onChange={() =>
+                                            handleToggleSelect(
+                                              outerRecceItem?.BrandId,
+                                              outlet._id
+                                            )
+                                          }
+                                        />
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {serialNumber}
+                                      </td>
+                                      <td className="td_S p-1">Job{JobNob}</td>
+                                      <td className="td_S p-1">
+                                        {outerRecceItem.BrandName}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.ShopName}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.ClientName}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.State}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.OutletContactNumber}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.OutletZone}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {extractedPincode
+                                          ? extractedPincode[0]
+                                          : ""}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.OutletCity}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.FLBoard}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.GSB}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.Inshop}
+                                      </td>
+                                      <td className="td_S ">
+                                        {outlet?.createdAt
+                                          ? new Date(outlet?.createdAt)
+                                              ?.toISOString()
+                                              ?.slice(0, 10)
+                                          : ""}
+                                      </td>
+                                      <td className="td_S ">
+                                        <span
+                                          variant="info "
+                                          onClick={() => {
+                                            handleEdit(outlet);
+                                          }}
+                                          style={{
+                                            cursor: "pointer",
+                                            color: "skyblue",
+                                          }}
+                                        >
+                                          view
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  );
+                                }
                               }
-                            }
-                            return null;
-                          })
+                            })
                         )}
                       </tbody>
                     </table>
@@ -1659,110 +1796,67 @@ export default function JobManagement() {
                   </div>
                   <ToastContainer type="success" />
 
-                  {/* <div className="row mt-3 m-auto containerPadding">
-                    {InstaLationGroups ? (
-                      InstaLationGroups?.map((ele, index) => {
-                        if (ele?.InstalationGroup?.length > 0) {
-                          return (
-                            <Card
-                              key={ele?.VendorId}
-                              className="col-md-4 m-3 p-2"
-                              style={{
-                                width: "200px",
-                                height: "250px",
-                                borderRadius: "10%",
-                              }}
-                            >
-                            
-                              <div className="row text-center m-auto">
-                                <h4>
-                                  Group of {ele?.InstalationGroup?.length}
-                                </h4>
-                                <h4>{jobType}</h4>
-                              </div>
-
-                              <div className="row m-auto">
-                                <Button
-                                  className="c_W"
-                                  onClick={() => {
-                                    AssignInstallation(
-                                      selectedRecceItems,
-                                      ele?._id,
-                                      selecteZone,
-                                      selectedCity,
-                                      ele?.InstalationGroup?.length
-                                    );
-                                  }}
-                                >
-                                  Assigned Job
-                                </Button>
-                              </div>
-                            </Card>
-                          );
-                        }
-                      })
-                    ) : (
-                      <div>Loading or no data available</div>
-                    )}
-                  </div> */}
-
                   <div className="row mt-3 m-auto containerPadding">
                     {vendorData ? (
-                      vendorData?.map((ele, index) => (
-                        <Card
-                          key={ele?.VendorId}
-                          className="col-md-4 m-3 "
-                          style={{
-                            width: "240px",
-                            height: "320px",
-                            borderRadius: "10%",
-                          }}
-                        >
-                          <div className="row text-center m-auto">
-                            {ele?.VendorImage ? (
-                              <img
-                                style={{
-                                  width: "70%",
-                                  height: "50%",
-                                  borderRadius: "100%",
+                      vendorData?.map((ele, index) => {
+                        return (
+                          <Card
+                            key={ele?.VendorId}
+                            className="col-md-4 m-3 "
+                            style={{
+                              width: "240px",
+                              height: "320px",
+                              borderRadius: "10%",
+                            }}
+                          >
+                            <div className="row text-center m-auto">
+                              {ele?.VendorImage ? (
+                                <img
+                                  style={{
+                                    width: "70%",
+                                    height: "50%",
+                                    borderRadius: "100%",
+                                  }}
+                                  className="m-auto"
+                                  src={`${ImageURL}/VendorImage/${ele?.VendorImage}`}
+                                  alt=""
+                                />
+                              ) : (
+                                <span>No Image Available</span>
+                              )}
+                              <span>
+                                {ele?.VendorFirstName?.charAt(
+                                  0
+                                )?.toUpperCase() +
+                                  ele?.VendorFirstName?.substr(1)}
+                                {ele?.VendorLastName}
+                              </span>
+                              <span>{ele?.VendorId}</span>
+                              <span style={{ color: "orange" }}>
+                                Job Assigned
+                                <span style={{ margin: "5px" }}>0</span>
+                              </span>
+                              <span style={{ color: "green" }}>
+                                Job Completed
+                                <span style={{ margin: "5px" }}>0</span>
+                              </span>
+                              <Button
+                                className="c_W mt-2"
+                                onClick={() => {
+                                  AssignInstallation(
+                                    selectedRecceItems,
+                                    ele?._id,
+                                    selectedCity,
+                                    selecteZone
+                                  );
                                 }}
-                                className="m-auto"
-                                src={`${ImageURL}/VendorImage/${ele?.VendorImage}`}
-                                alt=""
-                              />
-                            ) : (
-                              <span>No Image Available</span>
-                            )}
-                            <span>
-                              {ele?.VendorFirstName?.charAt(0)?.toUpperCase() +
-                                ele?.VendorFirstName?.substr(1)}
-                              {ele?.VendorLastName}
-                            </span>
-                            <span>{ele?.VendorId}</span>
-                            <span style={{ color: "orange" }}>
-                              Job Assigned
-                              <span style={{ margin: "5px" }}>0</span>
-                            </span>
-                            <span style={{ color: "green" }}>
-                              Job Completed
-                              <span style={{ margin: "5px" }}>0</span>
-                            </span>
-                            <Button
-                              className="c_W mt-2"
-                              onClick={() => {
-                                AssignInstallation(
-                                  selectedRecceItems,
-                                  ele?._id,
-                                  selectedCity,
-                                  selecteZone
-                                );
-                              }}
-                            >
-                              Assign Installation
-                            </Button>
-                          </div>
-                        </Card>
-                      ))
+                              >
+                                Assign Installation
+                              </Button>
+                            </div>
+                          </Card>
+                        );
+                      })
                     ) : (
                       <div>Loading or no data available</div>
                     )}
@@ -1819,6 +1913,7 @@ export default function JobManagement() {
                               <th className="th_s p-1">Brand </th>
                               <th className="th_s p-1">Shop Name</th>
                               <th className="th_s p-1">Client Name</th>
+                              <th className="th_s p-1">Partner Code</th>
                               <th className="th_s p-1">State</th>
                               <th className="th_s p-1">Contact Number</th>
                               <th className="th_s p-1">Zone</th>
@@ -1827,137 +1922,125 @@ export default function JobManagement() {
                               <th className="th_s p-1">FL Board</th>
                               <th className="th_s p-1">GSB</th>
                               <th className="th_s p-1">Inshop</th>
-                              <th className="th_s p-1">Category</th>
-                              <th className="th_s p-1">Hight</th>
-                              <th className="th_s p-1">Width</th>
+                              <th className="th_s p-1">Status</th>
                               <th className="th_s p-1">Date</th>
                               <th className="th_s p-1">Action</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {RecceData?.map((recceItem, index) =>
-                              recceItem?.outletName?.map(
-                                (outlet, outletArray) => {
-                                  if (rowsDisplayed < rowsPerPage1) {
-                                    const pincodePattern = /\b\d{6}\b/;
-                                    // const desiredClient =
-                                    //   ClientInfo?.client?.find(
-                                    //     (client) =>
-                                    //       client._id === recceItem?.BrandName
-                                    //   );
+                            {RecceData?.map((recceItem, index) => {
+                              const outletDoneItems = [];
 
-                                    let JobNob = 0;
-                                    RecceData?.forEach(
-                                      (recceItem, recceIndex) => {
-                                        recceItem?.outletName?.forEach(
-                                          (item) => {
-                                            if (outlet?._id === item?._id) {
-                                              JobNob = recceIndex + 1;
-                                            }
-                                          }
-                                        );
-                                      }
-                                    );
-                                    const address = outlet?.OutletAddress;
-                                    const extractedPincode =
-                                      address?.match(pincodePattern);
+                              return recceItem?.outletName
+                                ?.filter((outlet) => {
+                                  let outletDoneItem = OutletDoneData?.find(
+                                    (ele) => ele.outletShopId === outlet._id
+                                  );
 
-                                    if (extractedPincode) {
-                                      outlet.OutletPincode =
-                                        extractedPincode[0];
-                                    }
-                                    if (
-                                      outlet?.RecceStatus?.includes("Completed")
-                                    ) {
-                                      rowsDisplayed++;
-                                      serialNumber++;
-                                      return (
-                                        <tr className="tr_C" key={outlet?._id}>
-                                          <td className="td_S p-1">
-                                            {serialNumber}
-                                          </td>
-                                          <td className="td_S p-1">
-                                            Job{JobNob}
-                                          </td>
-                                          <td className="td_S p-1">
-                                            {recceItem?.BrandName}
-                                          </td>
-                                          <td className="td_S p-1">
-                                            {outlet?.ShopName}
-                                          </td>
-                                          <td className="td_S p-1">
-                                            {outlet?.ClientName}
-                                          </td>
-                                          <td className="td_S p-1">
-                                            {outlet?.State}
-                                          </td>
-                                          <td className="td_S p-1">
-                                            {outlet?.OutletContactNumber}
-                                          </td>
+                                  outletDoneItems.push(outletDoneItem);
 
-                                          <td className="td_S p-1">
-                                            {outlet?.OutletZone}
-                                          </td>
-                                          <td className="td_S p-1">
-                                            {extractedPincode
-                                              ? extractedPincode[0]
-                                              : ""}
-                                          </td>
-                                          <td className="td_S p-1">
-                                            {outlet?.OutletCity}
-                                          </td>
-                                          <td className="td_S p-1">
-                                            {outlet?.FLBoard}
-                                          </td>
-                                          <td className="td_S p-1">
-                                            {outlet?.GSB}
-                                          </td>
-                                          <td className="td_S p-1">
-                                            {outlet?.Inshop}
-                                          </td>
-                                          <td className="td_S p-1">
-                                            {outlet?.Category}
-                                          </td>
-                                          <td className="td_S p-1">
-                                            {outlet?.height}
-                                            {outlet?.unit}
-                                          </td>
-                                          <td className="td_S p-1">
-                                            {outlet?.width}
-                                            {outlet?.unit}
-                                          </td>
-                                          <td className="td_S ">
-                                            {recceItem?.createdAt
-                                              ? new Date(recceItem?.createdAt)
-                                                  ?.toISOString()
-                                                  ?.slice(0, 10)
-                                              : ""}
-                                          </td>
-                                          <td className="td_S ">
-                                            <span
-                                              variant="info "
-                                              onClick={() => {
-                                                handleEditPrint(
-                                                  outlet,
-                                                  recceItem
-                                                );
-                                              }}
-                                              style={{
-                                                cursor: "pointer",
-                                                color: "skyblue",
-                                              }}
-                                            >
-                                              view
-                                            </span>
-                                          </td>
-                                        </tr>
-                                      );
-                                    }
+                                  return outletDoneItem?.jobStatus === true;
+                                })
+                                .map((outlet, innerIndex) => {
+                                  let JobNob = 0;
+
+                                  const matchingRecceItem = RecceData?.find(
+                                    (recce, recceIndex) =>
+                                      recce?.outletName?.some(
+                                        (item) => item?._id === outlet?._id
+                                      )
+                                  );
+
+                                  if (matchingRecceItem) {
+                                    JobNob =
+                                      RecceData.indexOf(matchingRecceItem) + 1;
                                   }
-                                  return null;
-                                }
-                              )
-                            )}
+                                  const pincodePattern = /\b\d{6}\b/;
+                                  const address = outlet?.OutletAddress;
+                                  const extractedPincode =
+                                    address?.match(pincodePattern);
+
+                                  if (extractedPincode) {
+                                    outlet.OutletPincode = extractedPincode[0];
+                                  }
+                                  serialNumber++;
+
+                                  return (
+                                    <tr className="tr_C" key={serialNumber}>
+                                      <td className="td_S p-1">
+                                        {serialNumber}
+                                      </td>
+                                      <td className="td_S p-1">Job{JobNob}</td>
+                                      <td className="td_S p-1">
+                                        {recceItem.BrandName}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.ShopName}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.ClientName}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.PartnerCode}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.State}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.OutletContactNumber}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.OutletZone}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {extractedPincode
+                                          ? extractedPincode[0]
+                                          : ""}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.OutletCity}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.FLBoard}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.GSB}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.Inshop}
+                                      </td>
+                                      <td className="td_S p-1">
+                                        {outlet?.Designstatus}
+                                      </td>
+                                      <td className="td_S p-2 text-nowrap text-center">
+                                        {outletDoneItems[innerIndex]?.createdAt
+                                          ? new Date(
+                                              outletDoneItems[
+                                                innerIndex
+                                              ].createdAt
+                                            )
+                                              ?.toISOString()
+                                              ?.slice(0, 10)
+                                          : "Date not available"}
+                                      </td>
+                                      <td className="td_S ">
+                                        <span
+                                          variant="info "
+                                          onClick={() => {
+                                            handleEdit(outlet, recceItem);
+                                          }}
+                                          style={{
+                                            cursor: "pointer",
+                                            color: "skyblue",
+                                          }}
+                                        >
+                                          view
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  );
+                                });
+                            })}
                           </tbody>
                         </table>
                       </div>
@@ -2162,10 +2245,7 @@ export default function JobManagement() {
                       <tbody>
                         {RecceData?.map((recceItem, index) =>
                           recceItem?.outletName?.map((outlet, outletArray) => {
-                            // const desiredClient = ClientInfo?.client?.find(
-                            //   (client) => client._id === recceItem?.BrandName
-                            // );
-
+                         
                             let JobNob = 0;
                             RecceData?.forEach((recceItem, recceIndex) => {
                               recceItem?.outletName?.forEach((item) => {

@@ -59,7 +59,7 @@ export default function Design() {
   const [selectedRecceItems, setSelectedRecceItems] = useState([]);
   const [designStatus, setdesignStatus] = useState("");
   const [selectAll, setSelectAll] = useState(false);
-  const [OutletDoneData, setOutletDoneData] = useState(null);
+  const [OutletDoneData, setOutletDoneData] = useState([]);
   useEffect(() => {
     getAllRecce();
     getAllClientsInfo();
@@ -469,7 +469,7 @@ export default function Design() {
       );
     }
   };
-
+  let outletDoneItem;
   return (
     <>
       <Header />
@@ -581,6 +581,7 @@ export default function Design() {
                   <th className="th_s p-1">Brand </th>
                   <th className="th_s p-1">Shop Name</th>
                   <th className="th_s p-1">Client Name</th>
+                  <th className="th_s p-1">Partner Code</th>
                   <th className="th_s p-1">State</th>
                   <th className="th_s p-1">Contact Number</th>
                   <th className="th_s p-1">Zone</th>
@@ -589,119 +590,112 @@ export default function Design() {
                   <th className="th_s p-1">FL Board</th>
                   <th className="th_s p-1">GSB</th>
                   <th className="th_s p-1">Inshop</th>
-                  <th className="th_s p-1">Category</th>
-                  <th className="th_s p-1">Hight</th>
-                  <th className="th_s p-1">Width</th>
+                  <th className="th_s p-1">Status</th>
                   <th className="th_s p-1">Date</th>
                   <th className="th_s p-1">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredData?.map((recceItem, index) =>
-                  recceItem?.outletName
-                    .filter((item) => item?.RecceStatus === "Completed")
-                    .map((outlet) => {
-                      const outletItem = outlet;
+                {filteredData?.map((recceItem, index) => {
+                  const outletDoneItems = [];
 
-                      if (rowsDisplayed < rowsPerPage1) {
-                        const pincodePattern = /\b\d{6}\b/;
+                  return recceItem?.outletName
+                    ?.filter((outlet) => {
+                      let outletDoneItem = OutletDoneData?.find(
+                        (ele) => ele.outletShopId === outlet._id
+                      );
 
-                        let JobNob = 0;
+                      outletDoneItems.push(outletDoneItem);
 
-                        const matchingRecceItem = filteredData?.find(
-                          (recce, recceIndex) =>
-                            recce?.outletName?.some(
-                              (item) => item?._id === outletItem?._id
-                            )
-                        );
-
-                        if (matchingRecceItem) {
-                          JobNob = filteredData.indexOf(matchingRecceItem) + 1;
-                        }
-
-                        const address = outletItem?.OutletAddress;
-                        const extractedPincode = address?.match(pincodePattern);
-
-                        if (extractedPincode) {
-                          outletItem.OutletPincode = extractedPincode[0];
-                        }
-
-                        serialNumber++;
-                        rowsDisplayed++;
-
-                        return (
-                          <tr className="tr_C" key={serialNumber}>
-                            <td className="td_S p-1">
-                              <input
-                                style={{
-                                  width: "15px",
-                                  height: "15px",
-                                  marginRight: "5px",
-                                }}
-                                type="checkbox"
-                                checked={selectedRecceItems1?.includes(
-                                  outlet?._id
-                                )}
-                                onChange={() =>
-                                  handleOutletToggleSelect(
-                                    recceItem.BrandId,
-                                    outlet?._id
-                                  )
-                                }
-                              />
-                            </td>
-                            <td className="td_S p-1">{serialNumber}</td>
-                            <td className="td_S p-1">Job{JobNob}</td>
-                            <td className="td_S p-1">{recceItem.BrandName}</td>
-                            <td className="td_S p-1">{outlet?.ShopName}</td>
-                            <td className="td_S p-1">{outlet?.ClientName}</td>
-                            <td className="td_S p-1">{outlet?.State}</td>
-                            <td className="td_S p-1">
-                              {outlet?.OutletContactNumber}
-                            </td>
-                            <td className="td_S p-1">{outlet?.OutletZone}</td>
-                            <td className="td_S p-1">
-                              {extractedPincode ? extractedPincode[0] : ""}
-                            </td>
-                            <td className="td_S p-1">{outlet?.OutletCity}</td>
-                            <td className="td_S p-1">{outlet?.FLBoard}</td>
-                            <td className="td_S p-1">{outlet?.GSB}</td>
-                            <td className="td_S p-1">{outlet?.Inshop}</td>
-                            <td className="td_S p-1">{outlet?.Category}</td>
-                            <td className="td_S p-1">
-                              {outlet?.height}
-                              {outlet?.unit}
-                            </td>
-                            <td className="td_S p-1">
-                              {outlet?.width}
-                              {outlet?.unit}
-                            </td>
-                            <td className="td_S p-2 text-nowrap text-center">
-                              {recceItem?.createdAt
-                                ? new Date(recceItem.createdAt)
-                                    ?.toISOString()
-                                    ?.slice(0, 10)
-                                : ""}
-                            </td>
-                            <td className="td_S ">
-                              <span
-                                variant="info "
-                                onClick={() => {
-                                  handleEdit(outlet, recceItem);
-                                }}
-                                style={{
-                                  cursor: "pointer",
-                                  color: "skyblue",
-                                }}
-                              >
-                                view
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      }
+                      return outletDoneItem?.jobStatus === true;
                     })
-                )}
+                    .map((outlet, innerIndex) => {
+                      let JobNob = 0;
+
+                      const matchingRecceItem = filteredData?.find(
+                        (recce, recceIndex) =>
+                          recce?.outletName?.some(
+                            (item) => item?._id === outlet?._id
+                          )
+                      );
+
+                      if (matchingRecceItem) {
+                        JobNob = filteredData.indexOf(matchingRecceItem) + 1;
+                      }
+                      const pincodePattern = /\b\d{6}\b/;
+                      const address = outlet?.OutletAddress;
+                      const extractedPincode = address?.match(pincodePattern);
+
+                      if (extractedPincode) {
+                        outlet.OutletPincode = extractedPincode[0];
+                      }
+                      serialNumber++;
+
+                      return (
+                        <tr className="tr_C" key={serialNumber}>
+                          <td className="td_S p-1">
+                            <input
+                              style={{
+                                width: "15px",
+                                height: "15px",
+                                marginRight: "5px",
+                              }}
+                              type="checkbox"
+                              checked={selectedRecceItems1?.includes(
+                                outlet?._id
+                              )}
+                              onChange={() =>
+                                handleOutletToggleSelect(
+                                  recceItem.BrandId,
+                                  outlet?._id
+                                )
+                              }
+                            />
+                          </td>
+                          <td className="td_S p-1">{serialNumber}</td>
+                          <td className="td_S p-1">Job{JobNob}</td>
+                          <td className="td_S p-1">{recceItem.BrandName}</td>
+                          <td className="td_S p-1">{outlet?.ShopName}</td>
+                          <td className="td_S p-1">{outlet?.ClientName}</td>
+                          <td className="td_S p-1">{outlet?.PartnerCode}</td>
+                          <td className="td_S p-1">{outlet?.State}</td>
+                          <td className="td_S p-1">
+                            {outlet?.OutletContactNumber}
+                          </td>
+                          <td className="td_S p-1">{outlet?.OutletZone}</td>
+                          <td className="td_S p-1">
+                            {extractedPincode ? extractedPincode[0] : ""}
+                          </td>
+                          <td className="td_S p-1">{outlet?.OutletCity}</td>
+                          <td className="td_S p-1">{outlet?.FLBoard}</td>
+                          <td className="td_S p-1">{outlet?.GSB}</td>
+                          <td className="td_S p-1">{outlet?.Inshop}</td>
+                          <td className="td_S p-1">{outlet?.Designstatus}</td>
+                          <td className="td_S p-2 text-nowrap text-center">
+                            {outletDoneItems[innerIndex]?.createdAt
+                              ? new Date(outletDoneItems[innerIndex].createdAt)
+                                  ?.toISOString()
+                                  ?.slice(0, 10)
+                              : "Date not available"}
+                          </td>
+                          <td className="td_S ">
+                            <span
+                              variant="info "
+                              onClick={() => {
+                                handleEdit(outlet, recceItem);
+                              }}
+                              style={{
+                                cursor: "pointer",
+                                color: "skyblue",
+                              }}
+                            >
+                              view
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    });
+                })}
               </tbody>
             </table>
           </div>
@@ -718,60 +712,68 @@ export default function Design() {
           </div>
           <div className="row">
             <div className="col-md-6">
-              <p>
-                <span className="cl"> Shop Name:</span>
-                <span>{getreccedata.ShopName}</span>
-              </p>
-              <p>
-                <span className="cl"> Partner Code:</span>
-                <span> {getreccedata.PartnerCode}</span>
-              </p>
-              <p>
-                <span className="cl"> Category :</span>
-                <span> {getreccedata.Category}</span>
-              </p>
-              <p>
-                <span className="cl">Outlet Pincode :</span>
-                <span> {getreccedata.OutletPincode}</span>
-              </p>
-              <p>
-                <span className="cl"> Inshop :</span>
-                <span>
-                  {getreccedata.Inshop === "Y" || "y"
-                    ? getreccedata.Inshop
-                    : "No"}
-                </span>
-              </p>
-              <p>
-                <span className="cl"> GSB :</span>
-                <span>
-                  {getreccedata.GSB === "Y" || "y" ? getreccedata.GSB : "No"}
-                </span>
-              </p>
-              <p>
-                <span className="cl"> FLBoard :</span>
-                <span>
-                  {getreccedata.FLBoard === "Y" ? getreccedata.FLBoard : "No"}
-                </span>
-              </p>
-              <p>
-                <span className="cl"> Hight:</span>
-                <span>
-                  {getreccedata.Height}
-                  {getreccedata.unit}
-                </span>
-              </p>
-              <p>
-                <span className="cl"> Width :</span>
-                <span>
-                  {getreccedata.width}
-                  {getreccedata.unit}
-                </span>
-              </p>
-              <p>
-                <span className="cl"> GST Number :</span>
-                <span>{getreccedata.GSTNumber}</span>
-              </p>
+              {OutletDoneData?.filter(
+                (Ele) => Ele?.outletShopId === getreccedata._id
+              )?.map((board, ind) => {
+                return (
+                  <>
+                    <p>
+                      <span className="cl"> Shop Name:</span>
+                      <span>{getreccedata.ShopName}</span>
+                    </p>
+                    <p>
+                      <span className="cl"> Partner Code:</span>
+                      <span> {getreccedata.PartnerCode}</span>
+                    </p>
+                    <p>
+                      <span className="cl"> Category :</span>
+                      <span> {getreccedata.Category}</span>
+                    </p>
+                    <p>
+                      <span className="cl">Outlet Pincode :</span>
+                      <span> {getreccedata.OutletPincode}</span>
+                    </p>
+                    <p>
+                      <span className="cl"> Inshop :</span>
+                      <span>
+                        {getreccedata.Inshop === "Y" || "y"
+                          ? getreccedata.Inshop
+                          : "No"}
+                      </span>
+                    </p>
+                    <p>
+                      <span className="cl"> GSB :</span>
+                      <span>
+                        {getreccedata.GSB === "Y" || "y"
+                          ? getreccedata.GSB
+                          : "No"}
+                      </span>
+                    </p>
+                    <p>
+                      <span className="cl"> FLBoard :</span>
+                      <span>
+                        {getreccedata.FLBoard === "Y"
+                          ? getreccedata.FLBoard
+                          : "No"}
+                      </span>
+                    </p>
+                    <p>
+                      <span className="cl"> Hight:</span>
+                      <span className="me-2">{board.height}</span>
+                      <span>{board.unitsOfMeasurment}</span>
+                    </p>
+                    <p>
+                      <span className="cl"> Width :</span>
+                      <span className="me-2">{board.width}</span>
+                      <span>{board.unitsOfMeasurment}</span>
+                    </p>
+                    <p>
+                      <span className="cl"> GST Number :</span>
+                      <span>{board.gstNumber}</span>
+                    </p>{" "}
+                  </>
+                );
+              })}
             </div>
 
             <div className="col-md-6   ">
@@ -842,7 +844,7 @@ export default function Design() {
                     </Form.Label>
                   </div>
                 </div>
-                <div className="col-md-1 m-auto">
+                {/* <div className="col-md-1 m-auto">
                   <label>
                     <input type="file" className="hide" />
                     <img
@@ -865,7 +867,7 @@ export default function Design() {
                       src="https://cdn-icons-png.flaticon.com/512/4208/4208479.png"
                     />
                   </label>
-                </div>
+                </div> */}
               </div>{" "}
             </div>
           </div>

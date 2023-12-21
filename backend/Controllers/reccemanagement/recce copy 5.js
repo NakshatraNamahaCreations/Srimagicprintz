@@ -43,6 +43,7 @@ class Reccemanagement {
       return res.status(500).json({ message: "Error while deleting recce" });
     }
   }
+
   async updateRecceOutletName(req, res) {
     const outletid = req.params.addexcelid;
 
@@ -101,61 +102,63 @@ class Reccemanagement {
         OutletPincode,
       } = req.body;
 
+
+      console.log("outletName",outletName)
       const outletNameArrayWithIDs = outletName.map((individualOutlet) => ({
         _id: new ObjectId(),
-        vendor,
-        ShopName,
-        ClientName,
-        unit,
-        State,
-        OutletAddress,
-        OutletCity,
-        PartnerCode,
-        height,
-        OutletZone,
-        date,
-        width,
-        OutletContactNumber,
-        category,
-        OutlateFabricationNeed,
-        OutlateFabricationDeliveryType,
-        InstalationGroup,
-        fabricationupload,
-        GSTNumber,
+        vendor: individualOutlet.vendor,
+        ShopName: individualOutlet.ShopName,
+        ClientName: individualOutlet.ClientName,
+        unit: individualOutlet.unit,
+        State: individualOutlet.State,
+        OutletAddress: individualOutlet.OutletAddress,
+        OutletCity: individualOutlet.OutletCity,
+        PartnerCode: individualOutlet.PartnerCode,
+        height: individualOutlet.height,
+        OutletZone: individualOutlet.OutletZone,
+        date: individualOutlet.date,
+        width: individualOutlet.width,
+        OutletContactNumber: individualOutlet.OutletContactNumber,
+        category: individualOutlet.category,
+        OutlateFabricationNeed: individualOutlet.OutlateFabricationNeed,
+        OutlateFabricationDeliveryType: individualOutlet.OutlateFabricationDeliveryType,
+        InstalationGroup: individualOutlet.InstalationGroup,
+        fabricationupload: individualOutlet.fabricationupload,
+        GSTNumber: individualOutlet.GSTNumber,
         Designstatus: "Pending",
         printingStatus: "Pending",
         fabricationstatus: "Pending",
         installationSTatus: "Pending",
         RecceStatus: "Pending",
-        printupload,
-        installationupload,
-        completedDesign,
-        completedRecceId,
-        completedPrinting,
-        completedInstallation,
-        designupload,
-        reccedesign,
-        No_Quantity,
-        SFT,
-        ProductionRate,
-        ProductionCost,
-        transportationcost,
-        InstallationRate,
-        InstallationCost,
-        transportationRate,
-        latitude,
-        longitude,
-        FLBoard,
-        GSB,
-        Inshop,
-        OutletPincode,
+        printupload: individualOutlet.printupload,
+        installationupload: individualOutlet.installationupload,
+        completedDesign: individualOutlet.completedDesign,
+        completedRecceId: individualOutlet.completedRecceId,
+        completedPrinting: individualOutlet.completedPrinting,
+        completedInstallation: individualOutlet.completedInstallation,
+        designupload: individualOutlet.designupload,
+        reccedesign: individualOutlet.reccedesign,
+        No_Quantity: individualOutlet.No_Quantity,
+        SFT: individualOutlet.SFT,
+        ProductionRate: individualOutlet.ProductionRate,
+        ProductionCost: individualOutlet.ProductionCost,
+        transportationcost: individualOutlet.transportationcost,
+        InstallationRate: individualOutlet.InstallationRate,
+        InstallationCost: individualOutlet.InstallationCost,
+        transportationRate: individualOutlet.transportationRate,
+        latitude: individualOutlet.latitude,
+        longitude: individualOutlet.longitude,
+        FLBoard: individualOutlet.FLBoard,
+        GSB: individualOutlet.GSB,
+        Inshop: individualOutlet.Inshop,
+        OutletPincode: individualOutlet.OutletPincode,
         createdAt: new Date(),
-        ...individualOutlet,
       }));
+      
 
       const updatedRecce = await RecceModel.findByIdAndUpdate(
         outletid,
-        { $push: { outletName: { $each: outletNameArrayWithIDs } } },
+        { $set: { outletName: outletNameArrayWithIDs } },
         { new: true }
       );
 
@@ -174,134 +177,7 @@ class Reccemanagement {
       return res.status(500).json({ error: "Internal server error" });
     }
   }
-  // async updateRecceOutletName(req, res) {
-  //   const outletid = req.params.addexcelid;
-  //   console.log(outletid, "outletid");
-
-  //   try {
-
-  //     const {
-  //       vendor,
-  //       unit,
-  //       height,
-  //       State,
-  //       PartnerCode,
-  //       date,
-  //       width,
-  //       ShopName,
-  //       ClientName,
-  //       OutletAddress,
-  //       OutletZone,
-  //       category,
-  //       OutlateFabricationNeed,
-  //       OutlateFabricationDeliveryType,
-  //       InstalationGroup,
-  //       fabricationupload,
-  //       GSTNumber,
-  //       Designstatus,
-  //       printingStatus,
-  //       OutletContactNumber,
-  //       fabricationstatus,
-  //       installationSTatus,
-  //       RecceStatus,
-  //       printupload,
-  //       installationupload,
-  //       completedDesign,
-  //       completedRecceId,
-  //       completedPrinting,
-  //       completedInstallation,
-  //       designupload,
-  //       reccedesign,
-  //       No_Quantity,
-  //       SFT,
-  //       ProductionRate,
-  //       ProductionCost,
-  //       transportationcost,
-  //       InstallationRate,
-  //       InstallationCost,
-  //       transportationRate,
-  //       latitude,
-  //       longitude,
-  //       GSB,
-  //       OutletCity,
-  //       FLBoard,
-  //       Inshop,
-  //       OutletPincode,
-  //     } = req.body;
-
-  //     const updatedRecce = await RecceModel.findByIdAndUpdate(
-  //       outletid,
-  //       {
-  //         outletName: {
-  //           _id: new ObjectId(),
-  //           vendor,
-  //           ShopName,
-  //           ClientName,
-  //           unit,
-  //           State,
-  //           OutletAddress,
-  //           OutletCity,
-  //           PartnerCode,
-  //           height,
-  //           OutletZone,
-  //           date,
-  //           width,
-  //           OutletContactNumber,
-  //           category,
-  //           OutlateFabricationNeed,
-  //           OutlateFabricationDeliveryType,
-  //           InstalationGroup,
-  //           fabricationupload,
-  //           GSTNumber,
-  //           Designstatus: "Pending",
-  //           printingStatus: "Pending",
-  //           fabricationstatus: "Pending",
-  //           installationSTatus: "Pending",
-  //           RecceStatus: "Pending",
-  //           printupload,
-  //           installationupload,
-  //           completedDesign,
-  //           completedRecceId,
-  //           completedPrinting,
-  //           completedInstallation,
-  //           designupload,
-  //           reccedesign,
-  //           No_Quantity,
-  //           SFT,
-  //           ProductionRate,
-  //           ProductionCost,
-  //           transportationcost,
-  //           InstallationRate,
-  //           InstallationCost,
-  //           transportationRate,
-  //           latitude,
-  //           longitude,
-  //           FLBoard,
-  //           GSB,
-  //           Inshop,
-  //           OutletPincode,
-  //           createdAt: new Date(),
-  //           ...individualOutlet,
-  //         },
-  //       },
-  //       { new: true }
-  //     );
-  //     console.log(updatedRecce, "updatedRecce");
-  //     console.log(outletid, "outletid");
-
-  //     if (!updatedRecce) {
-  //       return res
-  //         .status(404)
-  //         .json({ error: `Document with _id ${outletid} not found` });
-  //     }
-
-  //     return res
-  //       .status(200)
-  //       .json({ message: "Outlet names updated successfully" });
-  //   } catch (error) {
-  //     return res.status(500).json({ error: "Internal server error" });
-  //   }
-  // }
+ 
 
   async deleteOutletData(req, res) {
     const outletIdToDelete = new mongoose.Types.ObjectId(req.params.outletin);
@@ -416,7 +292,7 @@ class Reccemanagement {
         _id: recceIdToUpdate,
         "outletName._id": outlateid,
       });
-   
+      console.log("existingDocument:", existingDocument);
 
       if (!existingDocument) {
         return res.status(404).json({ message: "Document not found" });

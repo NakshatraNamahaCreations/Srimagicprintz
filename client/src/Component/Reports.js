@@ -36,10 +36,16 @@ export default function Reports() {
   const [selectedDepartment, setSelectedDepartment] = useState([]);
   const [ClientInfo, setClientInfo] = useState([]);
 
+  const [brandName, setbrandName] = useState(false);
+  const [departmentName, setdepartmentName] = useState(false);
+  const [selectedCheckboxes, setSelectedCheckboxes] = useState([]);
+  const [selectedCheckboxesDep, setSelectedCheckboxesDep] = useState([]);
+  const [OutletDoneData, setOutletDoneData] = useState([]);
   useEffect(() => {
     getAllRecce();
     getAllClientsInfo();
     getAllCategory();
+    getAllOutlets();
   }, []);
   const getAllClientsInfo = async () => {
     try {
@@ -51,6 +57,7 @@ export default function Reports() {
       alert(err, "err");
     }
   };
+  
   const getAllCategory = async () => {
     try {
       const res = await fetch(`${ApiURL}/Product/category/getcategory`);
@@ -73,9 +80,6 @@ export default function Reports() {
       console.error(err);
     }
   };
-
-  const [brandName, setbrandName] = useState(false);
-  const [departmentName, setdepartmentName] = useState(false);
 
   const handleToggleSelect = (itemId) => {
     let updatedSelectedRecceItems;
@@ -112,9 +116,6 @@ export default function Reports() {
     rowsDisplayed = 0;
   };
   let rowsDisplayed = 0;
-
-  const [selectedCheckboxes, setSelectedCheckboxes] = useState([]);
-  const [selectedCheckboxesDep, setSelectedCheckboxesDep] = useState([]);
 
   const handleSelectClientName1 = () => {
     const selectedBrandNames = selectedCheckboxes.map((value) => {
@@ -318,7 +319,16 @@ export default function Reports() {
 
     pdf.save("exported_data.pdf");
   };
-
+  const getAllOutlets = async () => {
+    try {
+      const res = await axios.get(`${ApiURL}/getalloutlets`);
+      if (res.status === 200) {
+        setOutletDoneData(res?.data?.outletData);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <>
       <Header />
@@ -418,7 +428,18 @@ export default function Reports() {
                           const address = outlet?.OutletAddress;
                           const extractedPincode =
                             address?.match(pincodePattern);
+                          let JobStatus;
 
+                          if (outlet.vendor !== null) {
+                            JobStatus = OutletDoneData?.filter(
+                              (fp) => fp.outletShopId === outlet._id
+                            );
+
+                            JobStatus =
+                              JobStatus[0]?.jobStatus === true
+                                ? "Completed"
+                                : "Pending";
+                          }
                           if (extractedPincode) {
                             outlet.OutletPincode = extractedPincode[0];
                           }
@@ -469,7 +490,12 @@ export default function Reports() {
                                       .slice(0, 10)
                                   : ""}
                               </td>
-                              <td className="td_S p-1">{outlet.RecceStatus}</td>
+                              <td className="td_S p-1">
+                                {" "}
+                                {outlet.RecceStatus === "Cancelled"
+                                  ? outlet.RecceStatus
+                                  : JobStatus}
+                              </td>
                             </tr>
                           );
                         }

@@ -48,10 +48,12 @@ export default function Trackassignedjob() {
   const [selectAll, setSelectAll] = useState(false);
   const [selectedRecceItems1, setSelectedRecceItems1] = useState([]);
   const [ClientInfo, setClientInfo] = useState([]);
+  const [OutletDoneData, setOutletDoneData] = useState([]);
   useEffect(() => {
     getAllRecce();
     getAllVendorInfo();
     getAllClientsInfo();
+    getAllOutlets();
   }, []);
 
   const getAllRecce = async () => {
@@ -194,67 +196,15 @@ export default function Trackassignedjob() {
     rowsPerPage,
   ]);
 
-  const handleExportPDF = () => {
-    const pdf = new jsPDF();
-    const tableColumn = [
-      "SI.No",
-      "Shop Name",
-      "Vendor Name",
-      "Contact",
-      "Area",
-      "City",
-      "Pincode",
-      "Zone",
-      "Date",
-      "Status",
-      "Hight",
-      "Width",
-      "Category",
-    ];
-    const tableData = displayedData.map((item, index) => {
-      const selectedVendorId = item?.vendor?.[0];
-      const selectedVendor = vendordata?.find(
-        (vendor) => vendor?._id === selectedVendorId
-      );
-      const selectedCategoryId = item?.category?.[0];
-      const category = CategoryData?.find(
-        (ele) => ele?._id === selectedCategoryId
-      );
-
-      return [
-        index + 1,
-        item.ShopName,
-        selectedVendor ? selectedVendor.VendorFirstName : "",
-        item.ContactNumber,
-        item.Area,
-        item.City,
-        item.Pincode,
-        item.Zone,
-        item.createdAt
-          ? new Date(item.createdAt).toISOString().slice(0, 10)
-          : "",
-        item.Status,
-        item.height,
-        item.width,
-        category ? category?.categoryName : "",
-      ];
-    });
-
-    pdf.autoTable({
-      head: [tableColumn],
-      body: tableData,
-      startY: 20,
-      styles: {
-        fontSize: 6,
-      },
-      columnStyles: {
-        0: { cellWidth: 10 },
-      },
-
-      bodyStyles: { borderColor: "black", borderRight: "1px solid black" },
-    });
-
-    pdf.save("exported_data.pdf");
+  const getAllOutlets = async () => {
+    try {
+      const res = await axios.get(`${ApiURL}/getalloutlets`);
+      if (res.status === 200) {
+        setOutletDoneData(res?.data?.outletData);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const handleClearDateFilters = () => {
@@ -284,32 +234,6 @@ export default function Trackassignedjob() {
     });
   };
   const filteredData = filterDate(displayedData);
-  // const handleToggleSelect = (itemId) => {
-  //   let updatedSelectedRecceItems;
-
-  //   if (selectedRecceItems.includes(itemId)) {
-  //     updatedSelectedRecceItems = selectedRecceItems.filter(
-  //       (id) => id !== itemId
-  //     );
-  //   } else {
-  //     updatedSelectedRecceItems = [...selectedRecceItems, itemId];
-  //   }
-
-  //   setSelectedRecceItems(updatedSelectedRecceItems);
-  //   setmoreoption(updatedSelectedRecceItems.length > 0);
-  // };
-
-  // const handleSelectAllChange = () => {
-  //   setSelectAll(!selectAll);
-
-  //   if (!selectAll) {
-  //     setSelectedRecceItems(displayedData.map((item) => item._id));
-  //   } else {
-  //     setSelectedRecceItems([]);
-  //   }
-
-  //   setmoreoption(!selectAll);
-  // };
 
   const monthNames = [
     "January",
@@ -325,8 +249,11 @@ export default function Trackassignedjob() {
     "November",
     "December",
   ];
+  let outletDoneid = OutletDoneData?.filter(
+    (fp) => fp?.outletShopId === getreccedata?._id
+  );
 
-  const createdAt = getreccedata.createdAt;
+  const createdAt = outletDoneid[0]?.createdAt;
   let day = "";
   let monthName = "";
   let year = "";
@@ -347,10 +274,6 @@ export default function Trackassignedjob() {
     setFilterEndDate(event.target.value);
   };
 
-  const handleEdit = (item) => {
-    setgetreccedata(item);
-    setSelectedDesignIndex(true);
-  };
   const getAllVendorInfo = async () => {
     try {
       const response = await axios.get(
@@ -389,7 +312,6 @@ export default function Trackassignedjob() {
       setSelectedRecceItems1([]);
     }
 
-    // setmoreoption1(!selectAll);
   };
   const getAllClientsInfo = async () => {
     try {
@@ -427,6 +349,25 @@ export default function Trackassignedjob() {
       outletName += Ele?.outletName?.length;
     }
   });
+
+  const handleEdit = (item) => {
+    setgetreccedata(item);
+    setSelectedDesignIndex(true);
+  };
+  const [StoreStatus, setStoreStatus] = useState();
+
+  useEffect(() => {
+    let JobStatus1 = OutletDoneData.filter(
+      (fp) => fp.outletShopId === getreccedata._id
+    );
+
+    let jobSts = JobStatus1[0]?.jobStatus === true ? "Completed" : "Pending";
+    if (getreccedata.RecceStatus === "Cancelled") {
+      setStoreStatus(getreccedata.RecceStatus);
+    } else {
+      setStoreStatus(jobSts);
+    }
+  }, [getreccedata, OutletDoneData]);
 
   return (
     <>
@@ -518,8 +459,7 @@ export default function Trackassignedjob() {
                   <th className="th_s p-1">GSB</th>
                   <th className="th_s p-1">Inshop</th>
                   <th className="th_s p-1">Status</th>
-                  {/*<th className="th_s p-1">Hight</th>
-                  <th className="th_s p-1">Width</th> */}
+
                   <th className="th_s p-1">Date</th>
                   <th className="th_s p-1">Action</th>
                 </tr>
@@ -542,6 +482,18 @@ export default function Trackassignedjob() {
                       const address = outlet?.OutletAddress;
                       const extractedPincode = address?.match(pincodePattern);
 
+                      let JobStatus;
+
+                      if (outlet.vendor !== null) {
+                        JobStatus = OutletDoneData?.filter(
+                          (fp) => fp.outletShopId === outlet._id
+                        );
+
+                        JobStatus =
+                          JobStatus[0]?.jobStatus === true
+                            ? "Completed"
+                            : "Pending";
+                      }
                       if (extractedPincode) {
                         outlet.OutletPincode = extractedPincode[0];
                       }
@@ -591,7 +543,9 @@ export default function Trackassignedjob() {
                             <p className="p-0 m-0">
                               {" "}
                               <span style={{ color: "green" }}>Recce</span>{" "}
-                              {outlet.RecceStatus}
+                              {outlet.RecceStatus === "Cancelled"
+                                ? outlet.RecceStatus
+                                : JobStatus}
                             </p>
                             <p className="p-0 m-0">
                               <span style={{ color: "green" }}>Design</span>{" "}
@@ -617,14 +571,7 @@ export default function Trackassignedjob() {
                               {outlet.installationSTatus}
                             </p>
                           </td>
-                          {/* <td className="td_S p-1">
-                            {outlet?.height}
-                            {outlet?.unit}
-                          </td>
-                          <td className="td_S p-1">
-                            {outlet?.width}
-                            {outlet?.unit}
-                          </td> */}
+
                           <td className="td_S p-2 text-nowrap text-center">
                             {recceItem.createdAt
                               ? new Date(recceItem.createdAt)
@@ -669,6 +616,7 @@ export default function Trackassignedjob() {
               </div>
             </div>
           </div>
+          <div className="row"></div>
           <div className="col-md-8">
             <p>
               <span className="me-3 clr">Shop Name:</span>
@@ -687,7 +635,7 @@ export default function Trackassignedjob() {
               <span> {getreccedata.Pincode}</span>
             </p>
           </div>
-          {getreccedata.RecceStatus === "Pending" ? (
+          {StoreStatus === "Pending" ? (
             <div className="row">
               <div className="row d-flex">
                 <div className="col-md-1 ">
@@ -721,10 +669,7 @@ export default function Trackassignedjob() {
                   {" "}
                   <p className="clr">Recee</p>
                   <p>
-                    <span className="me-2">
-                      {" "}
-                      Recee job is {getreccedata.RecceStatus}{" "}
-                    </span>
+                    <span className="me-2"> Recee job is {StoreStatus} </span>
                     <span className="me-2">
                       {getreccedata.createdAt
                         ? new Date(getreccedata.createdAt)
@@ -738,53 +683,8 @@ export default function Trackassignedjob() {
               </div>
             </div>
           ) : null}
-          {getreccedata.RecceStatus === "Processing" ? (
-            <div className="row">
-              <div
-                className="row d-flex"
-                style={{ position: "relative", top: "0%" }}
-              >
-                <div className="col-md-1 ">
-                  <DonutLargeIcon
-                    className="clr2"
-                    style={{
-                      fontSize: "35px",
-                      position: "relative",
-                      bottom: "10%",
-                    }}
-                  >
-                    <img
-                      className="clr2"
-                      width={"10px"}
-                      height={"12px"}
-                      alt=""
-                      src="../Assests/blue-loading-fotor-20230711105926.png"
-                      style={{
-                        fontSize: "35px",
-                        position: "relative",
-                        bottom: "10%",
-                      }}
-                    />
-                  </DonutLargeIcon>
-                  <p
-                    className="track-line track-line1"
-                    style={{ position: "relative", bottom: "11%" }}
-                  ></p>
-                </div>{" "}
-                <div className="col-md-3">
-                  {" "}
-                  <p className="clr">Recce</p>
-                  <p>
-                    Recce in {getreccedata.RecceStatus} Recce process has
-                    started on date
-                    <span className="me-2"> {day}</span>
-                    <span>{monthName}</span> <span>{year}</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          ) : null}
-          {getreccedata.RecceStatus === "Completed" ? (
+
+          {StoreStatus === "Completed" ? (
             <div className="row">
               <div
                 className="row d-flex"
@@ -821,7 +721,7 @@ export default function Trackassignedjob() {
                   {" "}
                   <p className="clr">Recce</p>
                   <p>
-                    Recce {getreccedata.RecceStatus}
+                    Recce {StoreStatus}
                     <span className="me-2"> {day}</span>
                     <span>{monthName}</span> <span>{year}</span>
                   </p>
@@ -829,7 +729,7 @@ export default function Trackassignedjob() {
               </div>
             </div>
           ) : null}
-          {getreccedata.RecceStatus === "Completed" &&
+          {StoreStatus === "Completed" &&
           getreccedata.Designstatus === "Pending" ? (
             <div className="row">
               <div
@@ -875,7 +775,7 @@ export default function Trackassignedjob() {
               </div>
             </div>
           ) : null}
-          {getreccedata.RecceStatus === "Completed" &&
+          {StoreStatus === "Completed" &&
           getreccedata.Designstatus === "Processing" ? (
             <div className="row">
               <div
@@ -921,7 +821,7 @@ export default function Trackassignedjob() {
               </div>
             </div>
           ) : null}
-          {getreccedata.RecceStatus === "Completed" &&
+          {StoreStatus === "Completed" &&
           getreccedata.Designstatus === "Completed" ? (
             <div className="row">
               <div
@@ -967,7 +867,7 @@ export default function Trackassignedjob() {
               </div>
             </div>
           ) : null}
-          {getreccedata.RecceStatus === "Completed" &&
+          {StoreStatus === "Completed" &&
           getreccedata.Designstatus === "Completed" &&
           getreccedata.printingStatus === "Pending" ? (
             <div className="row">
@@ -1014,7 +914,7 @@ export default function Trackassignedjob() {
               </div>
             </div>
           ) : null}
-          {getreccedata.RecceStatus === "Completed" &&
+          {StoreStatus === "Completed" &&
           getreccedata.Designstatus === "Completed" &&
           getreccedata.printingStatus === "Processing" ? (
             <div className="row">
@@ -1061,7 +961,7 @@ export default function Trackassignedjob() {
               </div>
             </div>
           ) : null}
-          {getreccedata.RecceStatus === "Completed" &&
+          {StoreStatus === "Completed" &&
           getreccedata.Designstatus === "Completed" &&
           getreccedata.printingStatus === "Completed" ? (
             <div className="row">
@@ -1109,7 +1009,7 @@ export default function Trackassignedjob() {
             </div>
           ) : null}
 
-          {getreccedata.RecceStatus === "Completed" &&
+          {StoreStatus === "Completed" &&
           getreccedata.Designstatus === "Completed" &&
           getreccedata.printingStatus === "Completed" &&
           getreccedata.fabricationstatus === "Pending" ? (
@@ -1155,7 +1055,7 @@ export default function Trackassignedjob() {
               </div>
             </div>
           ) : null}
-          {getreccedata.RecceStatus === "Completed" &&
+          {StoreStatus === "Completed" &&
           getreccedata.Designstatus === "Completed" &&
           getreccedata.printingStatus === "Completed" &&
           getreccedata.fabricationstatus === "Processing" ? (
@@ -1204,7 +1104,7 @@ export default function Trackassignedjob() {
               </div>
             </div>
           ) : null}
-          {getreccedata.RecceStatus === "Completed" &&
+          {StoreStatus === "Completed" &&
           getreccedata.Designstatus === "Completed" &&
           getreccedata.printingStatus === "Completed" &&
           getreccedata.fabricationstatus === "Completed" ? (
@@ -1252,7 +1152,7 @@ export default function Trackassignedjob() {
               </div>
             </div>
           ) : null}
-          {getreccedata.RecceStatus === "Completed" &&
+          {StoreStatus === "Completed" &&
           getreccedata.Designstatus === "Completed" &&
           getreccedata.printingStatus === "Completed" &&
           getreccedata.fabricationstatus === "Completed" &&
@@ -1301,7 +1201,7 @@ export default function Trackassignedjob() {
               </div>
             </div>
           ) : null}
-          {getreccedata.RecceStatus === "Completed" &&
+          {StoreStatus === "Completed" &&
           getreccedata.Designstatus === "Completed" &&
           getreccedata.printingStatus === "Completed" &&
           getreccedata.fabricationstatus === "Completed" &&
@@ -1350,7 +1250,7 @@ export default function Trackassignedjob() {
               </div>
             </div>
           ) : null}
-          {getreccedata.RecceStatus === "Completed" &&
+          {StoreStatus === "Completed" &&
           getreccedata.Designstatus === "Completed" &&
           getreccedata.printingStatus === "Completed" &&
           getreccedata.fabricationstatus === "Completed" &&
@@ -1392,6 +1292,24 @@ export default function Trackassignedjob() {
                   <p className="clr">Installation</p>
                   <p>
                     Installation job {getreccedata.installationSTatus}
+                    <span className="me-2"> {day}</span>
+                    <span>{monthName}</span> <span>{year}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {StoreStatus === "Cancelled" ? (
+            <div className="row">
+              <div
+                className="row d-flex"
+                style={{ position: "relative", top: "0%" }}
+              >
+                <div className="col-md-3">
+                  {" "}
+                  <p className="clr">Recce</p>
+                  <p>
+                    Recce {StoreStatus}
                     <span className="me-2"> {day}</span>
                     <span>{monthName}</span> <span>{year}</span>
                   </p>

@@ -2,11 +2,12 @@ import Header from "./Header";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
+import { Link } from "react-router-dom";
+
 export default function Setting() {
-  const ApiURL = process.env.REACT_APP_API_URL;
   const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
-  const user = JSON.parse(sessionStorage.getItem("userData"));
-  console.log(user);
+  const user = JSON.parse(localStorage.getItem("userData"));
+
   return (
     <>
       <Header />
@@ -51,7 +52,9 @@ export default function Setting() {
                 <h6>
                   {" "}
                   Sri magic prints
-                  <BorderColorIcon />{" "}
+                  <Link to="/users">
+                    <BorderColorIcon />{" "}
+                  </Link>
                 </h6>
               </div>
             </div>

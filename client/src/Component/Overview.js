@@ -16,11 +16,8 @@ import RunningWithErrorsIcon from "@mui/icons-material/RunningWithErrors";
 
 import Form from "react-bootstrap/Form";
 
-
-
 const StatusColor = {
   Pending: { backgroundColor: "#F4E869" },
-  Proccesing: { backgroundColor: "#F1C27B" },
   Completed: { backgroundColor: "#B0D9B1" },
   Cancelled: { backgroundColor: "#E06469" },
 };
@@ -42,31 +39,56 @@ export default function Overview() {
   const [filterEndDate, setFilterEndDate] = useState("");
 
   const [selctedStatus, setSelectedStatus] = useState("--Select All--");
-
-  let data =
-    Number(totalRecce) +
-    Number(totalDesign) +
-    Number(totalPrinting) +
-    Number(totalfabrication) +
-    Number(totalInstalation);
+  const [OutletDoneData, setOutletDoneData] = useState([]);
 
   useEffect(() => {
     getAllRecce();
     getAllClientsInfo();
     getAllVendorInfo();
+    getAllOutlets();
   }, []);
 
   useEffect(() => {
-    setTotalRunningJob(data);
-  }, [data]);
+    let RecceCount = 0;
+    RecceData.filter((ele) =>
+      ele.outletName.filter((outlet) => {
+        let outletstatusid = OutletDoneData?.filter(
+          (fp) => outlet._id === fp?.outletShopId
+        );
+        if (outletstatusid[0]?.jobStatus === true) {
+          return RecceCount++;
+        }
+      })
+    );
+
+    let outletstat =
+      Number(RecceCount) +
+      Number(totalDesign) +
+      Number(totalPrinting) +
+      Number(totalfabrication) +
+      Number(totalInstalation);
+
+    setTotalRunningJob(outletstat);
+  }, []);
+
+  const getAllOutlets = async () => {
+    try {
+      const res = await axios.get(`${ApiURL}/getalloutlets`);
+      if (res.status === 200) {
+        setOutletDoneData(res?.data?.outletData);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const getAllRecce = async () => {
     try {
-      const res = await axios.get(
-        `${ApiURL}/recce/recce/getallrecce`
-      );
+      const res = await axios.get(`${ApiURL}/recce/recce/getallrecce`);
       if (res.status === 200) {
         const recceData = res.data.RecceData || [];
         setRecceData(recceData);
+
         const totalRecceLength = recceData.reduce(
           (total, recceItem) => total + recceItem.outletName.length,
           0
@@ -75,11 +97,17 @@ export default function Overview() {
         const totalDesignLength = recceData.reduce((total, recceItem) => {
           const outletNames = recceItem.outletName || [];
 
-          const outletNameCount = outletNames.reduce(
-            (outletTotal, outlet) =>
-              outletTotal + (outlet.RecceStatus === "Completed" ? 1 : 0),
-            0
-          );
+          const outletNameCount = outletNames.reduce((outletTotal, outlet) => {
+            let outletstatusid = OutletDoneData?.filter(
+              (fp) => outlet._id === fp?.outletShopId
+            );
+            let outletstat =
+              outletstatusid[0]?.jobStatus === true ? "Completed" : "Pending";
+            let cancelledStatus = outlet.RecceStatus === "Cancelled";
+            let FinalStatus = cancelledStatus ? "Cancelled" : outletstat;
+
+            return outletTotal + (FinalStatus === "Completed" ? 1 : 0);
+          }, 0);
 
           return total + outletNameCount;
         }, 0);
@@ -87,11 +115,17 @@ export default function Overview() {
         const totalPrintingLenght = recceData.reduce((total, recceItem) => {
           const outletNames = recceItem.outletName || [];
 
-          const outletNameCount = outletNames.reduce(
-            (outletTotal, outlet) =>
-              outletTotal + (outlet.RecceStatus === "Completed" ? 1 : 0),
-            0
-          );
+          const outletNameCount = outletNames.reduce((outletTotal, outlet) => {
+            let outletstatusid = OutletDoneData?.filter(
+              (fp) => outlet._id === fp?.outletShopId
+            );
+            let outletstat =
+              outletstatusid[0]?.jobStatus === true ? "Completed" : "Pending";
+            let cancelledStatus = outlet.RecceStatus === "Cancelled";
+            let FinalStatus = cancelledStatus ? "Cancelled" : outletstat;
+
+            return outletTotal + (FinalStatus === "Completed" ? 1 : 0);
+          }, 0);
 
           return total + outletNameCount;
         }, 0);
@@ -113,7 +147,10 @@ export default function Overview() {
 
           const outletNameCount = outletNames.reduce(
             (outletTotal, outlet) =>
-              outletTotal + (outlet.OutlateFabricationNeed === "Yes" ? 1 : 0),
+              outletTotal +
+              (outlet.OutlateFabricationDeliveryType === "Go to installation"
+                ? 1
+                : 0),
             0
           );
 
@@ -149,9 +186,7 @@ export default function Overview() {
   };
   const getAllClientsInfo = async () => {
     try {
-      const res = await axios.get(
-        `${ApiURL}/Client/clients/getallclient`
-      );
+      const res = await axios.get(`${ApiURL}/Client/clients/getallclient`);
       if (res.status === 200) {
         setTotalAddClients(res.data.client);
       }
@@ -172,6 +207,14 @@ export default function Overview() {
 
       if (Array.isArray(outletNameArray)) {
         outletNameArray.forEach((outlet) => {
+          let outletstatusid = OutletDoneData?.filter(
+            (fp) => outlet._id === fp?.outletShopId
+          );
+          let outletstat =
+            outletstatusid[0]?.jobStatus === true ? "Completed" : "Pending";
+          let cancelledStatus = outlet.RecceStatus === "Cancelled";
+          let FinalStatus = cancelledStatus ? "Cancelled" : outletstat;
+
           let shouldInclude = false;
 
           switch (activeCategory) {
@@ -179,16 +222,17 @@ export default function Overview() {
               shouldInclude = true;
               break;
             case "totalDesign":
-              shouldInclude = outlet?.RecceStatus?.includes("Completed");
+              shouldInclude = FinalStatus?.includes("Completed");
               break;
             case "totalPrinting":
-              shouldInclude = outlet?.RecceStatus?.includes("Completed");
+              shouldInclude = FinalStatus?.includes("Completed");
               break;
             case "totalfabrication":
               shouldInclude = outlet?.OutlateFabricationNeed?.includes("Yes");
               break;
             case "totalInstalation":
-              shouldInclude = outlet?.OutlateFabricationNeed?.includes("Yes");
+              shouldInclude =
+                outlet?.OutlateFabricationDeliveryType === "Go to installation";
               break;
             default:
               shouldInclude = true;
@@ -256,16 +300,24 @@ export default function Overview() {
 
   const [filteredData1, setFilteredData1] = useState([]);
   useEffect(() => {
-    const filteredDataByStatus =
-      selctedStatus === "--Select All--" &&
-      selctedStatus !== "Completed" &&
-      selctedStatus !== "Proccesing" &&
-      selctedStatus !== "Cancelled"
-        ? filteredDteData
-        : filteredDteData.filter((item) => item.RecceStatus === selctedStatus);
+    const filteredDataByStatus = filteredDteData.filter((item) => {
+      const outletStatusData = OutletDoneData?.filter(
+        (fp) => item._id === fp?.outletShopId
+      );
+
+      const outletStatus = outletStatusData[0]?.jobStatus
+        ? "Completed"
+        : "Pending";
+      const cancelledStatus = item.RecceStatus === "Cancelled";
+      const finalStatus = cancelledStatus ? "Cancelled" : outletStatus;
+
+      return (
+        finalStatus === selctedStatus || selctedStatus === "--Select All--"
+      );
+    });
 
     setFilteredData1(filteredDataByStatus);
-  }, [filteredData1]);
+  }, [filteredDteData, OutletDoneData, selctedStatus]);
 
   return (
     <>
@@ -403,7 +455,7 @@ export default function Overview() {
                 </h4>
                 <p className={`row  ${"active1" ? "" : "clrw"}`}>
                   {" "}
-                  Total Number Of Venders
+                  Total Number Of Vendors
                 </p>
               </div>
             </div>
@@ -517,9 +569,6 @@ export default function Overview() {
               <option value="Completed" className="cureor">
                 Completed
               </option>
-              <option value="Proccesing" className="cureor">
-                Proccesing
-              </option>
               <option value="Pending" className="cureor">
                 Pending
               </option>
@@ -545,8 +594,20 @@ export default function Overview() {
 
             <tbody>
               {filteredData1?.map((item, index) => {
+                const outletStatusData = OutletDoneData?.filter(
+                  (fp) => item._id === fp?.outletShopId
+                );
+
+                const outletStatus = outletStatusData[0]?.jobStatus
+                  ? "Completed"
+                  : "Pending";
+                const cancelledStatus = item.RecceStatus === "Cancelled";
+                const finalStatus = cancelledStatus
+                  ? "Cancelled"
+                  : outletStatus;
+
                 const textColor =
-                  StatusColor[item.RecceStatus]?.backgroundColor || "";
+                  StatusColor[finalStatus]?.backgroundColor || "";
                 let JobNob = 0;
                 let brandName = "";
                 let VendersName;

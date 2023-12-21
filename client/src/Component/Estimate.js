@@ -76,9 +76,17 @@ function Estimate() {
       alert("can't able to fetch data");
     }
   };
+
   const filterData = (selectedRecceStatus) => {
     const filteredData = recceData1?.flatMap((recceItem) => {
-      return recceItem.outletName.filter((outlet) => {
+      return recceItem?.outletName?.filter((outlet) => {
+        let outletDoneid = OutletDoneData?.filter(
+          (fp) => fp?.outletShopId === outlet?._id
+        );
+
+        if (outletDoneid[0]?.jobStatus === true) {
+          outlet.RecceStatus = "Completed";
+        }
         switch (selectedRecceStatus) {
           case "Recce":
             return outlet.RecceStatus === "Completed";

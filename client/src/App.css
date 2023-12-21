@@ -26,6 +26,9 @@ span.border-line {
   height: 70px;
   margin-left: 20px;
 }
+.border-line4 {
+  margin-left: 0px !important;
+}
 .borderlef1 {
   display: flex;
   align-items: center;
@@ -518,4 +521,3 @@ table td {
   padding: 20px;
   border: 1px solid #ccc;
 }
-

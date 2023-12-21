@@ -406,7 +406,7 @@ export default function Marketing() {
                 </Card>
               </div>{" "}
             </div>
-            <div className="col-md-4 text-end ">
+            {/* <div className="col-md-4 text-end ">
               <div className="col-md-12 ">
                 <div className="row ">
                   <span className="col-md-12 ">Share link to Clients</span>
@@ -456,7 +456,7 @@ export default function Marketing() {
                   ) : null}
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </>
       )}

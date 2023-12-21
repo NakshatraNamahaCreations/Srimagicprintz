@@ -4,9 +4,10 @@ import Form from "react-bootstrap/Form";
 import { Link } from "react-router-dom";
 import Row from "react-bootstrap/Row";
 import axios from "axios";
-
+import { InputAdornment, TextField } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+
 export const Login = () => {
   const ApiURL = process.env.REACT_APP_API_URL;
   const ImageURL = process.env.REACT_APP_IMAGE_API_URL;
@@ -60,73 +61,51 @@ export const Login = () => {
                 <Form.Label>
                   Email <span style={{ color: "red" }}>*</span>
                 </Form.Label>
-                <Form.Control
+
+                <TextField
                   type="text"
+                  size="small"
                   placeholder="Enter your email"
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </Row>
-              {Visibility ? (
-                <>
-                  <Row className="mb-3  m-auto">
-                    {" "}
-                    <Form.Label>
-                      Password <span style={{ color: "red" }}>*</span>
-                    </Form.Label>
-                    <Form.Control
-                      onChange={(e) => setPassword(e.target.value)}
-                      type="text"
-                      placeholder="Enter your password "
-                    />
-                    <div
-                      style={{
-                        position: "absoulte",
-                        bottom: "32px",
-                        right: "-88%",
-                      }}
-                    >
-                      <VisibilityIcon onClick={handleVisibilityof} />
-                    </div>
-                  </Row>
-                </>
-              ) : (
-                <>
-                  <Row className="mb-3  m-auto">
-                    {" "}
-                    <Form.Label>
-                      Password{" "}
-                      <span style={{ color: "red", position: "absolute" }}>
-                        *
-                      </span>
-                    </Form.Label>
-                    <Form.Control
-                      onChange={(e) => setPassword(e.target.value)}
-                      type="password"
-                      placeholder="Enter your password"
-                    />
-                    <div
-                      style={{
-                        position: "relative",
-                        bottom: "32px",
-                        top: "-89%",
-                        right: "-88%",
-                      }}
-                    >
-                      <VisibilityOffIcon onClick={handleVisibility} />
-                    </div>
-                  </Row>
-                </>
-              )}
-
-              <Row className="mb-3 mt-2">
+              <Row className="m-auto mb-3">
+                <Form.Label>
+                  Password <span style={{ color: "red" }}>*</span>
+                </Form.Label>
+                <TextField
+                  size="small"
+                  placeholder="Password"
+                  type={Visibility ? "text" : "password"}
+                  onChange={(e) => setPassword(e.target.value)}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        {Visibility ? (
+                          <VisibilityIcon
+                            className="text-dark"
+                            onClick={handleVisibilityof}
+                          />
+                        ) : (
+                          <VisibilityOffIcon
+                            className="text-dark"
+                            onClick={handleVisibility}
+                          />
+                        )}
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Row>
+              <Row className="mb-3 mt-2 m-auto">
                 <Button variant="light" onClick={loginUser}>
                   Login
                 </Button>{" "}
               </Row>
-              <Row className="mb-3 mt-2">
+              <Row className="mb-3 mt-2 m-auto">
                 <Link to="/Signup">
                   <p className="m-2">
-                    If your new to srimagicprintz? create account
+                    If your new to srimagicprintz? craeate account
                   </p>
                 </Link>
               </Row>

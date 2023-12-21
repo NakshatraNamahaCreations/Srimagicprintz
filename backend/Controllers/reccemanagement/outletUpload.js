@@ -1,6 +1,6 @@
 const outletBoardModal = require("../../Model/Reccemanagement/outletUpload");
 const { mongoose } = require("mongoose");
-
+const RecceModel = require("../../Model/Reccemanagement/recce");
 class outLetBoardManagement {
   // mltiple boards old
   // async addOutlet(req, res) {
@@ -77,7 +77,18 @@ class outLetBoardManagement {
       });
 
       const save = await newOutlet.save();
+      if (jobStatus) {
+        const recceUpdate = await RecceModel.findOneAndUpdate(
+          { outletShopId },
+          { RecceStatus: "Completed" },
+          { new: true }
+        );
 
+        if (!recceUpdate) {
+          console.error("RecceModel not found for outletShopId:", outletShopId);
+          return res.status(404).json({ error: "RecceModel not found" });
+        }
+      }
       return res
         .status(200)
         .json({ success: "Thanks for completing the job", data: save });

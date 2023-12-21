@@ -4,18 +4,11 @@ const mongoose = require("mongoose");
 
 const RecceModel = new mongoose.Schema(
   {
-    BrandOnerName: { type: String },
-    GSTNumber: { type: Number },
-    unit: { type: String },
-    height: { type: Number },
-    width: { type: Number },
-    date: { type: Date },
-    InstalationGroup: { type: Array },
     BrandId: { type: String },
     BrandName: { type: String },
     ClientName: { type: String },
     ShopName: { type: String },
-    OutletArea: { type: String },
+    outletName: { type: Array },
     OutlateFabricationNeed: { type: String },
     OutlateFabricationDeliveryType: { type: String },
     OutletCity: { type: String },
@@ -31,11 +24,19 @@ const RecceModel = new mongoose.Schema(
     reccewidth: { type: String },
     recceUnit: { type: String },
     reccedesign: { type: String },
+    BrandOnerName: { type: String },
+    OutletArea: { type: String },
+    GSTNumber: { type: Number },
+    unit: { type: String },
+    height: { type: Number },
+    width: { type: Number },
+    date: { type: Date },
+    InstalationGroup: { type: Array },
     vendor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Vendor",
     },
-    outletName: { type: Array },
+
     category: { type: String },
     Designstatus: { type: String },
     printingStatus: { type: String },
@@ -74,17 +75,16 @@ const RecceModel = new mongoose.Schema(
     latitude: {
       type: String,
     },
-   
+
     longitude: {
       type: String,
     },
-    State:{
-      type:String
+    State: {
+      type: String,
     },
-    PartnerCode:{
-      type:String
-    }
-    
+    PartnerCode: {
+      type: String,
+    },
   },
 
   { timestamps: true }

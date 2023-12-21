@@ -13,6 +13,7 @@ const outletBoardUpload = new mongoose.Schema(
     ouletBannerImage: String,
     remark: String,
     jobStatus: Boolean,
+    jobCancel: Boolean,
     boardType: String,
     gstNumber: String,
     vendorId: String,
