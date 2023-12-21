@@ -646,7 +646,7 @@ export default function ReceeManagement() {
             statusCounts.pending++;
           } else if (OutletDoned && OutletDoned.jobStatus === true) {
             statusCounts.completed++;
-          } else if (OutletDoned && OutletDoned.jobCancel === true) {
+          } else if (outlet.RecceStatus === "Cancelled") {
             statusCounts.cancelled++;
           }
         });
@@ -727,25 +727,30 @@ export default function ReceeManagement() {
 
           for (const outl of OutletDoned) {
             if (outl?.jobStatus === true) {
-            extractedData.push({
-              "Outlate Name": outlet.ShopName || null,
-              "Outlet Address": outlet.OutletAddress || null,
-              "Outlet Contact Number": outlet.OutletContactNumber || null,
-              "Board Type": outl.boardType,
-              "GST Number": !outlet.GSTNumber
-                ? outl.gstNumber
-                : outlet.GSTNumber,
-              "Media .": outl.category || null,
-              "A Height": `${outl.height} ${outl.unitsOfMeasurment} ` || null,
-              "A Width": `${outl.width} ${outl.unitsOfMeasurment} ` || null,
-              "No.Quantity": outl.quantity || null,
-              "R Height":
-                `${convertToFeet(outl.height, outl.unitsOfMeasurment)} feet ` ||
-                null,
-              "R Width":
-                `${convertToFeet(outl.width, outl.unitsOfMeasurment)} feet ` ||
-                null,
-            })}
+              extractedData.push({
+                "Outlate Name": outlet.ShopName || null,
+                "Outlet Address": outlet.OutletAddress || null,
+                "Outlet Contact Number": outlet.OutletContactNumber || null,
+                "Board Type": outl.boardType,
+                "GST Number": !outlet.GSTNumber
+                  ? outl.gstNumber
+                  : outlet.GSTNumber,
+                "Media .": outl.category || null,
+                "A Height": `${outl.height} ${outl.unitsOfMeasurment} ` || null,
+                "A Width": `${outl.width} ${outl.unitsOfMeasurment} ` || null,
+                "No.Quantity": outl.quantity || null,
+                "R Height":
+                  `${convertToFeet(
+                    outl.height,
+                    outl.unitsOfMeasurment
+                  )} feet ` || null,
+                "R Width":
+                  `${convertToFeet(
+                    outl.width,
+                    outl.unitsOfMeasurment
+                  )} feet ` || null,
+              });
+            }
           }
         }
 
